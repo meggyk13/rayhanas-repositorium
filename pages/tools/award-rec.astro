@@ -1,0 +1,294 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Award Recommendation Helper" description="A guided worksheet for writing a strong SCA award recommendation, in your own words.">
+  <div class="wrap">
+    <header class="entry-header prose">
+      <p class="meta">Tool</p>
+      <h1>Award Recommendation Helper</h1>
+      <p>
+        Awards happen because someone writes in. Anyone can recommend anyone —
+        you don't need to be a member, you don't need to hold the award
+        yourself, and you can recommend a friend. This worksheet walks you
+        through the parts of a strong recommendation and assembles your answers
+        into a letter you can paste into your kingdom's recommendation form
+        (<a href="https://wp.sca-caid.org/award-recommendations/">Caid's is here</a>).
+        Every word of the case is yours; nothing you type is saved or sent anywhere.
+      </p>
+    </header>
+
+    <div class="tool-panel">
+      <h2 style="margin-top: 0;">Who you're recommending</h2>
+      <div class="field-grid">
+        <div>
+          <label for="rec-name">Their SCA name</label>
+          <input type="text" id="rec-name" autocomplete="off" />
+        </div>
+        <div>
+          <label for="rec-group">Their local group</label>
+          <input type="text" id="rec-group" autocomplete="off" placeholder="Barony, shire, canton…" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div>
+          <label for="rec-award">Award</label>
+          <input type="text" id="rec-award" autocomplete="off" />
+          <p class="hint-line">
+            Not sure which? Browse your kingdom's award list
+            (<a href="https://wp.sca-caid.org/award-recommendations/">Caid's is here</a>)
+            and check their Order of Precedence entry so you don't recommend
+            one they already hold.
+          </p>
+        </div>
+        <div>
+          <label for="rec-type">What kind of work is this for?</label>
+          <select id="rec-type">
+            <option value="service">Service</option>
+            <option value="ans">Arts &amp; Sciences</option>
+            <option value="martial">Martial</option>
+            <option value="general" selected>Not sure / mixed</option>
+          </select>
+        </div>
+        <div>
+          <label for="rec-kingdom">Kingdom</label>
+          <input type="text" id="rec-kingdom" autocomplete="off" placeholder="Caid, Atenveldt, An Tir…" />
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-panel">
+      <h2 style="margin-top: 0;">Make the case</h2>
+      <p class="hint-line" style="margin-top: 0;">
+        The Crown reads many recommendations. Specifics are what make one
+        stick: names of events, projects, offices, and dates beat "they're
+        always so helpful" every time.
+      </p>
+
+      <label for="case-what">What do they do?</label>
+      <p class="hint-line" id="hint-what"></p>
+      <div class="starter-row" id="starters-what"></div>
+      <textarea id="case-what" rows="5"></textarea>
+
+      <label for="case-impact">Why does it matter?</label>
+      <p class="hint-line" id="hint-impact"></p>
+      <div class="starter-row" id="starters-impact"></div>
+      <textarea id="case-impact" rows="4"></textarea>
+
+      <label for="case-where">Where can the Crown see them?</label>
+      <p class="hint-line">
+        Upcoming events they'll attend. Royalty try to give awards where the
+        recipient (and their friends) will be present.
+      </p>
+      <div class="starter-row" id="starters-where"></div>
+      <textarea id="case-where" rows="2"></textarea>
+    </div>
+
+    <div class="tool-panel">
+      <h2 style="margin-top: 0;">About you</h2>
+      <div class="field-grid">
+        <div>
+          <label for="from-name">Your SCA name (or legal name)</label>
+          <input type="text" id="from-name" autocomplete="off" />
+        </div>
+        <div>
+          <label for="from-rel">How you know them</label>
+          <input type="text" id="from-rel" autocomplete="off" placeholder="Fellow guild member, their local officer…" />
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-panel">
+      <h2 style="margin-top: 0;">Before you send it</h2>
+      <ul class="check-list" id="self-check">
+        <li><label><input type="checkbox" /> I named at least one specific event, project, or office</label></li>
+        <li><label><input type="checkbox" /> I said roughly how long or how often they've done this</label></li>
+        <li><label><input type="checkbox" /> Someone who's never met them would understand what they did</label></li>
+        <li><label><input type="checkbox" /> I checked that they don't already hold this award</label></li>
+      </ul>
+      <p class="hint-line" id="length-note"></p>
+    </div>
+
+    <div class="tool-panel">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem;">
+        <h2 style="margin: 0;">Your letter</h2>
+        <button class="btn" id="copy-btn">Copy letter</button>
+      </div>
+      <pre id="letter" class="letter"></pre>
+      <p class="hint-line">
+        Paste this into your kingdom's recommendation form
+        (<a href="https://wp.sca-caid.org/award-recommendations/">Caid's is here</a>),
+        or adapt the greeting if the form asks for the body only.
+        Peerage orders (Laurel, Pelican, Chivalry, Defense) often have their
+        own secretaries — your kingdom's award page shows where each one goes.
+      </p>
+    </div>
+  </div>
+
+  <style>
+    .hint-line { font-size: 0.85rem; color: var(--ink-soft); margin: 0.25rem 0 1rem; }
+    .tool-panel textarea {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border: 1px solid var(--ink-soft);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: var(--font-body);
+      background: #fff;
+      resize: vertical;
+    }
+    .starter-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.5rem; }
+    .starter {
+      font-family: var(--font-utility);
+      font-size: 0.75rem;
+      padding: 0.25rem 0.7rem;
+      border: 1px dashed var(--turquoise);
+      border-radius: 999px;
+      background: none;
+      color: var(--turquoise);
+      cursor: pointer;
+    }
+    .starter:hover { background: var(--turquoise); color: var(--parchment); }
+    .check-list { list-style: none; padding: 0; margin: 0; }
+    .check-list li { padding: 0.25rem 0; }
+    .check-list input { width: auto; margin-right: 0.5rem; }
+    .letter {
+      white-space: pre-wrap;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      background: var(--parchment);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      padding: 1.25rem;
+      min-height: 8rem;
+    }
+  </style>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const HINTS = {
+      service: {
+        what: 'Offices held, events they ran or staffed, the unglamorous jobs they keep showing up for. Name the events and roles, and say for how long.',
+        impact: 'Who is better off because of this work — their branch, newcomers, an office, the kingdom? What would not have happened without them?',
+      },
+      ans: {
+        what: 'What they make, research, teach, or perform. Name specific projects, classes taught, competitions or displays entered.',
+        impact: 'How their work spreads — students taught, documentation shared, arts brought to events, others inspired to try.',
+      },
+      martial: {
+        what: 'Their forms, tournaments and wars fought, marshaling, teaching at practices. Include conduct on the field, not just wins.',
+        impact: 'How they make the fighting community better — training newcomers, loaner gear, chivalry and courtesy off the field.',
+      },
+      general: {
+        what: 'What you actually see them do. Name specific events, projects, or roles, and say roughly when and how often.',
+        impact: 'Why the kingdom is better for it. Who benefits, and what would be missing without them?',
+      },
+    };
+
+    const STARTERS = {
+      service: {
+        what: ['For the past ___ years, they have ', 'At [event], they ', 'They currently serve as '],
+        impact: ['Because of their work, ', 'Newcomers to our group ', 'Without them, '],
+      },
+      ans: {
+        what: ['Their work in ___ includes ', 'They taught ___ at ', 'At [competition], they entered '],
+        impact: ['Their teaching has ', 'Their documentation helps others ', 'Because of their example, '],
+      },
+      martial: {
+        what: ['On the field at [event], they ', 'They regularly teach at ___ practice, ', 'They have marshaled at '],
+        impact: ['New fighters ', 'Their courtesy on and off the field ', 'Our practice runs because '],
+      },
+      general: {
+        what: ['I first noticed their work when ', 'At [event], they ', 'For the past ___ years, they have '],
+        impact: ['Because of them, ', 'Our branch is better for ', 'Without them, '],
+      },
+    };
+    const WHERE_STARTERS = ['They plan to attend ', 'They can usually be found at '];
+
+    function renderStarters(rowId, textareaId, starters) {
+      const row = $(rowId);
+      row.innerHTML = '';
+      starters.forEach((text) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'starter';
+        b.textContent = text.trim() + '…';
+        b.addEventListener('click', () => {
+          const ta = $(textareaId);
+          const sep = ta.value && !ta.value.endsWith('\n') ? '\n' : '';
+          ta.value += sep + text;
+          ta.focus();
+          assemble();
+        });
+        row.appendChild(b);
+      });
+    }
+
+    function updateHints() {
+      const type = $('rec-type').value;
+      const h = HINTS[type];
+      $('hint-what').textContent = h.what;
+      $('hint-impact').textContent = h.impact;
+      renderStarters('starters-what', 'case-what', STARTERS[type].what);
+      renderStarters('starters-impact', 'case-impact', STARTERS[type].impact);
+      renderStarters('starters-where', 'case-where', WHERE_STARTERS);
+    }
+
+    function assemble() {
+      const name = $('rec-name').value.trim() || '[their name]';
+      const group = $('rec-group').value.trim();
+      const award = $('rec-award').value.trim() || '[award]';
+      const what = $('case-what').value.trim();
+      const impact = $('case-impact').value.trim();
+      const where = $('case-where').value.trim();
+      const from = $('from-name').value.trim() || '[your name]';
+      const rel = $('from-rel').value.trim();
+
+      const kingdom = $('rec-kingdom').value.trim();
+      const parts = [];
+      parts.push(
+        (kingdom
+          ? 'Unto Their Royal Majesties of ' + kingdom
+          : 'Unto the Crown') + ', greetings from ' + from + '.'
+      );
+      parts.push(
+        'I write to recommend ' + name + (group ? ' of ' + group : '') +
+        ' for ' + award + '.'
+      );
+      if (what) parts.push(what);
+      if (impact) parts.push(impact);
+      if (where) parts.push('The Crown may see them at: ' + where);
+      parts.push('In service,\n' + from + (rel ? '\n(' + rel + ')' : ''));
+
+      $('letter').textContent = parts.join('\n\n');
+
+      const words = (what + ' ' + impact).split(/\s+/).filter(Boolean).length;
+      $('length-note').textContent =
+        words === 0 ? '' :
+        words < 40
+          ? 'The case is ' + words + ' words so far. Short is fine, but one or two more specifics usually helps.'
+          : 'The case is ' + words + ' words. Good length — specific beats long.';
+    }
+
+    ['rec-name', 'rec-group', 'rec-award', 'rec-kingdom', 'case-what', 'case-impact', 'case-where', 'from-name', 'from-rel']
+      .forEach((id) => $(id).addEventListener('input', assemble));
+    $('rec-type').addEventListener('change', () => { updateHints(); assemble(); });
+
+    $('copy-btn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText($('letter').textContent);
+        $('copy-btn').textContent = 'Copied';
+        setTimeout(() => ($('copy-btn').textContent = 'Copy letter'), 1500);
+      } catch {
+        const r = document.createRange();
+        r.selectNodeContents($('letter'));
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+      }
+    });
+
+    updateHints();
+    assemble();
+  </script>
+</Base>

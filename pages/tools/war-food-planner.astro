@@ -1,0 +1,797 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="War Food Planner" description="Plan camp meals by day and slot, scaled to your party, with a shopping list and cooler strategy.">
+<div class="controls">
+    <span class="tag">Caid · Camp Kitchen</span>
+    <h1>War Food Planner</h1>
+    <p class="sub">Set your party size and the number of days on site, then assign each meal slot. It builds one shopping list, split by what needs to be eaten first and what can ride in the pantry box.</p>
+    <div class="setup-row">
+      <div class="field">
+        <label for="partySize">People</label>
+        <input type="number" id="partySize" min="1" value="4">
+      </div>
+      <div class="field">
+        <label for="numDays">Days on site</label>
+        <input type="number" id="numDays" min="1" max="14" value="4">
+      </div>
+    </div>
+  </div>
+
+  <div class="builder">
+    <div class="builder-head" id="builderHead">
+      <div>
+        <h3>Add a custom meal</h3>
+        <span class="note">Not saved — gone if you reload or leave this page.</span>
+      </div>
+      <span class="builder-toggle" id="builderToggleLabel">+ Open</span>
+    </div>
+    <div class="builder-body" id="builderBody">
+      <div class="builder-row">
+        <div class="field">
+          <label for="cmSlot">Meal slot</label>
+          <select id="cmSlot">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cmName">Meal name</label>
+          <input type="text" id="cmName" placeholder="e.g. Lamb kebabs">
+        </div>
+        <div class="checkbox-field">
+          <input type="checkbox" id="cmPerishable" checked>
+          <label for="cmPerishable">Needs ice / fridge</label>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);">Ingredients (amount is per person)</label>
+        <div class="ing-list" id="ingList"></div>
+        <div style="margin-top:10px;">
+          <button type="button" class="btn btn-ghost" id="addIngBtn">+ Add ingredient</button>
+        </div>
+      </div>
+
+      <div class="builder-actions">
+        <button type="button" class="btn btn-solid" id="saveMealBtn">Add meal to today's list</button>
+      </div>
+
+      <div class="custom-meal-list" id="customMealList"></div>
+    </div>
+  </div>
+
+  <div class="planner-wrap" id="dayCards"></div>
+
+  <div class="list-head">
+    <h2>Shopping list</h2>
+    <p>Quantities are totaled across every meal you assigned, scaled to your party size.</p>
+  </div>
+
+  <div class="list-grid">
+    <div class="list-panel perishable">
+      <h3>Perishable — buy fresh, pack iced</h3>
+      <p class="hint">Listed with the days they're needed. Load the cooler so day-1 items are on top.</p>
+      <div id="perishableList"></div>
+    </div>
+    <div class="list-panel shelf">
+      <h3>Shelf-stable / pantry box</h3>
+      <p class="hint">No ice required — pack these loose or in a bin.</p>
+      <div id="shelfList"></div>
+    </div>
+  </div>
+
+  <div class="strategy" id="strategyBox">
+    <h3>Ice strategy</h3>
+    <ul id="strategyList"></ul>
+  </div>
+
+  <button class="print-btn" onclick="window.print()">Print this plan</button>
+</Base>
+
+<style is:global>
+
+  :root {
+    --paper: #EFE7D3;
+    --paper-raised: #F6F0E1;
+    --ink: #201E18;
+    --ink-soft: #5a5442;
+    --cobalt-deep: #10304E;
+    --turquoise: #26857B;
+    --turquoise-soft: #E4EFEC;
+    --coral: #B23A2C;
+    --coral-soft: #F6E7E3;
+    --gold: #B08A2E;
+    --gold-bright: #D4A93C;
+    --line: #d9cfb3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    padding: 40px 16px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .controls {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(38,133,123,0.22), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(178,58,44,0.16), transparent 45%),
+      var(--cobalt-deep);
+    color: var(--paper);
+    border-radius: 130px 130px 10px 10px;
+    border: 2px solid var(--gold);
+    padding: 58px 30px 34px;
+    max-width: 860px;
+    width: 100%;
+    position: relative;
+  }
+  .controls::before {
+    content: "";
+    position: absolute;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    box-shadow: 0 0 0 3px var(--cobalt-deep), 0 0 0 5px var(--gold);
+  }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    text-align: center;
+    display: block;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 6px 0 4px;
+  }
+  .sub {
+    text-align: center;
+    color: #cdd9e2;
+    font-size: 0.95rem;
+    max-width: 520px;
+    margin: 0 auto 30px;
+    line-height: 1.5;
+  }
+
+  .setup-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 150px;
+  }
+  .field label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+  }
+  .field input {
+    font-family: 'Karla', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    color: var(--paper);
+  }
+  .field input:focus { outline: 2px solid var(--gold-bright); outline-offset: 1px; }
+
+  .planner-wrap { max-width: 860px; width: 100%; display: flex; flex-direction: column; gap: 18px; }
+
+  .day-card {
+    background: var(--paper-raised);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .day-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 5px;
+    background: var(--turquoise);
+  }
+  .day-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--cobalt-deep);
+    margin: 0 0 14px;
+  }
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+  }
+  .slot label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+  select, input[type=text], input[type=number] {
+    width: 100%;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.92rem;
+    padding: 9px 10px;
+    border-radius: 7px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+  }
+  select:focus, input:focus { outline: 2px solid var(--turquoise); outline-offset: 1px; }
+
+  .list-head {
+    max-width: 860px;
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .list-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--cobalt-deep);
+    margin: 0 0 6px;
+  }
+  .list-head p {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  .list-grid {
+    max-width: 860px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) { .list-grid { grid-template-columns: 1fr; } }
+
+  .list-panel {
+    background: var(--paper-raised);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1.5px solid var(--line);
+  }
+  .list-panel.perishable { border-top: 5px solid var(--coral); }
+  .list-panel.shelf { border-top: 5px solid var(--turquoise); }
+  .list-panel h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .list-panel .hint {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+    line-height: 1.4;
+  }
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-name { font-weight: 600; }
+  .item-days {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .item-amt {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .empty-note {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .strategy {
+    max-width: 860px;
+    width: 100%;
+    background: var(--cobalt-deep);
+    color: var(--paper);
+    border-radius: 14px;
+    padding: 20px 24px;
+    border: 1.5px solid var(--gold);
+  }
+  .strategy h3 {
+    font-family: 'Fraunces', serif;
+    color: var(--gold-bright);
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+  }
+  .strategy ul { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 0.9rem; }
+
+  /* ---- custom meal builder ---- */
+  .builder {
+    max-width: 860px;
+    width: 100%;
+    background: var(--paper-raised);
+    border: 1.5px dashed var(--gold);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .builder-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .builder-head h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    color: var(--cobalt-deep);
+    margin: 0;
+  }
+  .builder-head .note {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .builder-toggle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--turquoise);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .builder-body { margin-top: 18px; display: none; flex-direction: column; gap: 14px; }
+  .builder-body.open { display: flex; }
+  .builder-row { display: flex; flex-wrap: wrap; gap: 14px; }
+  .builder-row .field { flex: 1; min-width: 160px; }
+  .builder-row .field label {
+    color: var(--ink-soft);
+  }
+  .builder-row .field input, .builder-row .field select {
+    color: var(--ink);
+    background: #fff;
+    border: 1.5px solid var(--line);
+  }
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+  }
+  .checkbox-field input { width: auto; }
+  .checkbox-field label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .ing-list { display: flex; flex-direction: column; gap: 10px; }
+  .ing-row { display: flex; gap: 10px; align-items: center; }
+  .ing-row .field { flex: 2; min-width: 0; }
+  .ing-row .field.amt { flex: 1; }
+  .ing-row .field.unit { flex: 1; }
+  .ing-row .field label { display: none; }
+  .ing-remove {
+    background: none;
+    border: none;
+    color: var(--coral);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 6px;
+  }
+
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1.5px solid var(--turquoise);
+    color: var(--turquoise);
+  }
+  .btn-ghost:hover { background: var(--turquoise-soft); }
+  .btn-solid {
+    background: var(--turquoise);
+    color: #fff;
+  }
+  .btn-solid:hover { background: #1f6b62; }
+  .builder-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .custom-meal-list { margin-top: 6px; display: flex; flex-direction: column; gap: 8px; }
+  .custom-meal-chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--turquoise-soft);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  .custom-meal-chip button {
+    background: none;
+    border: none;
+    color: var(--coral);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+  }
+
+  .print-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--turquoise);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #1f6b62; }
+
+  @media print {
+    .builder, .print-btn, .controls .field input { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { padding: 10px; }
+    select { border: none; background: none; -webkit-appearance: none; appearance: none; }
+  }
+
+</style>
+
+<script>
+
+// ---- meal library ----
+// amt = quantity per person, unit = display unit, perishable = needs ice/fridge
+const LIBRARY = {
+  breakfast: [
+    { id:'oatmeal', name:'Oatmeal & dried fruit', perishable:false,
+      ing:[{n:'Oats',a:0.5,u:'cup'},{n:'Dried fruit',a:2,u:'tbsp'},{n:'Brown sugar',a:1,u:'tbsp'}] },
+    { id:'cereal', name:'Cereal & milk', perishable:true,
+      ing:[{n:'Cereal',a:1,u:'cup'},{n:'Milk',a:1,u:'cup'}] },
+    { id:'burrito', name:'Breakfast burritos', perishable:true,
+      ing:[{n:'Eggs',a:2,u:'ct'},{n:'Tortillas',a:2,u:'ct'},{n:'Breakfast sausage',a:0.15,u:'lb'},{n:'Shredded cheese',a:0.1,u:'lb'}] },
+    { id:'baconeggs', name:'Bacon & eggs', perishable:true,
+      ing:[{n:'Bacon',a:0.2,u:'lb'},{n:'Eggs',a:2,u:'ct'}] },
+    { id:'yogurtgranola', name:'Yogurt & granola', perishable:true,
+      ing:[{n:'Yogurt',a:1,u:'cup'},{n:'Granola',a:0.5,u:'cup'},{n:'Fresh fruit',a:0.5,u:'cup'}] },
+    { id:'pancakes', name:'Pancakes', perishable:true,
+      ing:[{n:'Pancake mix',a:0.5,u:'cup'},{n:'Eggs',a:1,u:'ct'},{n:'Milk',a:0.5,u:'cup'},{n:'Syrup',a:2,u:'tbsp'}] },
+    { id:'hash', name:'Breakfast hash', perishable:true,
+      ing:[{n:'Potatoes',a:0.5,u:'lb'},{n:'Breakfast sausage',a:0.15,u:'lb'},{n:'Peppers & onion',a:0.5,u:'cup'}] },
+  ],
+  lunch: [
+    { id:'sandwich', name:'Deli sandwiches', perishable:true,
+      ing:[{n:'Bread',a:2,u:'slices'},{n:'Deli meat',a:0.15,u:'lb'},{n:'Sliced cheese',a:0.05,u:'lb'}] },
+    { id:'pastasalad', name:'Pasta salad', perishable:true,
+      ing:[{n:'Pasta',a:0.25,u:'lb'},{n:'Mixed veg',a:0.5,u:'cup'},{n:'Dressing',a:2,u:'tbsp'}] },
+    { id:'wraps', name:'Wraps', perishable:true,
+      ing:[{n:'Tortillas',a:2,u:'ct'},{n:'Deli meat or hummus',a:0.15,u:'lb'},{n:'Lettuce',a:0.25,u:'cup'}] },
+    { id:'trailjerky', name:'Trail mix & jerky', perishable:false,
+      ing:[{n:'Trail mix',a:0.5,u:'cup'},{n:'Jerky',a:0.1,u:'lb'}] },
+    { id:'quesadilla', name:'Quesadillas', perishable:true,
+      ing:[{n:'Tortillas',a:2,u:'ct'},{n:'Shredded cheese',a:0.15,u:'lb'},{n:'Beans (opt.)',a:0.25,u:'cup'}] },
+    { id:'soup', name:'Soup & crackers', perishable:false,
+      ing:[{n:'Canned soup',a:1,u:'can'},{n:'Crackers',a:6,u:'ct'}] },
+    { id:'charcuterie', name:'Charcuterie plate', perishable:true,
+      ing:[{n:'Cured meats',a:0.15,u:'lb'},{n:'Cheese',a:0.1,u:'lb'},{n:'Crackers',a:6,u:'ct'},{n:'Fruit or olives',a:0.25,u:'cup'}] },
+  ],
+  dinner: [
+    { id:'tacos', name:'Tacos', perishable:true,
+      ing:[{n:'Ground beef',a:0.33,u:'lb'},{n:'Tortillas',a:3,u:'ct'},{n:'Shredded cheese',a:0.1,u:'lb'},{n:'Salsa',a:0.25,u:'cup'}] },
+    { id:'chili', name:'Chili', perishable:true,
+      ing:[{n:'Ground beef',a:0.33,u:'lb'},{n:'Canned beans',a:0.5,u:'cup'},{n:'Canned tomatoes',a:0.5,u:'cup'}] },
+    { id:'grilledchix', name:'Grilled chicken & veg', perishable:true,
+      ing:[{n:'Chicken thighs',a:0.5,u:'lb'},{n:'Mixed veg',a:1,u:'cup'}] },
+    { id:'stirfry', name:'Stir fry', perishable:true,
+      ing:[{n:'Chicken or tofu',a:0.33,u:'lb'},{n:'Stir fry veg',a:1,u:'cup'},{n:'Rice',a:0.5,u:'cup'},{n:'Stir fry sauce',a:2,u:'tbsp'}] },
+    { id:'burgers', name:'Burgers & dogs', perishable:true,
+      ing:[{n:'Burger patties or dogs',a:1,u:'ct'},{n:'Buns',a:1,u:'ct'},{n:'Condiments',a:1,u:'serv'}] },
+    { id:'foilpack', name:'Foil packet sausage & veg', perishable:true,
+      ing:[{n:'Sausage',a:0.33,u:'lb'},{n:'Potatoes',a:0.5,u:'lb'},{n:'Mixed veg',a:1,u:'cup'}] },
+    { id:'canstew', name:'Canned / shelf-stable stew', perishable:false,
+      ing:[{n:'Canned stew',a:1,u:'can'}] },
+    { id:'spaghetti', name:'Spaghetti & meatballs', perishable:true,
+      ing:[{n:'Pasta',a:0.25,u:'lb'},{n:'Meatballs',a:0.33,u:'lb'},{n:'Marinara sauce',a:0.5,u:'cup'}] },
+    { id:'fajitas', name:'Fajitas', perishable:true,
+      ing:[{n:'Chicken or steak',a:0.4,u:'lb'},{n:'Peppers & onion',a:1,u:'cup'},{n:'Tortillas',a:3,u:'ct'}] },
+    { id:'curry', name:'Curry & rice', perishable:true,
+      ing:[{n:'Chicken or chickpeas',a:0.4,u:'lb'},{n:'Curry sauce',a:0.5,u:'cup'},{n:'Rice',a:0.5,u:'cup'}] },
+    { id:'shepherdspie', name:"Shepherd's pie", perishable:true,
+      ing:[{n:'Ground lamb or beef',a:0.33,u:'lb'},{n:'Mashed potatoes',a:0.75,u:'cup'},{n:'Mixed veg',a:0.5,u:'cup'}] },
+    { id:'grilledfish', name:'Grilled fish & veg', perishable:true,
+      ing:[{n:'Fish fillet',a:0.4,u:'lb'},{n:'Mixed veg',a:1,u:'cup'}] },
+  ],
+  snack: [
+    { id:'trailmix', name:'Trail mix', perishable:false, ing:[{n:'Trail mix',a:0.5,u:'cup'}] },
+    { id:'granola', name:'Granola bars', perishable:false, ing:[{n:'Granola bars',a:1,u:'ct'}] },
+    { id:'chipsdip', name:'Chips & dip', perishable:true, ing:[{n:'Chips',a:1,u:'oz'},{n:'Dip',a:2,u:'tbsp'}] },
+    { id:'freshfruit', name:'Fresh fruit', perishable:true, ing:[{n:'Fresh fruit',a:1,u:'ct'}] },
+    { id:'veghummus', name:'Veggies & hummus', perishable:true, ing:[{n:'Veggie sticks',a:1,u:'cup'},{n:'Hummus',a:0.25,u:'cup'}] },
+    { id:'cheesecrackers', name:'Cheese & crackers', perishable:true, ing:[{n:'Cheese',a:0.08,u:'lb'},{n:'Crackers',a:8,u:'ct'}] },
+    { id:'popcorn', name:'Popcorn', perishable:false, ing:[{n:'Popcorn',a:1,u:'cup'}] },
+  ]
+};
+
+const SPECIALS = [
+  { id:'feast', name:'— Feast provided —' },
+  { id:'merchant', name:'— Merchant row / eating out —' },
+  { id:'skip', name:'— Skip / not eating —' },
+];
+
+const UNITS = ['lb','oz','g','cup','tbsp','tsp','ct','slices','can','serv'];
+const SLOTS = ['breakfast','lunch','dinner','snack'];
+const SLOT_LABEL = { breakfast:'Breakfast', lunch:'Lunch', dinner:'Dinner', snack:'Snack' };
+
+const partyInput = document.getElementById('partySize');
+const daysInput = document.getElementById('numDays');
+const dayCards = document.getElementById('dayCards');
+
+let assignments = {};
+let hasCustomMeals = false;
+
+// ---------- day grid ----------
+function buildOptions(slot) {
+  return LIBRARY[slot].map(m => `<option value="${m.id}">${m.name}</option>`).join('')
+    + SPECIALS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function refreshAllSelectOptions() {
+  document.querySelectorAll('select[data-slot]').forEach(sel => {
+    const current = sel.value;
+    sel.innerHTML = buildOptions(sel.dataset.slot);
+    if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  });
+}
+
+function renderDays() {
+  const days = Math.max(1, parseInt(daysInput.value) || 1);
+  dayCards.innerHTML = '';
+  for (let d = 1; d <= days; d++) {
+    if (!assignments[d]) assignments[d] = { breakfast:'oatmeal', lunch:'sandwich', dinner:'tacos', snack:'trailmix' };
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    card.innerHTML = `
+      <div class="day-title">Day ${d}</div>
+      <div class="slots">
+        ${SLOTS.map(slot => `
+          <div class="slot">
+            <label for="d${d}-${slot}">${SLOT_LABEL[slot]}</label>
+            <select id="d${d}-${slot}" data-day="${d}" data-slot="${slot}">
+              ${buildOptions(slot)}
+            </select>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    dayCards.appendChild(card);
+    SLOTS.forEach(slot => {
+      const sel = card.querySelector(`#d${d}-${slot}`);
+      if ([...sel.options].some(o => o.value === assignments[d][slot])) sel.value = assignments[d][slot];
+      sel.addEventListener('change', e => {
+        assignments[d][slot] = e.target.value;
+        renderList();
+      });
+    });
+  }
+  Object.keys(assignments).forEach(k => { if (parseInt(k) > days) delete assignments[k]; });
+  renderList();
+}
+
+function findMeal(slot, id) {
+  return LIBRARY[slot].find(m => m.id === id);
+}
+
+function renderList() {
+  const party = Math.max(1, parseInt(partyInput.value) || 1);
+  const perishable = {};
+  const shelf = {};
+  let usedDaysPerishable = [];
+
+  Object.keys(assignments).sort((a,b)=>a-b).forEach(day => {
+    SLOTS.forEach(slot => {
+      const id = assignments[day][slot];
+      const meal = findMeal(slot, id);
+      if (!meal) return;
+      meal.ing.forEach(item => {
+        const key = item.n + '|' + item.u;
+        const bucket = meal.perishable ? perishable : shelf;
+        if (!bucket[key]) bucket[key] = { name:item.n, unit:item.u, amt:0, days:new Set() };
+        bucket[key].amt += item.a * party;
+        bucket[key].days.add(day);
+        if (meal.perishable) usedDaysPerishable.push(parseInt(day));
+      });
+    });
+  });
+
+  const fmt = n => (Math.round(n * 100) / 100).toString();
+  const dayLabel = days => 'Day ' + [...days].sort((a,b)=>a-b).join(', ');
+
+  function renderPanel(bucket) {
+    const keys = Object.keys(bucket).sort((a,b)=> bucket[a].name.localeCompare(bucket[b].name));
+    if (keys.length === 0) return '<p class="empty-note">Nothing assigned yet.</p>';
+    return keys.map(k => {
+      const it = bucket[k];
+      return `<div class="item-row">
+        <span class="item-name">${it.name}<span class="item-days">${dayLabel(it.days)}</span></span>
+        <span class="item-amt">${fmt(it.amt)} ${it.unit}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('perishableList').innerHTML = renderPanel(perishable);
+  document.getElementById('shelfList').innerHTML = renderPanel(shelf);
+
+  const strategyList = document.getElementById('strategyList');
+  const notes = [];
+  if (usedDaysPerishable.length) {
+    const minDay = Math.min(...usedDaysPerishable);
+    const maxDay = Math.max(...usedDaysPerishable);
+    notes.push(`Perishable meals span day ${minDay} through day ${maxDay} — pack the cooler in reverse order so day ${minDay} items sit on top.`);
+    if (maxDay - minDay >= 3) {
+      notes.push('Plan for a mid-week ice run if your cooler can\'t hold ' + (maxDay - minDay + 1) + ' days of fresh food.');
+    }
+  } else {
+    notes.push('No perishable meals assigned — no cooler required for food.');
+  }
+  const shelfCount = Object.keys(shelf).length;
+  if (shelfCount) notes.push('Shelf-stable items can be packed loose in a bin and grabbed any day.');
+  strategyList.innerHTML = notes.map(n => `<li>${n}</li>`).join('');
+}
+
+partyInput.addEventListener('input', renderList);
+daysInput.addEventListener('input', renderDays);
+
+// ---------- custom meal builder ----------
+const builderHead = document.getElementById('builderHead');
+const builderBody = document.getElementById('builderBody');
+const builderToggleLabel = document.getElementById('builderToggleLabel');
+const ingList = document.getElementById('ingList');
+const customMealListEl = document.getElementById('customMealList');
+let ingRowCount = 0;
+let customMeals = []; // {slot, id, name}
+
+builderHead.addEventListener('click', () => {
+  const open = builderBody.classList.toggle('open');
+  builderToggleLabel.textContent = open ? '– Close' : '+ Open';
+});
+
+function addIngredientRow(prefill) {
+  ingRowCount++;
+  const row = document.createElement('div');
+  row.className = 'ing-row';
+  row.innerHTML = `
+    <div class="field">
+      <label>Ingredient</label>
+      <input type="text" placeholder="Ingredient name" class="ing-name" value="${prefill ? prefill.n : ''}">
+    </div>
+    <div class="field amt">
+      <label>Amount</label>
+      <input type="number" step="0.05" placeholder="Amt/person" class="ing-amt" value="${prefill ? prefill.a : ''}">
+    </div>
+    <div class="field unit">
+      <label>Unit</label>
+      <select class="ing-unit">${UNITS.map(u => `<option value="${u}">${u}</option>`).join('')}</select>
+    </div>
+    <button type="button" class="ing-remove" title="Remove ingredient">×</button>
+  `;
+  if (prefill) row.querySelector('.ing-unit').value = prefill.u;
+  row.querySelector('.ing-remove').addEventListener('click', () => row.remove());
+  ingList.appendChild(row);
+}
+
+document.getElementById('addIngBtn').addEventListener('click', () => addIngredientRow());
+addIngredientRow(); // start with one row
+
+function setUnloadWarning() {
+  if (hasCustomMeals) return;
+  hasCustomMeals = true;
+  window.addEventListener('beforeunload', e => {
+    e.preventDefault();
+    e.returnValue = '';
+  });
+}
+
+document.getElementById('saveMealBtn').addEventListener('click', () => {
+  const slot = document.getElementById('cmSlot').value;
+  const name = document.getElementById('cmName').value.trim();
+  const perishable = document.getElementById('cmPerishable').checked;
+  const rows = [...ingList.querySelectorAll('.ing-row')];
+  const ing = rows.map(r => ({
+    n: r.querySelector('.ing-name').value.trim(),
+    a: parseFloat(r.querySelector('.ing-amt').value),
+    u: r.querySelector('.ing-unit').value
+  })).filter(i => i.n && !isNaN(i.a) && i.a > 0);
+
+  if (!name) { alert('Give the meal a name first.'); return; }
+  if (ing.length === 0) { alert('Add at least one ingredient with a name and amount.'); return; }
+
+  const id = 'custom-' + Date.now();
+  LIBRARY[slot].push({ id, name: name + ' (custom)', perishable, ing });
+  customMeals.push({ slot, id, name });
+  setUnloadWarning();
+  refreshAllSelectOptions();
+  renderCustomMealChips();
+
+  // reset form
+  document.getElementById('cmName').value = '';
+  ingList.innerHTML = '';
+  ingRowCount = 0;
+  addIngredientRow();
+});
+
+function renderCustomMealChips() {
+  if (customMeals.length === 0) { customMealListEl.innerHTML = ''; return; }
+  customMealListEl.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;">Added this session</div>'
+    + customMeals.map(m => `
+      <div class="custom-meal-chip">
+        <span>${SLOT_LABEL[m.slot]} — ${m.name}</span>
+        <button data-id="${m.id}" data-slot="${m.slot}">Remove</button>
+      </div>
+    `).join('');
+  customMealListEl.querySelectorAll('button[data-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { id, slot } = btn.dataset;
+      LIBRARY[slot] = LIBRARY[slot].filter(m => m.id !== id);
+      customMeals = customMeals.filter(m => m.id !== id);
+      // reset any day currently assigned to the removed meal back to the first library option
+      Object.keys(assignments).forEach(day => {
+        if (assignments[day][slot] === id) assignments[day][slot] = LIBRARY[slot][0].id;
+      });
+      refreshAllSelectOptions();
+      renderDays();
+      renderCustomMealChips();
+    });
+  });
+}
+
+renderDays();
+
+</script>

@@ -1,0 +1,273 @@
+/* ============================================================
+   Rayhana's Repositorium — design tokens
+   Palette drawn from 16th c. İznik ware: cobalt, turquoise,
+   bole red, and gold leaf on a parchment ground.
+   ============================================================ */
+
+:root {
+  --parchment: #f5eedc;
+  --parchment-deep: #eadfc6;
+  --panel: #fbf6e9;
+  --ink: #26304a;
+  --ink-soft: #56608a;
+  --cobalt: #1f4396;
+  --cobalt-deep: #16306e;
+  --turquoise: #2e8c8a;
+  --iznik-red: #a93b2a;
+  --gold: #c9a24b;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Karla', system-ui, sans-serif;
+  --font-utility: 'IBM Plex Mono', monospace;
+
+  --measure: 42rem;
+  --arch: 999px 999px 8px 8px; /* the arched frame radius */
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body { margin: 0; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--cobalt-deep);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+h1 { font-size: 2.6rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.9rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.35rem; margin: 2rem 0 0.5rem; }
+
+a { color: var(--cobalt); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--turquoise); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--turquoise);
+  outline-offset: 2px;
+}
+
+img { max-width: 100%; height: auto; }
+
+/* ---------- Layout shell ---------- */
+
+.wrap { max-width: 64rem; margin: 0 auto; padding: 0 1.25rem; }
+.prose { max-width: var(--measure); }
+
+.site-header {
+  background: var(--cobalt-deep);
+  color: var(--parchment);
+  border-bottom: 4px solid var(--gold);
+}
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.site-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--parchment);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.site-nav { display: flex; flex-wrap: wrap; gap: 1.25rem; font-family: var(--font-utility); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.12em; }
+.site-nav a { color: var(--parchment); text-decoration: none; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { border-bottom-color: var(--gold); color: #fff; }
+
+.site-footer {
+  margin-top: 5rem;
+  border-top: 4px solid var(--gold);
+  background: var(--cobalt-deep);
+  color: var(--parchment);
+  font-family: var(--font-utility);
+  font-size: 0.85rem;
+}
+.site-footer .wrap { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.site-footer a { color: var(--parchment); }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  background: var(--cobalt-deep);
+  padding: 4rem 1.25rem;
+}
+.hero-panel {
+  max-width: 46rem;
+  margin: 0 auto;
+  background: var(--parchment);
+  border: 1px solid var(--gold);
+  border-radius: var(--arch);
+  padding: 3rem 2.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+/* keystone diamond at the crown of the arch */
+.hero-panel::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: var(--turquoise);
+}
+.hero-panel p { color: var(--ink-soft); font-size: 1.1rem; margin-bottom: 0; }
+
+/* ---------- Illuminated section rule ---------- */
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 3rem 0 1.5rem;
+  border: 0;
+}
+.rule::before, .rule::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold));
+}
+.rule::after { background: linear-gradient(to left, transparent, var(--gold)); }
+.rule span {
+  width: 10px; height: 10px;
+  background: var(--turquoise);
+  transform: rotate(45deg);
+}
+
+/* ---------- Arched cards ---------- */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+  margin: 1.5rem 0;
+  list-style: none;
+}
+.card {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--gold);
+  border-radius: 24px 24px 6px 6px;
+  padding: 1.5rem 1.25rem 1.25rem;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px; height: 8px;
+  background: var(--turquoise);
+}
+.card h3 { margin: 0 0 0.4rem; font-size: 1.25rem; }
+.card h3 a { text-decoration: none; }
+.card p { margin: 0 0 0.6rem; font-size: 0.95rem; color: var(--ink-soft); }
+.card .meta {
+  font-family: var(--font-utility);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--turquoise);
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; padding: 0; list-style: none; font-family: var(--font-utility); }
+.tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--turquoise);
+  border-radius: 999px;
+  color: var(--turquoise);
+  background: none;
+  cursor: pointer;
+}
+.tag[aria-pressed="true"], .tag:hover { background: var(--turquoise); color: var(--parchment); }
+
+/* ---------- Article/handout body ---------- */
+
+.entry-header { margin: 3rem 0 2rem; }
+.entry-header .meta { font-family: var(--font-utility); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--turquoise); }
+.entry-body table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.95rem; }
+.entry-body th, .entry-body td { border: 1px solid var(--parchment-deep); padding: 0.5rem 0.75rem; text-align: left; }
+.entry-body th { background: var(--parchment-deep); font-family: var(--font-utility); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.entry-body blockquote { border-left: 3px solid var(--gold); margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.25rem; color: var(--ink-soft); font-style: italic; }
+
+/* ---------- Tools ---------- */
+
+.tool-panel {
+  background: var(--panel);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  font-family: var(--font-utility);
+}
+.tool-panel label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 0.25rem; }
+.tool-panel input[type="number"], .tool-panel input[type="text"], .tool-panel select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ink-soft);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: var(--font-utility);
+  background: #fff;
+}
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.result-table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+.result-table th, .result-table td { border: 1px solid var(--parchment-deep); padding: 0.5rem 0.75rem; text-align: left; }
+.result-table th { background: var(--cobalt-deep); color: var(--parchment); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.result-key { font-weight: 700; color: var(--cobalt); }
+
+.btn {
+  font-family: var(--font-utility);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  padding: 0.55rem 1.2rem;
+  border: 1px solid var(--cobalt);
+  border-radius: 8px;
+  background: var(--cobalt);
+  color: var(--parchment);
+  cursor: pointer;
+}
+.btn:hover { background: var(--cobalt-deep); }
+.btn.secondary { background: none; color: var(--cobalt); }
+.btn.secondary:hover { background: var(--parchment-deep); }
+
+/* ---------- Print (packing list) ---------- */
+
+@media print {
+  .site-header, .site-footer, .no-print { display: none !important; }
+  html { background: #fff; font-size: 11pt; }
+  .tool-panel { border: none; padding: 0; }
+  a { color: #000; text-decoration: none; }
+}
+
+@media (max-width: 40rem) {
+  h1 { font-size: 2rem; }
+  .hero { padding: 2.5rem 1rem; }
+  .hero-panel { padding: 2rem 1.25rem 1.5rem; }
+}

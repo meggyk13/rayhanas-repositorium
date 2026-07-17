@@ -1,0 +1,301 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Şalvar Pattern Generator" description="Generate a to-scale cutting diagram for Turkish pants (şalvar) from four body measurements.">
+  <div class="wrap">
+    <header class="entry-header prose">
+      <p class="meta">Tool</p>
+      <h1>Şalvar Pattern Generator</h1>
+      <p>
+        Enter your measurements in inches and the generator draws your cutting diagram to
+        scale, with every dimension marked. The wedges you cut away become the gores — nothing is wasted. How to take each measurement and the sewing order are in my
+        <a href="/handouts/turkish-pants-salvar/">Turkish pants class handout</a>.
+      </p>
+    </header>
+
+    <div class="gen-grid">
+      <section class="card no-print" aria-label="Measurements">
+        <h2>Measurements</h2>
+
+        <label for="waist">Waist <span class="hint">around where the pants will sit — used to check the finished width</span></label>
+        <input id="waist" type="number" inputmode="decimal" min="15" max="90" step="0.25" value="40">
+
+        <label>Rise measured as</label>
+        <div class="seg" role="group" aria-label="Rise mode">
+          <button id="riseSeat" aria-pressed="true">Seated: waist to chair</button>
+          <button id="riseWrap" aria-pressed="false">Waist over crotch to waist ÷ 2</button>
+        </div>
+        <label for="rise" class="tight">Rise <span class="hint" id="riseHint">sit on a hard chair; measure side waist straight down to the seat</span></label>
+        <input id="rise" type="number" inputmode="decimal" min="6" max="50" step="0.25" value="15.5">
+
+        <label for="ease">Crotch ease <span class="hint">added to the rise so you can sit and move</span></label>
+        <input id="ease" type="number" inputmode="decimal" min="0" max="8" step="0.25" value="2">
+
+        <label for="length">Length <span class="hint">waist to ankle, bent forward, measured down the back of your leg — keeps them from riding up when you sit</span></label>
+        <input id="length" type="number" inputmode="decimal" min="20" max="60" step="0.25" value="40">
+
+        <label for="foot">Around the foot <span class="hint">around your heel with toes pointed, tape pulled snug — sets an ankle your foot fits through without slipping off</span></label>
+        <input id="foot" type="number" inputmode="decimal" min="8" max="25" step="0.25" value="13">
+
+        <label for="fabricw">Fabric width <span class="hint">optional — for the layout and yardage below</span></label>
+        <input id="fabricw" type="number" inputmode="decimal" min="20" max="120" step="0.5" value="45">
+      </section>
+
+      <section class="card" aria-label="Pattern dimensions">
+        <h2>Pattern dimensions</h2>
+        <table>
+          <tbody>
+            <tr><th>A</th><td>Panel width, on the fold</td><td class="val" id="outA"></td></tr>
+            <tr><th>B</th><td>Diagonal cut</td><td class="val" id="outB"></td></tr>
+            <tr><th>C</th><td>Panel length</td><td class="val" id="outC"></td></tr>
+            <tr><th>D</th><td>Ankle width, on the fold</td><td class="val" id="outD"></td></tr>
+            <tr><th>T</th><td>Drop from waist to diagonal</td><td class="val" id="outT"></td></tr>
+            <tr><th>G</th><td>Gore at its widest</td><td class="val" id="outG"></td></tr>
+            <tr><th>E</th><td>Gore-to-gore seam</td><td class="val" id="outE"></td></tr>
+          </tbody>
+        </table>
+        <p class="note">Rounded to the nearest ⅛″. Six pieces per pair: two leg panels, each cut on a lengthwise fold, plus the four gore wedges the diagonal cuts free. T is one-third of your rise plus ease; G, the gore at its widest, is the other two-thirds — together they make the full crotch depth. Panel width A follows from the ankle plus the gore.</p>
+        <p class="note" id="sweep"></p>
+        <div class="warn" id="bcheck" hidden></div>
+      </section>
+    </div>
+
+    <section class="card diagram-card" aria-label="Cutting diagram">
+      <h2>Cutting diagram — one leg, on the fold</h2>
+      <figure id="cutFig"></figure>
+      <p class="note">Cutting the folded panel goes through both layers, so each leg frees two wedges — those four wedges are your gores, six pieces in all. Flip each wedge wide end up and sew it back diagonal edge to diagonal edge, one on each side of the leg, then join the pants front and back along the gore-to-gore seams.</p>
+    </section>
+
+    <section class="card diagram-card" aria-label="Sewn view">
+      <h2>Sewn view — one leg, gores in place</h2>
+      <figure id="sewnFig"></figure>
+      <p class="note">Each shaded gore is a wedge from the cutting diagram, flipped so that diagonal sews to diagonal along the dashed line. Its widest edge (G) lands at the start of the cut, T below the waist, and the wedge's straight side swings outward to become the free edge. Folding the leg into a tube brings the two straight edges together — that seam is E, which is simply C minus T.</p>
+    </section>
+
+    <section class="card diagram-card" aria-label="Construction">
+      <h2>Construction</h2>
+      <ol class="steps">
+        <li>Stitch both gores to each pant leg as shown in the sewn view, lining up the widest
+        part of each gore with the start of the diagonal cut, <span class="ci" id="cT"></span> below
+        the waist. The gore will not completely meet the hem at the ankle.</li>
+        <li>Stitch the gores together along seam E (<span class="ci" id="cE"></span>), creating a
+        tube for each leg.</li>
+        <li>Turn one leg inside out, and insert one leg inside the other, right sides together.</li>
+        <li>Line up the crotch and the front and back seams, and stitch the pant legs together,
+        matching up gores and seams.</li>
+        <li>Remove the one pant leg from inside the other, and turn the garment right side out.</li>
+        <li>Create a casing at the top edge, and finish the ankle seams.</li>
+        <li>Insert a drawstring or elastic (or both), as desired, into the waist casing.</li>
+      </ol>
+      <p class="note">Elastic isn't period, but alongside a drawstring it keeps full pants up
+      off wet or dirty privy floors.</p>
+    </section>
+
+    <section class="card diagram-card" aria-label="Fabric layout">
+      <h2>Fabric layout</h2>
+      <figure id="layoutFig"></figure>
+      <p class="note" id="yardage"></p>
+    </section>
+
+    <div class="actions no-print">
+      <button id="printBtn">Print pattern sheet</button>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.5rem}
+  @media(max-width:720px){.gen-grid{grid-template-columns:1fr}}
+  .card h2{margin-top:0}
+  label{display:block;font-weight:600;font-size:.92rem;margin:.9rem 0 .25rem}
+  label:first-of-type{margin-top:0}
+  label.tight{margin-top:.5rem}
+  .hint{font-weight:400;opacity:.72;font-size:.82rem;display:block}
+  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(31,67,150,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
+  input[type=number]:focus{outline:2px solid #2e8c8a;outline-offset:1px}
+  .seg{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.25rem}
+  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(31,67,150,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer}
+  .seg button[aria-pressed=true]{background:#1f4396;border-color:#1f4396;color:#fff}
+  .seg button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  table{width:100%;border-collapse:collapse;margin-top:.25rem}
+  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(31,67,150,.28);text-align:left;font-size:.95rem}
+  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#2e8c8a;width:2.2rem}
+  td.val{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;white-space:nowrap}
+  .diagram-card{margin-top:1.25rem}
+  figure{margin:0}
+  figure :global(svg){display:block;width:100%;height:auto}
+  .note{font-size:.85rem;opacity:.75;margin-top:.6rem}
+  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #c9a24b;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
+  figure :global(.note){font-size:.85rem;opacity:.75;margin-top:.6rem}
+  .actions{margin-top:1.5rem}
+  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #1f4396;background:#1f4396;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
+  .actions button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .steps{margin:.25rem 0 0;padding-left:1.35rem}
+  .steps li{margin:.5rem 0;font-size:.95rem}
+  .ci{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
+  @media print{
+    .no-print{display:none!important}
+    .card{break-inside:avoid}
+  }
+</style>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const EIGHTHS = ['','⅛','¼','⅜','½','⅝','¾','⅞'];
+  const r8 = (x) => Math.round(x*8)/8;
+  function fmt(x){
+    const neg = x<0 ? '−' : '';
+    x = Math.abs(r8(x));
+    const w = Math.floor(x+1e-9), e = Math.round((x-w)*8);
+    if (e===8) return neg+(w+1)+'″';
+    return neg + (w||e===0 ? w : '') + (e?EIGHTHS[e]:'') + '″';
+  }
+
+  const state = { riseMode:'seat' };
+
+  function toggle(onBtn, offBtn, fn){
+    onBtn.addEventListener('click', ()=>{ onBtn.setAttribute('aria-pressed','true'); offBtn.setAttribute('aria-pressed','false'); fn(); render(); });
+  }
+  toggle($('riseSeat'), $('riseWrap'), ()=>{ state.riseMode='seat'; $('riseHint').textContent='sit on a hard chair; measure side waist straight down to the seat'; });
+  toggle($('riseWrap'), $('riseSeat'), ()=>{ state.riseMode='wrap'; $('riseHint').textContent='front waist, down through the legs, up to back waist — enter the full number, it is halved for you'; });
+
+  ['waist','rise','ease','length','foot','fabricw'].forEach(id => $(id).addEventListener('input', render));
+
+  function dims(){
+    const W = +$('waist').value || 0;
+    const Rraw = +$('rise').value || 0;
+    const L = +$('length').value || 0;
+    const F = +$('foot').value || 0;
+    const E = +$('ease').value || 0;
+    const R = state.riseMode==='seat' ? Rraw : Rraw/2;
+    const total = R+E;
+    const T = r8(total/3);
+    const G = r8(total-T);
+    const D = r8((F+1)/2);
+    const A = r8(D+G);
+    const C = r8(L+3);
+    const B = r8(Math.hypot(C-T, A-D));
+    const seamE = r8(C-T);                 // the wedge's straight side, freed by the flip
+    return { A, B, C, D, E: seamE, G, T, W };
+  }
+
+  function cuttingSVG(d){
+    const {A,B,C,D,G,T} = d;
+    const fs = Math.max(A,C)/26;
+    const m = fs*3.2;
+    const vb = `${-m} ${-m} ${A+m*2} ${C+m+fs*5.6}`;
+    const T0 = Math.max(T, 0.5);           // drawing position only; table shows the true T
+    const midX = (A+D)/2, midY = (T0+C)/2;
+    const ang = Math.atan2(C-T0, D-A)*180/Math.PI;
+    const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+    return `<svg viewBox="${vb}" role="img" aria-label="Cutting diagram: rectangle ${fmt(A)} wide by ${fmt(C)} long on the fold, diagonal cut starting ${fmt(T)} below the waist, leaving ${fmt(D)} at the ankle">
+      <polygon points="${A},${T0} ${A},${C} ${D},${C}" fill="rgba(46,140,138,.18)"/>
+      <rect x="0" y="0" width="${A}" height="${C}" fill="none" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="0" x2="0" y2="${C}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <text x="${-fs*.7}" y="${C/2}" font-size="${fs}" fill="#8a6d1f" text-anchor="middle" transform="rotate(-90 ${-fs*.7} ${C/2})" font-family="Karla,sans-serif">fold</text>
+      <line x1="${D}" y1="${C}" x2="${A}" y2="${T0}" stroke="#1f4396" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
+      ${dim(0,-fs*1.4,A,-fs*1.4,`A ${fmt(A)}`,A/2,-fs*1.9)}
+      ${dim(-fs*2.2,0,-fs*2.2,C,`C ${fmt(C)}`,-fs*2.7,C/2,'middle',-90)}
+      ${dim(0,C+fs*1.4,D,C+fs*1.4,`D ${fmt(D)}`,D/2,C+fs*2.6)}
+      ${dim(A+fs*.9,0,A+fs*.9,T0,`T ${fmt(T)}`,A+fs*1.4,T0/2+fs*.35,'start')}
+      ${dim(D,C+fs*3.4,A,C+fs*3.4,`G ${fmt(G)}`,(D+A)/2,C+fs*4.6)}
+      <text x="${midX}" y="${midY-fs*.5}" font-size="${fs}" fill="#1f4396" text-anchor="middle" transform="rotate(${ang} ${midX} ${midY-fs*.5})" font-family="IBM Plex Mono,monospace">B ${fmt(B)}</text>
+      <text x="${A-(A-D)*0.28}" y="${C-fs*1.1}" font-size="${fs*.92}" fill="#1d5f5d" text-anchor="middle" font-family="Karla,sans-serif">gore</text>
+    </svg>`;
+  }
+
+  function sewnSVG(d){
+    const {A,B,C,D,E,G,T} = d;
+    // Rigid flip: the wedge is a right triangle with legs G and E and hypotenuse B.
+    // Sewn diagonal-to-diagonal, its right-angle corner lands at q, outside the leg.
+    const ux = (D-A)/B, uy = (C-T)/B;      // unit vector down the leg diagonal
+    const nx = uy, ny = -ux;               // outward normal
+    const dd = G*G/B, h = G*E/B;           // right-angle corner projected onto the hypotenuse
+    const qx = A + dd*ux + h*nx, qy = T + dd*uy + h*ny;
+    const W2 = Math.max(qx, A);
+    const fs = Math.max(2*W2, C)/30;
+    const m = fs*3.4;
+    const vb = `${-W2-m} ${-m} ${(W2+m)*2} ${C+m*2}`;
+    const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+    // label placement: midpoints of the two gore edges, nudged outward along each edge's perpendicular
+    const gdx = qx-A, gdy = qy-T, gl = Math.hypot(gdx,gdy);
+    const gpx = gdy/gl, gpy = -gdx/gl;
+    const gAng = Math.atan2(gdy, gdx)*180/Math.PI;
+    const gtx = (A+qx)/2 + gpx*fs*1.15, gty = (T+qy)/2 + gpy*fs*1.15;
+    const edx = D-qx, edy = C-qy, el = Math.hypot(edx,edy);
+    const epx = edy/el, epy = -edx/el;
+    const eAng = Math.atan2(edy, edx)*180/Math.PI;
+    const etx = (qx+D)/2 + epx*fs*1.15, ety = (qy+C)/2 + epy*fs*1.15;
+    const gore = (s)=>`<polygon points="${s*A},${T} ${s*qx},${qy} ${s*D},${C}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+    const outline = `${-A},0 ${A},0 ${A},${T} ${qx},${qy} ${D},${C} ${-D},${C} ${-qx},${qy} ${-A},${T}`;
+    return `<svg viewBox="${vb}" role="img" aria-label="Flat view of one sewn leg: waist edge ${fmt(2*A)} across, gores flipped diagonal to diagonal with widest edge ${fmt(G)} at depth ${fmt(T)}, straight free edges of ${fmt(E)} tapering to an ankle ${fmt(2*D)} across">
+      <polygon points="${outline}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${gore(1)}${gore(-1)}
+      <line x1="${A}" y1="${T}" x2="${D}" y2="${C}" stroke="#1f4396" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+      <line x1="${-A}" y1="${T}" x2="${-D}" y2="${C}" stroke="#1f4396" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+      ${dim(-A,-fs*1.4,A,-fs*1.4,`waist edge 2A ${fmt(2*A)}`,0,-fs*1.9)}
+      ${dim(-W2-fs*.9,0,-W2-fs*.9,T,`T ${fmt(T)}`,-W2-fs*1.4,T/2+fs*.35,'end')}
+      ${dim(-D,C+fs*1.4,D,C+fs*1.4,`2D ${fmt(2*D)}`,0,C+fs*2.6)}
+      <text x="${gtx}" y="${gty}" font-size="${fs}" fill="#1d5f5d" text-anchor="middle" transform="rotate(${gAng} ${gtx} ${gty})" font-family="IBM Plex Mono,monospace">G ${fmt(G)}</text>
+      <text x="${etx}" y="${ety}" font-size="${fs}" fill="#1f4396" text-anchor="middle" transform="rotate(${eAng} ${etx} ${ety})" font-family="IBM Plex Mono,monospace">E ${fmt(E)}</text>
+      <text x="0" y="${(T+C)/2}" font-size="${fs*.92}" fill="#5a6382" text-anchor="middle" font-family="Karla,sans-serif">leg panel</text>
+    </svg>`;
+  }
+
+  function layoutSVG(d){
+    const {A,C} = d;
+    const FW = +$('fabricw').value || 0;
+    const half = FW/2;
+    if (!FW) return {svg:'<p class="note">Enter a fabric width to see the layout.</p>', yd:''};
+    if (half < A){
+      return {svg:`<div class="warn">At ${FW}″ wide, this fabric folds to ${fmt(half)} — narrower than panel width A (${fmt(A)}). You can piece the panels, which is entirely period, or choose wider fabric.</div>`, yd:''};
+    }
+    const len = 2*C + 2;
+    const fs = len/40;
+    const vb = `${-fs*3} ${-fs*3} ${len+fs*6} ${half+fs*7}`;
+    const panel = (x)=>`
+      <rect x="${x}" y="${half-A}" width="${C}" height="${A}" fill="rgba(31,67,150,.12)" stroke="#1f4396" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <text x="${x+C/2}" y="${half-A/2}" font-size="${fs*1.1}" fill="#1f4396" text-anchor="middle" font-family="Karla,sans-serif">leg panel — C × A</text>`;
+    const svg = `<svg viewBox="${vb}" role="img" aria-label="Fabric folded lengthwise with two leg panels placed end to end along the fold">
+      <rect x="0" y="0" width="${len}" height="${half}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${half}" x2="${len}" y2="${half}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <text x="${len/2}" y="${half+fs*2.2}" font-size="${fs}" fill="#8a6d1f" text-anchor="middle" font-family="Karla,sans-serif">lengthwise fold — selvages at the top</text>
+      ${panel(0.5)}${panel(C+1.5)}
+      <text x="${len/2}" y="${-fs*1.2}" font-size="${fs}" fill="#26304a" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(len)} of fabric</text>
+    </svg>`;
+    const yards = Math.ceil((len/36)*4)/4;
+    return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(len)} along the fold), before shrinkage — wash first and add a little if your fabric is prone to it. The gores come out of the cutaway wedges — no extra fabric needed.`};
+  }
+
+  function render(){
+    const d = dims();
+    $('outA').textContent = fmt(d.A);
+    $('outB').textContent = fmt(d.B);
+    $('outC').textContent = fmt(d.C);
+    $('outD').textContent = fmt(d.D);
+    $('outT').textContent = fmt(d.T);
+    $('outG').textContent = fmt(d.G);
+    const sweep = 4*d.A;
+    $('sweep').textContent = d.W ? `Finished width: 4 × A = ${fmt(sweep)} around — about ${(sweep/d.W).toFixed(1)}× your waist, gathered into the drawstring.` : '';
+    const bc = $('bcheck');
+    if (d.W && sweep < d.W*1.2){
+      bc.hidden = false;
+      bc.textContent = `At ${fmt(sweep)} around, these pants come out to less than 1.2× your waist — snug to pull on and short on gather. A longer rise or more ease will widen them.`;
+    } else bc.hidden = true;
+    $('outE').textContent = fmt(d.E);
+    $('cutFig').innerHTML = cuttingSVG(d);
+    $('sewnFig').innerHTML = sewnSVG(d);
+    $('cT').textContent = fmt(d.T);
+    $('cE').textContent = fmt(d.E);
+    const lay = layoutSVG(d);
+    $('layoutFig').innerHTML = lay.svg;
+    $('yardage').textContent = lay.yd;
+  }
+
+  $('printBtn').addEventListener('click', ()=> window.print());
+  render();
+</script>

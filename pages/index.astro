@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const [ans, handouts, articles] = await Promise.all([
+  getCollection('ans'),
+  getCollection('handouts'),
+  getCollection('articles'),
+]);
+
+const recent = [
+  ...ans.map((e) => ({ ...e, section: 'A&S', base: '/ans/' })),
+  ...handouts.map((e) => ({ ...e, section: 'Class handout', base: '/handouts/' })),
+  ...articles.map((e) => ({ ...e, section: 'Article', base: '/articles/' })),
+]
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 6);
+---
+<Base title="Home">
+  <div class="hero">
+    <div class="hero-panel">
+      <h1>Rayhana&rsquo;s Repositorium</h1>
+      <p>
+        Research, class handouts, and working tools for life in the Current
+        Middle Ages, from a 16th&#8209;century Ottoman perspective.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h2 class="rule"><span></span></h2>
+    <h2>Recently added</h2>
+    <ul class="card-grid">
+      {recent.map((e) => (
+        <li class="card">
+          <p class="meta">{e.section}</p>
+          <h3><a href={`${e.base}${e.id}/`}>{e.data.title}</a></h3>
+          <p>{e.data.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>

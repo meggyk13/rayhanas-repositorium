@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('articles')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
+---
+<Base title="Articles">
+  <div class="wrap">
+    <header class="entry-header">
+      <h1>Articles</h1>
+      <p class="prose">
+        Writing on SCA life: welcoming newcomers, running things, making
+        things, and whatever else comes up.
+      </p>
+    </header>
+
+    {tags.length > 0 && (
+      <div class="tag-row no-print" id="tag-filter">
+        <button class="tag" data-tag="" aria-pressed="true">All</button>
+        {tags.map((t) => (
+          <button class="tag" data-tag={t} aria-pressed="false">{t}</button>
+        ))}
+      </div>
+    )}
+
+    <ul class="card-grid" id="article-grid">
+      {entries.map((e) => (
+        <li class="card" data-tags={e.data.tags.join(',')}>
+          <p class="meta">{e.data.tags.join(' · ') || 'article'}</p>
+          <h3><a href={`/articles/${e.id}/`}>{e.data.title}</a></h3>
+          <p>{e.data.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <script>
+    const filter = document.getElementById('tag-filter');
+    if (filter) {
+      filter.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button[data-tag]');
+        if (!btn) return;
+        const tag = btn.dataset.tag;
+        filter.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        document.querySelectorAll('#article-grid .card').forEach((card) => {
+          const cardTags = (card.dataset.tags || '').split(',');
+          card.style.display = !tag || cardTags.includes(tag) ? '' : 'none';
+        });
+      });
+    }
+  </script>
+</Base>

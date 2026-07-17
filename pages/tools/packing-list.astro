@@ -1,0 +1,190 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Event Packing List" description="Build a printable SCA event packing list for your whole household, by person and activity.">
+  <div class="wrap">
+    <header class="entry-header prose no-print">
+      <p class="meta">Tool</p>
+      <h1>Event Packing List</h1>
+      <p>
+        Add each person going, tap their activities, and print the list.
+        Nothing you enter leaves your browser.
+      </p>
+    </header>
+
+    <div class="tool-panel no-print">
+      <div class="field-grid">
+        <div>
+          <label for="trip-type">Event type</label>
+          <select id="trip-type">
+            <option value="day" selected>Day trip</option>
+            <option value="camp">Camping event</option>
+          </select>
+        </div>
+        <div>
+          <label for="person-name">Add a person</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="person-name" placeholder="Name" />
+            <label style="display: flex; align-items: center; gap: 0.3rem; text-transform: none; letter-spacing: 0; font-size: 0.9rem; margin: 0;">
+              <input type="checkbox" id="person-minor" style="width: auto;" /> Minor
+            </label>
+            <button class="btn" id="add-person">Add</button>
+          </div>
+        </div>
+      </div>
+      <div id="roster"></div>
+      <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+        <button class="btn" id="print-btn">Print list</button>
+        <button class="btn secondary" id="clear-btn">Clear all</button>
+      </div>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const ACTIVITIES = [
+      { id: 'armored', label: 'Armored', adultOnly: false },
+      { id: 'rapier', label: 'Rapier', adultOnly: false },
+      { id: 'archery', label: 'Archery', adultOnly: false },
+      { id: 'thrown', label: 'Thrown weapons', adultOnly: false },
+      { id: 'youth', label: 'Youth combat', minorOnly: true },
+      { id: 'equestrian', label: 'Equestrian', adultOnly: false },
+      { id: 'bardic', label: 'Bardic', adultOnly: false },
+      { id: 'ans', label: 'A&S', adultOnly: false },
+    ];
+
+    const PER_PERSON_BASE = [
+      'Garb for each day, plus one spare layer',
+      'Feast gear: plate, bowl, cup, utensils',
+      'Water bottle',
+      'Closed-toe shoes',
+      'Site token money / gate fee',
+      'Sunscreen and any medications',
+    ];
+
+    const PER_PERSON_CAMPING = [
+      'Bedding: sleeping bag or blankets',
+      'Sleepwear and warm night layer',
+      'Toiletries and towel',
+      'Flashlight or lantern',
+    ];
+
+    const ACTIVITY_GEAR = {
+      armored: ['Full armor kit and weapons', 'Authorization card', 'Armor repair kit', 'Extra water'],
+      rapier: ['Rapier kit: mask, gorget, doublet, gloves', 'Authorization card', 'Blades and spares'],
+      archery: ['Bow, arrows, quiver', 'Arm guard and finger protection'],
+      thrown: ['Knives, axes, spears as thrown', 'Closed-toe boots'],
+      youth: ['Youth armor kit', 'Authorization card', 'Signed waiver / parent on site'],
+      equestrian: ['Riding gear and helmet', 'Authorization card', 'Horse paperwork (Coggins)'],
+      bardic: ['Instrument(s)', 'Songbook or notes', 'Warm layer for late-night circles'],
+      ans: ['Project and supplies', 'Documentation copies', 'Display materials'],
+    };
+
+    const SHARED_DAY = [
+      { item: 'Day shade or pop-up', perN: null },
+      { item: 'Chairs', perN: 1 },
+      { item: 'Cooler with lunch and snacks', perN: null },
+      { item: 'Water jug (1 gal per person)', perN: 1 },
+      { item: 'First aid kit', perN: null },
+      { item: 'Sunscreen and bug spray', perN: null },
+    ];
+
+    const SHARED_CAMP = [
+      { item: 'Tent(s) and stakes', perN: null },
+      { item: 'Chairs', perN: 1 },
+      { item: 'Camp kitchen: stove, fuel, pots, wash bins', perN: null },
+      { item: 'Cooler(s) and ice', perN: null },
+      { item: 'Water (1 gal per person per day)', perN: 1 },
+      { item: 'Lantern and spare batteries', perN: null },
+      { item: 'First aid kit', perN: null },
+      { item: 'Trash bags', perN: null },
+      { item: 'Period camp dressing: tablecloths, banners', perN: null },
+    ];
+
+    let people = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function renderRoster() {
+      const roster = $('roster');
+      roster.innerHTML = '';
+      people.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--parchment-deep);';
+        const title = document.createElement('div');
+        title.style.cssText = 'display: flex; justify-content: space-between; align-items: baseline;';
+        title.innerHTML = `<strong>${escapeHtml(p.name)}</strong>${p.minor ? ' <span style="font-size:0.75rem;color:var(--ink-soft);">(minor)</span>' : ''}`;
+        const remove = document.createElement('button');
+        remove.className = 'btn secondary';
+        remove.textContent = 'Remove';
+        remove.style.fontSize = '0.75rem';
+        remove.addEventListener('click', () => { people.splice(i, 1); renderRoster(); renderList(); });
+        title.appendChild(remove);
+        row.appendChild(title);
+
+        const pills = document.createElement('div');
+        pills.className = 'tag-row';
+        ACTIVITIES.filter((a) => (a.minorOnly ? p.minor : true)).forEach((a) => {
+          const b = document.createElement('button');
+          b.className = 'tag';
+          b.textContent = a.label;
+          b.setAttribute('aria-pressed', String(p.activities.has(a.id)));
+          b.addEventListener('click', () => {
+            p.activities.has(a.id) ? p.activities.delete(a.id) : p.activities.add(a.id);
+            b.setAttribute('aria-pressed', String(p.activities.has(a.id)));
+            renderList();
+          });
+          pills.appendChild(b);
+        });
+        row.appendChild(pills);
+        roster.appendChild(row);
+      });
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    }
+
+    function checklist(items) {
+      return '<ul style="list-style:none;padding:0;">' +
+        items.map((i) => `<li style="padding:0.15rem 0;">&#9744; ${escapeHtml(i)}</li>`).join('') +
+        '</ul>';
+    }
+
+    function renderList() {
+      const out = $('output');
+      if (people.length === 0) { out.innerHTML = ''; return; }
+      const camping = $('trip-type').value === 'camp';
+      const n = people.length;
+      let html = `<h2>Packing list — ${camping ? 'camping event' : 'day trip'} (${n} ${n === 1 ? 'person' : 'people'})</h2>`;
+
+      people.forEach((p) => {
+        const items = [...PER_PERSON_BASE];
+        if (camping) items.push(...PER_PERSON_CAMPING);
+        p.activities.forEach((a) => items.push(...ACTIVITY_GEAR[a]));
+        html += `<h3>${escapeHtml(p.name)}</h3>${checklist(items)}`;
+      });
+
+      const shared = (camping ? SHARED_CAMP : SHARED_DAY).map((s) =>
+        s.perN ? `${s.item} × ${n}` : s.item
+      );
+      html += `<h3>Shared gear</h3>${checklist(shared)}`;
+      out.innerHTML = html;
+    }
+
+    $('add-person').addEventListener('click', () => {
+      const name = $('person-name').value.trim();
+      if (!name) return;
+      people.push({ name, minor: $('person-minor').checked, activities: new Set() });
+      $('person-name').value = '';
+      $('person-minor').checked = false;
+      renderRoster();
+      renderList();
+    });
+    $('person-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('add-person').click(); });
+    $('trip-type').addEventListener('change', renderList);
+    $('print-btn').addEventListener('click', () => window.print());
+    $('clear-btn').addEventListener('click', () => { people = []; renderRoster(); renderList(); });
+  </script>
+</Base>

@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('ans')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+<Base title="Arts & Sciences">
+  <div class="wrap">
+    <header class="entry-header">
+      <h1>Arts &amp; Sciences</h1>
+      <p class="prose">
+        Documentation for competition and display projects, and scripts for
+        Karagöz shadow theater.
+      </p>
+    </header>
+    <ul class="card-grid">
+      {entries.map((e) => (
+        <li class="card">
+          <p class="meta">{e.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+          <h3><a href={`/ans/${e.id}/`}>{e.data.title}</a></h3>
+          <p>{e.data.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>

@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const tools = [
+  {
+    href: '/tools/salvar/',
+    title: 'Şalvar Pattern Generator',
+    summary: 'Enter your measurements and get a to-scale cutting diagram for Turkish pants, with every dimension marked.',
+  },
+  {
+    href: '/tools/war-food-planner/',
+    title: 'War Food Planner',
+    summary: 'Plan camp meals by day and slot, scaled to your party size, with a shopping list and cooler strategy.',
+  },
+  {
+    href: '/tools/award-rec/',
+    title: 'Award Recommendation Helper',
+    summary: 'A guided worksheet for writing a strong award recommendation to the Crown, in your own words.',
+  },
+  {
+    href: '/tools/packing-list/',
+    title: 'Event Packing List',
+    summary: 'Build a printable packing list for your whole household, by person and by activity.',
+  },
+];
+---
+<Base title="Tools">
+  <div class="wrap">
+    <header class="entry-header">
+      <h1>Tools</h1>
+      <p class="prose">
+        Working calculators and generators. Everything runs in your browser;
+        nothing you enter is saved or sent anywhere.
+      </p>
+    </header>
+    <ul class="card-grid">
+      {tools.map((t) => (
+        <li class="card">
+          <h3><a href={t.href}>{t.title}</a></h3>
+          <p>{t.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
