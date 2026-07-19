@@ -16,8 +16,8 @@
   --iznik-red: #a93b2a;
   --gold: #c9a24b;
 
-  --font-display: 'Fraunces', serif;
-  --font-body: 'Karla', system-ui, sans-serif;
+  --font-display: 'EB Garamond', serif;
+  --font-body: 'EB Garamond', serif;
   --font-utility: 'IBM Plex Mono', monospace;
 
   --measure: 42rem;
@@ -30,8 +30,9 @@ html {
   background: var(--parchment);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 18px;
+  font-weight: 450;
+  line-height: 1.55;
   scroll-behavior: smooth;
 }
 
@@ -50,7 +51,7 @@ h1, h2, h3 {
   letter-spacing: 0.01em;
 }
 
-h1 { font-size: 2.6rem; margin: 0 0 0.5rem; }
+h1 { font-size: 2.8rem; margin: 0 0 0.5rem; }
 h2 { font-size: 1.9rem; margin: 2.5rem 0 0.75rem; }
 h3 { font-size: 1.35rem; margin: 2rem 0 0.5rem; }
 
@@ -93,6 +94,98 @@ img { max-width: 100%; height: auto; }
 .site-nav { display: flex; flex-wrap: wrap; gap: 1.25rem; font-family: var(--font-utility); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.12em; }
 .site-nav a { color: var(--parchment); text-decoration: none; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
 .site-nav a:hover, .site-nav a[aria-current="page"] { border-bottom-color: var(--gold); color: #fff; }
+
+/* ---------- Mobile menu ---------- */
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: var(--parchment);
+  font-family: var(--font-utility);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  align-items: center;
+  gap: 0.5rem;
+}
+.menu-btn .bars { display: inline-block; width: 16px; }
+.menu-btn .bars span { display: block; height: 2px; background: var(--gold); margin: 3px 0; border-radius: 2px; }
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--cobalt-deep);
+  color: var(--parchment);
+  display: none;
+  flex-direction: column;
+  padding: 1rem 1.25rem 2rem;
+  overflow-y: auto;
+}
+.menu-overlay.open { display: flex; }
+.menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--gold);
+}
+.menu-top .site-title { font-size: 1.25rem; }
+.menu-close {
+  background: none;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  color: var(--parchment);
+  font-family: var(--font-utility);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+}
+.menu-list { list-style: none; margin: 1rem 0 0; padding: 0; }
+.menu-list li { border-bottom: 1px solid rgba(201, 162, 75, 0.35); }
+.menu-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--parchment);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.7rem;
+  padding: 1.05rem 0.25rem;
+}
+.menu-list a .diamond {
+  width: 10px; height: 10px;
+  transform: rotate(45deg);
+  background: transparent;
+  border: 1px solid var(--gold);
+  flex: none;
+}
+.menu-list a[aria-current="page"] { color: #fff; }
+.menu-list a[aria-current="page"] .diamond { background: var(--turquoise); border-color: var(--turquoise); }
+.menu-list a:active { color: var(--gold); }
+.menu-list .hint {
+  font-family: var(--font-utility);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-left: auto;
+}
+body.menu-locked { overflow: hidden; }
+
+@media (max-width: 48rem) {
+  .site-nav { display: none; }
+  .menu-btn { display: inline-flex; }
+  .site-header .wrap { align-items: center; flex-wrap: nowrap; }
+  .site-title { font-size: 1.25rem; }
+}
 
 .site-footer {
   margin-top: 5rem;
@@ -267,7 +360,7 @@ img { max-width: 100%; height: auto; }
 }
 
 @media (max-width: 40rem) {
-  h1 { font-size: 2rem; }
+  h1 { font-size: 2.2rem; }
   .hero { padding: 2.5rem 1rem; }
   .hero-panel { padding: 2rem 1.25rem 1.5rem; }
 }
