@@ -162,13 +162,3 @@ The kuşak (sash/belt) was worn by everyone. Sashes were long lengths of fabric 
 - **Henna** – used on hands for decoration, particularly by women
 - **Handkerchiefs** – often embroidered, carried by both men and women
 
-## Further Research
-
-The best primary sources for Ottoman garb are the surviving kaftans, salvar, and accessories in the Topkapı Palace Museum collection in Istanbul. Many have been photographed and published. Key resources include:
-
-- Topkapı Palace Museum published catalogs
-- Turkish and Islamic Arts Museum collections
-- Ottoman miniature paintings (especially the Şehname of Suleiman the Magnificent)
-- Sixteenth-century European depictions of Ottoman figures (useful but viewed with caution for accuracy)
-
-This is an active area of research. New analysis of surviving garments continues to refine our understanding of construction methods.
