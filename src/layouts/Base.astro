@@ -11,10 +11,10 @@ const path = Astro.url.pathname;
 
 const nav = [
   { href: '/', label: 'Home' },
-  { href: '/ans/', label: 'A&S' },
-  { href: '/handouts/', label: 'Classes' },
+  { href: '/ans/', label: 'A&S', hint: 'Projects' },
+  { href: '/handouts/', label: 'Classes', hint: 'Handouts' },
   { href: '/articles/', label: 'Articles' },
-  { href: '/tools/', label: 'Tools' },
+  { href: '/tools/', label: 'Tools', hint: 'Calculators' },
 ];
 
 function isCurrent(href: string) {
@@ -41,7 +41,7 @@ function isCurrent(href: string) {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Karla:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -54,8 +54,29 @@ function isCurrent(href: string) {
             <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
           ))}
         </nav>
+        <button class="menu-btn" aria-expanded="false" aria-controls="site-menu" data-menu-open>
+          Menu
+          <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
       </div>
     </header>
+
+    <div class="menu-overlay" id="site-menu" role="dialog" aria-modal="true" aria-label="Main menu">
+      <div class="menu-top">
+        <span class="site-title">Rayhana&rsquo;s Repositorium</span>
+        <button class="menu-close" data-menu-close>Close ✕</button>
+      </div>
+      <ul class="menu-list">
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              <span class="diamond"></span>{item.label}
+              {item.hint && <span class="hint">{item.hint}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
 
     <main>
       <slot />
@@ -70,5 +91,30 @@ function isCurrent(href: string) {
         </p>
       </div>
     </footer>
+
+    <script is:inline>
+      (function () {
+        var overlay = document.getElementById('site-menu');
+        var openBtn = document.querySelector('[data-menu-open]');
+        var closeBtn = document.querySelector('[data-menu-close]');
+        function open() {
+          overlay.classList.add('open');
+          document.body.classList.add('menu-locked');
+          openBtn.setAttribute('aria-expanded', 'true');
+          closeBtn.focus();
+        }
+        function close() {
+          overlay.classList.remove('open');
+          document.body.classList.remove('menu-locked');
+          openBtn.setAttribute('aria-expanded', 'false');
+          openBtn.focus();
+        }
+        openBtn.addEventListener('click', open);
+        closeBtn.addEventListener('click', close);
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+        });
+      })();
+    </script>
   </body>
 </html>
