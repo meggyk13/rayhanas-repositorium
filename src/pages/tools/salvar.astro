@@ -11,6 +11,7 @@ import Base from '../../layouts/Base.astro';
         scale, with every dimension marked. The wedges you cut away become the gores — nothing is wasted. How to take each measurement and the sewing order are in my
         <a href="/handouts/turkish-pants-salvar/">Turkish pants class handout</a>.
       </p>
+      <p class="meta print-only" id="printMeta"></p>
     </header>
 
     <div class="gen-grid">
@@ -54,19 +55,19 @@ import Base from '../../layouts/Base.astro';
             <tr><th>E</th><td>Gore-to-gore seam</td><td class="val" id="outE"></td></tr>
           </tbody>
         </table>
-        <p class="note">Rounded to the nearest ⅛″. Six pieces per pair: two leg panels, each cut on a lengthwise fold, plus the four gore wedges the diagonal cuts free. T is one-third of your rise plus ease; G, the gore at its widest, is the other two-thirds — together they make the full crotch depth. Panel width A follows from the ankle plus the gore.</p>
+        <p class="note">Rounded up to the nearest ½″ — generous, never tight. Six pieces per pair: two leg panels, each cut on a lengthwise fold, plus the four gore wedges the diagonal cuts free. T is one-third of your rise plus ease; G, the gore at its widest, is the other two-thirds — together they make the full crotch depth. Panel width A follows from the ankle plus the gore.</p>
         <p class="note" id="sweep"></p>
         <div class="warn" id="bcheck" hidden></div>
       </section>
     </div>
 
-    <section class="card diagram-card" aria-label="Cutting diagram">
+    <section class="card diagram-card" id="cutCard" aria-label="Cutting diagram">
       <h2>Cutting diagram — one leg, on the fold</h2>
       <figure id="cutFig"></figure>
       <p class="note">Cutting the folded panel goes through both layers, so each leg frees two wedges — those four wedges are your gores, six pieces in all. Flip each wedge wide end up and sew it back diagonal edge to diagonal edge, one on each side of the leg, then join the pants front and back along the gore-to-gore seams.</p>
     </section>
 
-    <section class="card diagram-card" aria-label="Sewn view">
+    <section class="card diagram-card" id="sewnCard" aria-label="Sewn view">
       <h2>Sewn view — one leg, gores in place</h2>
       <figure id="sewnFig"></figure>
       <p class="note">Each shaded gore is a wedge from the cutting diagram, flipped so that diagonal sews to diagonal along the dashed line. Its widest edge (G) lands at the start of the cut, T below the waist, and the wedge's straight side swings outward to become the free edge. Folding the leg into a tube brings the two straight edges together — that seam is E, which is simply C minus T.</p>
@@ -87,6 +88,44 @@ import Base from '../../layouts/Base.astro';
         <li>Create a casing at the top edge, and finish the ankle seams.</li>
         <li>Insert a drawstring or elastic (or both), as desired, into the waist casing.</li>
       </ol>
+      <figure>
+        <svg viewBox="0 0 300 205" style="max-width:420px" role="img" aria-label="The joined pants laid flat, legs splayed: the center seam from waist to crotch is T of one leg sewn to T of the other, then G to G; the gore corners sit T below the waist; B and E seams meet at the crotch and run down to each ankle">
+          <!-- gore triangles -->
+          <polygon points="150,55 150,115 48,172" fill="rgba(46,140,138,.14)"/>
+          <polygon points="150,55 150,115 252,172" fill="rgba(46,140,138,.14)"/>
+          <!-- pants outline: waist, casing, outer edges, ankles -->
+          <line x1="95" y1="25" x2="205" y2="25" stroke="#26304a" stroke-width="1.8"/>
+          <line x1="96" y1="31" x2="204" y2="31" stroke="#26304a" stroke-width="1"/>
+          <line x1="95" y1="25" x2="30" y2="155" stroke="#26304a" stroke-width="1.8"/>
+          <line x1="30" y1="155" x2="48" y2="172" stroke="#26304a" stroke-width="1.8"/>
+          <line x1="205" y1="25" x2="270" y2="155" stroke="#26304a" stroke-width="1.8"/>
+          <line x1="270" y1="155" x2="252" y2="172" stroke="#26304a" stroke-width="1.8"/>
+          <!-- seams, all dashed: center seam in two segments, then B and E out to the ankles -->
+          <line x1="150" y1="25" x2="150" y2="55" stroke="#1f4396" stroke-width="1.9" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="150" y2="115" stroke="#1f4396" stroke-width="1.9" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="48" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="252" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="115" x2="48" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="115" x2="252" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <!-- junction tick and crotch point -->
+          <line x1="144" y1="55" x2="156" y2="55" stroke="#2e8c8a" stroke-width="1.8"/>
+          <circle cx="150" cy="115" r="2.3" fill="#2e8c8a"/>
+          <!-- seam letters -->
+          <text x="144" y="44" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">T+T</text>
+          <text x="144" y="90" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">G+G</text>
+          <text x="92" y="106" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">B</text>
+          <text x="208" y="106" font-size="8" fill="#1f4396" font-family="IBM Plex Mono,monospace">B</text>
+          <text x="90" y="160" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">E</text>
+          <text x="210" y="160" font-size="8" fill="#1f4396" font-family="IBM Plex Mono,monospace">E</text>
+          <!-- callouts -->
+          <line x1="156" y1="55" x2="174" y2="44" stroke="#2e8c8a" stroke-width="1"/>
+          <text x="176" y="42" font-size="6" fill="#1d5f5d" font-family="Karla,sans-serif">gore corners sit</text>
+          <text x="176" y="50" font-size="6" fill="#1d5f5d" font-family="Karla,sans-serif">T below the waist</text>
+          <line x1="150" y1="122" x2="150" y2="184" stroke="#2e8c8a" stroke-width="1"/>
+          <text x="150" y="194" font-size="6.5" fill="#1d5f5d" text-anchor="middle" font-family="Karla,sans-serif">B and E seams meet at the crotch</text>
+        </svg>
+      </figure>
+      <p class="note">Steps 3–4, shown on the joined pants: the seam from waist to crotch is T of one leg sewn to T of the other, then G sewn to G — the gore corners land exactly T below the waist. At the crotch everything meets: the B seams, where each gore joins its leg, and the E seams between the gores, running on down to the ankles. Front and back are identical, so line up all the gore seams and the crotch seam is straight lines the whole way.</p>
       <p class="note">Elastic isn't period, but alongside a drawstring it keeps full pants up
       off wet or dirty privy floors.</p>
     </section>
@@ -123,7 +162,8 @@ import Base from '../../layouts/Base.astro';
   td.val{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;white-space:nowrap}
   .diagram-card{margin-top:1.25rem}
   figure{margin:0}
-  figure :global(svg){display:block;width:100%;height:auto}
+  figure :global(svg){display:block;width:100%;height:auto;margin-inline:auto}
+  .print-only{display:none}
   .note{font-size:.85rem;opacity:.75;margin-top:.6rem}
   .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #c9a24b;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
   figure :global(.note){font-size:.85rem;opacity:.75;margin-top:.6rem}
@@ -135,7 +175,23 @@ import Base from '../../layouts/Base.astro';
   .ci{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
   @media print{
     .no-print{display:none!important}
-    .card{break-inside:avoid}
+    .print-only{display:block}
+    .gen-grid{display:block}
+    .card{break-inside:avoid;background:#fff!important;border:none!important;box-shadow:none!important;padding:0!important}
+    .diagram-card{margin-top:1rem}
+    #cutCard,#sewnCard{break-before:page}
+    figure :global(svg){max-height:8in}
+    .note,.hint{opacity:1}
+  }
+</style>
+
+<style is:global>
+  /* Keep the site frame off the printed pattern sheet.
+     If your Base layout's header/footer still print, add their class names here. */
+  @media print{
+    body{background:#fff}
+    body > header, body > nav, body > footer,
+    .site-header, .site-nav, .site-footer{display:none!important}
   }
 </style>
 
@@ -161,6 +217,8 @@ import Base from '../../layouts/Base.astro';
 
   ['waist','rise','ease','length','foot','fabricw'].forEach(id => $(id).addEventListener('input', render));
 
+  const upHalf = (x) => Math.ceil(x*2 - 1e-9)/2;   // round up to the next ½″
+
   function dims(){
     const W = +$('waist').value || 0;
     const Rraw = +$('rise').value || 0;
@@ -169,13 +227,13 @@ import Base from '../../layouts/Base.astro';
     const E = +$('ease').value || 0;
     const R = state.riseMode==='seat' ? Rraw : Rraw/2;
     const total = R+E;
-    const T = r8(total/3);
-    const G = r8(total-T);
-    const D = r8((F+1)/2);
-    const A = r8(D+G);
-    const C = r8(L+3);
-    const B = r8(Math.hypot(C-T, A-D));
-    const seamE = r8(C-T);                 // the wedge's straight side, freed by the flip
+    const T = upHalf(total/3);
+    const G = upHalf(total-T);             // T + G never comes out less than rise + ease
+    const D = upHalf((F+1)/2);
+    const A = D+G;                         // sums of halves — already exact
+    const C = upHalf(L+3);
+    const B = upHalf(Math.hypot(C-T, A-D));
+    const seamE = C-T;                     // the wedge's straight side, freed by the flip
     return { A, B, C, D, E: seamE, G, T, W };
   }
 
@@ -183,14 +241,16 @@ import Base from '../../layouts/Base.astro';
     const {A,B,C,D,G,T} = d;
     const fs = Math.max(A,C)/26;
     const m = fs*3.2;
-    const vb = `${-m} ${-m} ${A+m*2} ${C+m+fs*5.6}`;
+    const vbw = A+m*2, vbh = C+m+fs*5.6;
+    const vb = `${-m} ${-m} ${vbw} ${vbh}`;
+    const cap = Math.round(540*vbw/vbh);   // display width that lands the height near 540px
     const T0 = Math.max(T, 0.5);           // drawing position only; table shows the true T
     const midX = (A+D)/2, midY = (T0+C)/2;
     const ang = Math.atan2(C-T0, D-A)*180/Math.PI;
     const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
       <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
-    return `<svg viewBox="${vb}" role="img" aria-label="Cutting diagram: rectangle ${fmt(A)} wide by ${fmt(C)} long on the fold, diagonal cut starting ${fmt(T)} below the waist, leaving ${fmt(D)} at the ankle">
+    return `<svg viewBox="${vb}" style="max-width:min(100%,${cap}px)" role="img" aria-label="Cutting diagram: rectangle ${fmt(A)} wide by ${fmt(C)} long on the fold, diagonal cut starting ${fmt(T)} below the waist, leaving ${fmt(D)} at the ankle">
       <polygon points="${A},${T0} ${A},${C} ${D},${C}" fill="rgba(46,140,138,.18)"/>
       <rect x="0" y="0" width="${A}" height="${C}" fill="none" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       <line x1="0" y1="0" x2="0" y2="${C}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
@@ -217,7 +277,9 @@ import Base from '../../layouts/Base.astro';
     const W2 = Math.max(qx, A);
     const fs = Math.max(2*W2, C)/30;
     const m = fs*3.4;
-    const vb = `${-W2-m} ${-m} ${(W2+m)*2} ${C+m*2}`;
+    const vbw = (W2+m)*2, vbh = C+m*2;
+    const vb = `${-W2-m} ${-m} ${vbw} ${vbh}`;
+    const cap = Math.round(540*vbw/vbh);
     const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
       <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
@@ -232,7 +294,7 @@ import Base from '../../layouts/Base.astro';
     const etx = (qx+D)/2 + epx*fs*1.15, ety = (qy+C)/2 + epy*fs*1.15;
     const gore = (s)=>`<polygon points="${s*A},${T} ${s*qx},${qy} ${s*D},${C}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
     const outline = `${-A},0 ${A},0 ${A},${T} ${qx},${qy} ${D},${C} ${-D},${C} ${-qx},${qy} ${-A},${T}`;
-    return `<svg viewBox="${vb}" role="img" aria-label="Flat view of one sewn leg: waist edge ${fmt(2*A)} across, gores flipped diagonal to diagonal with widest edge ${fmt(G)} at depth ${fmt(T)}, straight free edges of ${fmt(E)} tapering to an ankle ${fmt(2*D)} across">
+    return `<svg viewBox="${vb}" style="max-width:min(100%,${cap}px)" role="img" aria-label="Flat view of one sewn leg: waist edge ${fmt(2*A)} across, gores flipped diagonal to diagonal with widest edge ${fmt(G)} at depth ${fmt(T)}, straight free edges of ${fmt(E)} tapering to an ankle ${fmt(2*D)} across">
       <polygon points="${outline}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${gore(1)}${gore(-1)}
       <line x1="${A}" y1="${T}" x2="${D}" y2="${C}" stroke="#1f4396" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
@@ -287,6 +349,8 @@ import Base from '../../layouts/Base.astro';
       bc.textContent = `At ${fmt(sweep)} around, these pants come out to less than 1.2× your waist — snug to pull on and short on gather. A longer rise or more ease will widen them.`;
     } else bc.hidden = true;
     $('outE').textContent = fmt(d.E);
+    const riseTxt = state.riseMode==='seat' ? 'seated' : 'wrap ÷ 2';
+    $('printMeta').textContent = `Measured: waist ${fmt(+$('waist').value||0)} · rise ${fmt(+$('rise').value||0)} (${riseTxt}) · ease ${fmt(+$('ease').value||0)} · length ${fmt(+$('length').value||0)} · foot ${fmt(+$('foot').value||0)} — ${new Date().toLocaleDateString()}`;
     $('cutFig').innerHTML = cuttingSVG(d);
     $('sewnFig').innerHTML = sewnSVG(d);
     $('cT').textContent = fmt(d.T);
