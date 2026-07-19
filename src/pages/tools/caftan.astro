@@ -1,0 +1,524 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Kaftan Pattern Generator" description="Pick a length, fit, and sleeve style, enter three measurements, and get a to-scale cutting diagram for an Ottoman kaftan.">
+  <div class="wrap">
+    <header class="entry-header prose">
+      <p class="meta">Tool</p>
+      <h1>Kaftan Pattern Generator</h1>
+      <p>
+        Pick your design, enter three measurements, and the generator drafts every piece
+        to scale. The body panels are cut at your shoulder width, the way the surviving
+        garments are; the side gores are shaped at the top to make up the difference and
+        fit the body, then flare to the hem. Front gores on the straight center-front
+        edges add fullness below the waist, and there are three sleeve choices.
+        Background on the garment is in my
+        <a href="/handouts/ottoman-costuming-basics/">Ottoman costuming basics handout</a>.
+      </p>
+      <p class="meta print-only" id="printMeta"></p>
+    </header>
+
+    <section class="card no-print design-card" aria-label="Design">
+      <h2>Design</h2>
+
+      <label>Length</label>
+      <div class="seg" role="group" aria-label="Length">
+        <button id="lenShort" aria-pressed="false">Short</button>
+        <button id="lenMedium" aria-pressed="false">Medium</button>
+        <button id="lenFull" aria-pressed="true">Full</button>
+        <button id="lenCustom" aria-pressed="false">Custom</button>
+      </div>
+      <p class="note" id="lenNote"></p>
+      <div id="customLenWrap" hidden>
+        <label for="customLen" class="tight">Custom length <span class="hint">shoulder point down to where you want the hem</span></label>
+        <input id="customLen" type="number" inputmode="decimal" min="20" max="70" step="0.5" value="50">
+      </div>
+
+      <label class="gap">Fit</label>
+      <div class="seg" role="group" aria-label="Fit">
+        <button id="fitFitted" aria-pressed="false">Fitted</button>
+        <button id="fitFull" aria-pressed="true">Full</button>
+      </div>
+      <p class="note" id="fitNote"></p>
+
+      <label class="gap">Sleeves</label>
+      <div class="seg" role="group" aria-label="Sleeve style">
+        <button id="slNarrow" aria-pressed="true">Ankle-length narrow</button>
+        <button id="slWide" aria-pressed="false">Wide</button>
+        <button id="slDetach" aria-pressed="false">Detachable</button>
+      </div>
+      <p class="note" id="sleeveNote"></p>
+    </section>
+
+    <div class="gen-grid">
+      <section class="card no-print" aria-label="Measurements">
+        <h2>Measurements</h2>
+
+        <label for="shoulders">Shoulders <span class="hint">shoulder seam to shoulder seam, straight across the back</span></label>
+        <input id="shoulders" type="number" inputmode="decimal" min="10" max="26" step="0.25" value="15">
+
+        <label for="chest">Chest <span class="hint">around the fullest part, over the layers the kaftan will cover</span></label>
+        <input id="chest" type="number" inputmode="decimal" min="20" max="80" step="0.25" value="40">
+
+        <label for="waist">Waist <span class="hint">around the natural waist — the body is sized on the larger of chest and waist</span></label>
+        <input id="waist" type="number" inputmode="decimal" min="20" max="80" step="0.25" value="34">
+
+        <label for="fabricw">Fabric width <span class="hint">optional — for the layout and yardage below</span></label>
+        <input id="fabricw" type="number" inputmode="decimal" min="20" max="120" step="0.5" value="45">
+
+        <p class="note">That's it. Ease comes from your fit choice; the side gore tops
+        are sized so the panels plus gores fit your body exactly; the armscye depth is
+        an eighth of your girth plus 4½″; the front gores are two-thirds the hem width
+        of the side gores; the waist sits 16″ below the shoulder; the standard sleeve
+        reaches the wrist at 24″. If a standard doesn't suit your body, tell me at an
+        event and I'll talk you through adjusting it.</p>
+      </section>
+
+      <section class="card" aria-label="Pattern dimensions">
+        <h2>Pattern dimensions</h2>
+        <table>
+          <tbody>
+            <tr><th>P</th><td>Panel width — each front; back is 2 × P</td><td class="val" id="outP"></td></tr>
+            <tr><th>L</th><td>Panel length, shoulder to hem</td><td class="val" id="outL"></td></tr>
+            <tr><th>A</th><td>Armscye depth — sleeve fold to underarm</td><td class="val" id="outA"></td></tr>
+            <tr><th>S</th><td>Sleeve width, opened flat (2 × A)</td><td class="val" id="outS"></td></tr>
+            <tr><th>N</th><td id="lblN">Sleeve length</td><td class="val" id="outN"></td></tr>
+            <tr id="rowC"><th>C</th><td>Cuff opening, flat</td><td class="val" id="outC"></td></tr>
+            <tr><th>T</th><td>Side gore width at the top, at the underarm</td><td class="val" id="outT"></td></tr>
+            <tr><th>G</th><td>Side gore — height × width at hem</td><td class="val" id="outG"></td></tr>
+            <tr id="rowF"><th>F</th><td>Front gore — height × width at hem</td><td class="val" id="outF"></td></tr>
+          </tbody>
+        </table>
+        <p class="note">Rounded up to the nearest ½″ — generous, never tight, and seam
+        allowance is <em>not</em> included, so add your usual as you cut. The back is
+        cut 2 × P wide on a fold, each front one P — half your shoulder width each, so
+        the panels end at your shoulder seams. Each side gore is a trapezoid: T wide at
+        the underarm, where it makes up the width the body needs, flaring to G at the
+        hem. The front gores run from the waist to the hem, sewn to the straight
+        center-front edges.</p>
+        <p class="note" id="sweep"></p>
+        <div class="warn" id="check" hidden></div>
+      </section>
+    </div>
+
+    <section class="card diagram-card" id="cutCard" aria-label="Cutting diagram">
+      <h2>Cutting diagram — all pieces</h2>
+      <figure id="cutFig"></figure>
+      <p class="note" id="cutNote"></p>
+    </section>
+
+    <section class="card diagram-card" id="sewnCard" aria-label="Assembled view">
+      <h2>Assembled view — front</h2>
+      <figure id="sewnFig"></figure>
+      <p class="note">Shaded pieces are the gores. The body panels end at your shoulder
+      seams; from the underarm down, the side gores carry the width — fitted at the top,
+      full at the hem. The front gores swing the center-front edges outward below the
+      waist so the fronts overlap when closed. The neckline is cut after the shoulder
+      seams are sewn — start shallow, try it on, and deepen the curve to taste.</p>
+    </section>
+
+    <section class="card diagram-card" aria-label="Construction">
+      <h2>Construction</h2>
+      <ol class="steps">
+        <li>Sew the two front panels to the back at the shoulders.</li>
+        <li>Cut the neckline — a shallow curve at first, deepened after a fitting.</li>
+        <li>Sew each sleeve to the body, centering the sleeve on the shoulder seam,
+        everything still flat.</li>
+        <li>Sew the top edge of each side gore (T, <span class="ci" id="cT"></span>) to
+        the underside of the sleeve at the armpit, splitting it evenly front and back.</li>
+        <li>Sew the long edges of each side gore to the front and back panel edges, from
+        the underarm (<span class="ci" id="cA"></span> below the shoulder) down to the
+        hem — this closes the sides and fits the body in one seam per edge.</li>
+        <li>Sew the underarm seam of each sleeve from the cuff to the gore top.</li>
+        <li id="stepFrontGore">Sew a front gore to each straight center-front edge, wide
+        end at the hem, starting <span class="ci" id="cWD"></span> below the shoulder at
+        the waist.</li>
+        <li id="stepSleeve"></li>
+        <li>Face the front edges (iç astar), then finish the hem and cuffs. Line the
+        body if you're lining.</li>
+        <li>Close the front with silk-wrapped buttons (düğme) and thread loops — loops,
+        not buttonholes. Add çaprast down the front and at the cuffs if you like.</li>
+      </ol>
+    </section>
+
+    <section class="card diagram-card" aria-label="Fabric layout">
+      <h2>Fabric layout</h2>
+      <figure id="layoutFig"></figure>
+      <p class="note" id="yardage"></p>
+    </section>
+
+    <div class="actions no-print">
+      <button id="printBtn">Print pattern sheet</button>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .design-card{margin-top:1.5rem}
+  .gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem}
+  @media(max-width:720px){.gen-grid{grid-template-columns:1fr}}
+  .card h2{margin-top:0}
+  label{display:block;font-weight:600;font-size:.92rem;margin:.9rem 0 .25rem}
+  label:first-of-type{margin-top:0}
+  label.tight{margin-top:.5rem}
+  label.gap{margin-top:1.1rem}
+  .hint{font-weight:400;opacity:.72;font-size:.82rem;display:block}
+  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(31,67,150,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
+  input[type=number]:focus{outline:2px solid #2e8c8a;outline-offset:1px}
+  .seg{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.25rem}
+  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(31,67,150,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer;white-space:nowrap}
+  .seg button[aria-pressed=true]{background:#1f4396;border-color:#1f4396;color:#fff}
+  .seg button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  table{width:100%;border-collapse:collapse;margin-top:.25rem}
+  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(31,67,150,.28);text-align:left;font-size:.95rem}
+  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#2e8c8a;width:2.2rem}
+  td.val{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;white-space:nowrap}
+  .diagram-card{margin-top:1.25rem}
+  figure{margin:0}
+  figure :global(svg){display:block;width:100%;height:auto;margin-inline:auto}
+  .print-only{display:none}
+  .note{font-size:.85rem;opacity:.75;margin-top:.6rem}
+  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #c9a24b;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
+  figure :global(.note){font-size:.85rem;opacity:.75;margin-top:.6rem}
+  .actions{margin-top:1.5rem}
+  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #1f4396;background:#1f4396;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
+  .actions button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .steps{margin:.25rem 0 0;padding-left:1.35rem}
+  .steps li{margin:.5rem 0;font-size:.95rem}
+  .ci{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
+  @media print{
+    .no-print{display:none!important}
+    .print-only{display:block}
+    .gen-grid{display:block}
+    .card{break-inside:avoid;background:#fff!important;border:none!important;box-shadow:none!important;padding:0!important}
+    .diagram-card{margin-top:1rem}
+    #cutCard,#sewnCard{break-before:page}
+    figure :global(svg){max-height:8in}
+    .note,.hint{opacity:1}
+  }
+</style>
+
+<style is:global>
+  /* Keep the site frame off the printed pattern sheet. */
+  @media print{
+    body{background:#fff}
+    body > header, body > nav, body > footer,
+    .site-header, .site-nav, .site-footer{display:none!important}
+  }
+</style>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const EIGHTHS = ['','⅛','¼','⅜','½','⅝','¾','⅞'];
+  const r8 = (x) => Math.round(x*8)/8;
+  function fmt(x){
+    const neg = x<0 ? '−' : '';
+    x = Math.abs(r8(x));
+    const w = Math.floor(x+1e-9), e = Math.round((x-w)*8);
+    if (e===8) return neg+(w+1)+'″';
+    return neg + (w||e===0 ? w : '') + (e?EIGHTHS[e]:'') + '″';
+  }
+  const upHalf = (x) => Math.ceil(x*2 - 1e-9)/2;   // round up to the next ½″
+
+  // ---- standards ----
+  const WAIST_DEPTH = 16;   // shoulder to waist: where the front gores start
+  const SLEEVE_STD  = 24;   // shoulder to wrist: cuff for wide/detachable, slit for narrow
+  const ANKLE_MIN   = 52;   // the narrow sleeve never hangs shorter than this
+  const CUFF_FLAT   = 9;    // narrow sleeve cuff opening, flat
+  const SLIT        = 5;    // wrist slit length
+  const LARGE_GIRTH = 46;   // above this, a full kaftan gets 6″ of ease
+
+  const LENGTHS = {
+    short:  { val: 26, label: 'Short',  note: 'Hip length — about 26″ from the shoulder. The front gores come out short at this length, adding just a little flare below the waist.' },
+    medium: { val: 44, label: 'Medium', note: 'Tea to calf length — about 44″ from the shoulder.' },
+    full:   { val: 56, label: 'Full',   note: 'Floor length on a 5\u20328\u2033 person — about 56″ from the shoulder. Taller or shorter? Use custom.' },
+    custom: { val: null, label: 'Custom', note: 'Measure from the shoulder point down to where you want the hem.' },
+  };
+  const SLEEVES = {
+    narrow: {
+      label: 'Ankle-length narrow',
+      note: 'The classic decorative sleeve: a long tapering tube hanging to about the ankle, with a slit at the wrist so your hand comes out and the rest hangs.',
+      step: 'Finish the wrist slit — a narrow hem or a facing — so your hand slips out cleanly at the wrist.',
+    },
+    wide: {
+      label: 'Wide',
+      note: 'A straight, roomy sleeve ending at the wrist. Angle the underarm seam outward as you sew if you want extra flare at the cuff.',
+      step: 'Hem the wide cuffs; add çaprast at the cuff edge if you like.',
+    },
+    detach: {
+      label: 'Detachable',
+      note: 'A straight sleeve that buttons on at the shoulder join, so one kaftan wears two ways. The body armhole is faced and carries the loops.',
+      step: 'Face the body armhole edge and the sleeve top. Sew loops to the armhole facing and silk-wrapped buttons along the sleeve top, then button the sleeves in.',
+    },
+  };
+  const state = { len:'full', fit:'full', sleeve:'narrow' };
+
+  function seg(btns, keys, prop){
+    btns.forEach((b, i) => b.addEventListener('click', () => {
+      btns.forEach((x, j) => x.setAttribute('aria-pressed', String(i===j)));
+      state[prop] = keys[i];
+      render();
+    }));
+  }
+  seg([$('lenShort'),$('lenMedium'),$('lenFull'),$('lenCustom')], ['short','medium','full','custom'], 'len');
+  seg([$('fitFitted'),$('fitFull')], ['fitted','full'], 'fit');
+  seg([$('slNarrow'),$('slWide'),$('slDetach')], ['narrow','wide','detach'], 'sleeve');
+
+  ['shoulders','chest','waist','customLen','fabricw'].forEach(id => $(id).addEventListener('input', render));
+
+  function dims(){
+    const SH = +$('shoulders').value || 0;
+    const CH = +$('chest').value || 0;
+    const WA = +$('waist').value || 0;
+    const girth = Math.max(CH, WA);
+    const ease = state.fit==='fitted' ? 2 : (girth >= LARGE_GIRTH ? 6 : 4);
+    const LEN = state.len==='custom' ? (+$('customLen').value || 0) : LENGTHS[state.len].val;
+
+    const P = upHalf(SH/2);                       // each front panel; back is 2P on a fold
+    const L = upHalf(LEN + 1);                    // shoulder to hem, plus a little for the hem
+    const A = upHalf(girth/8 + 4.5);              // armscye depth from girth
+    const S = 2*A;                                // sleeve width opened flat
+    const C = CUFF_FLAT;                          // narrow cuff, flat
+    const N = state.sleeve==='narrow' ? Math.max(L, ANKLE_MIN) : upHalf(SLEEVE_STD + 1);
+    const T = Math.max(upHalf(((girth+ease) - 4*P) / 2), 0);  // gore top: fits the body over the panels
+    const GW = upHalf((girth+ease)/4);            // side gore width at hem
+    const GH = Math.max(upHalf(L - A), 1);        // side gore height: underarm to hem
+    const FG = upHalf(GW*0.66);                   // front gore two-thirds of the side gore hem
+    const FH = upHalf(L - WAIST_DEPTH);           // front gore height: waist to hem
+    const hasFront = FH >= 6;                     // very short customs skip the front gores
+    return { SH, CH, WA, girth, ease, P, L, A, S, C, N, T, GW, GH, FG, FH, hasFront };
+  }
+
+  // shared helpers
+  const dimLine = (fs) => (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+  const label = (fs,x,y,txt,color='#5a6382',rot=0) =>
+    `<text x="${x}" y="${y}" font-size="${fs}" fill="${color}" text-anchor="middle" ${rot?`transform="rotate(${rot} ${x} ${y})"`:''} font-family="Karla,sans-serif">${txt}</text>`;
+
+  function cuttingSVG(d){
+    const {P,L,A,S,C,N,T,GW,GH,FG,FH,hasFront} = d;
+    const gap = Math.max(L,N)/22;
+    const row1w = 3*P + 2*gap;
+    const totW = Math.max(row1w, N, GH, FH);
+    const y1 = 0;
+    const y2 = L + gap*2.6;            // sleeve row
+    const y3 = y2 + S + gap*2.6;       // side gore row
+    const y4 = y3 + GW + gap*2.6;      // front gore row
+    const totH = hasFront ? y4 + FG : y3 + GW;
+    const fs = Math.max(totW, totH)/44;
+    const m = fs*3.4;
+    const vb = `${-m} ${-m} ${totW+m*2+fs*4} ${totH+m+fs*4}`;
+    const dim = dimLine(fs);
+
+    const back = `
+      <rect x="0" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${y1}" x2="0" y2="${y1+L}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      ${label(fs*.92, -fs*.7, y1+L/2, 'fold', '#8a6d1f', -90)}
+      ${label(fs*.92, P/2, y1+L/2, 'back — cut 1 on fold')}
+      ${dim(0, y1-fs*1.2, P, y1-fs*1.2, `P ${fmt(P)}`, P/2, y1-fs*1.7)}`;
+
+    const front = (x,n) => `
+      <rect x="${x}" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${label(fs*.92, x+P/2, y1+L/2, `front ${n}`)}
+      ${n===1 ? dim(x, y1-fs*1.2, x+P, y1-fs*1.2, `P ${fmt(P)}`, x+P/2, y1-fs*1.7) : ''}`;
+
+    let sleeve;
+    if (state.sleeve==='narrow'){
+      const sx = Math.min(SLEEVE_STD, N);
+      sleeve = `
+        <polygon points="0,${y2} ${N},${y2+(S-C)/2} ${N},${y2+(S+C)/2} 0,${y2+S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        <line x1="${sx}" y1="${y2+(S-C)/2*(sx/N)}" x2="${sx+SLIT}" y2="${y2+(S-C)/2*((sx+SLIT)/N)}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        ${label(fs*.85, sx+SLIT/2, y2+(S-C)/2*(sx/N)-fs*.8, `wrist slit ${fmt(SLIT)}`, '#a93b2a')}
+        ${label(fs*.92, N/2, y2+S/2, 'sleeve — cut 2')}
+        ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
+        ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}
+        ${dim(N+fs*.9, y2+(S-C)/2, N+fs*.9, y2+(S+C)/2, `C ${fmt(C)}`, N+fs*1.4, y2+S/2, 'start')}`;
+    } else {
+      const btn = state.sleeve==='detach'
+        ? [0.2,0.4,0.6,0.8].map(t=>`<circle cx="${fs*1.1}" cy="${y2+S*t}" r="${fs*.38}" fill="#1f4396"/>`).join('')
+          + label(fs*.85, fs*3.4, y2+fs*1.4, 'buttons + loops', '#1f4396')
+        : '';
+      sleeve = `
+        <rect x="0" y="${y2}" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        ${btn}
+        ${label(fs*.92, N/2, y2+S/2, 'sleeve — cut 2')}
+        ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
+        ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}`;
+    }
+
+    // side gore: trapezoid drawn sideways — top edge (T) at the left, hem (GW) at the right
+    const sideGore = `
+      <polygon points="0,${y3+(GW-T)/2} 0,${y3+(GW+T)/2} ${GH},${y3+GW} ${GH},${y3}" fill="rgba(46,140,138,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${label(fs*.92, GH*.55, y3+GW/2, 'side gore — cut 2', '#1d5f5d')}
+      ${dim(0, y3+GW+fs*1.2, GH, y3+GW+fs*1.2, `G ${fmt(GH)}`, GH/2, y3+GW+fs*2.4)}
+      ${dim(-fs*.9, y3+(GW-T)/2, -fs*.9, y3+(GW+T)/2, `T ${fmt(T)}`, -fs*1.4, y3+GW/2, 'end')}
+      ${dim(GH+fs*.9, y3, GH+fs*.9, y3+GW, `${fmt(GW)}`, GH+fs*1.4, y3+GW/2, 'start')}`;
+
+    const frontGore = hasFront ? `
+      <polygon points="0,${y4+FG/2} ${FH},${y4} ${FH},${y4+FG}" fill="rgba(46,140,138,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${label(fs*.92, FH*.55, y4+FG/2, 'front gore — cut 2', '#1d5f5d')}
+      ${dim(0, y4+FG+fs*1.2, FH, y4+FG+fs*1.2, `F ${fmt(FH)}`, FH/2, y4+FG+fs*2.4)}
+      ${dim(FH+fs*.9, y4, FH+fs*.9, y4+FG, `${fmt(FG)}`, FH+fs*1.4, y4+FG/2, 'start')}` : '';
+
+    return `<svg viewBox="${vb}" role="img" aria-label="Cutting diagram: back panel ${fmt(P)} wide on the fold by ${fmt(L)} long, two front panels ${fmt(P)} by ${fmt(L)}, two sleeves, two trapezoid side gores${hasFront?', and two front gores':''}">
+      ${back}
+      ${front(P+gap,1)}${front(2*(P+gap),2)}
+      ${dim(row1w+fs*.9, y1, row1w+fs*.9, y1+L, `L ${fmt(L)}`, row1w+fs*1.4, y1+L/2, 'start')}
+      ${sleeve}${sideGore}${frontGore}
+    </svg>`;
+  }
+
+  function sewnSVG(d){
+    const {P,L,A,S,C,N,T,GW,FG,hasFront} = d;
+    const bw = P;                         // body extends ±P from center front
+    const sleeveDrop = state.sleeve==='narrow' ? Math.min(N, L) : 0;
+    const reachX = state.sleeve==='narrow' ? Math.max(bw+T+S, bw+GW) : Math.max(bw+T+N, bw+GW);
+    const totW = 2*reachX;
+    const totH = L;
+    const fs = Math.max(totW, totH)/40;
+    const m = fs*3.4;
+    const vb = `${-totW/2-m} ${-m} ${totW+2*m} ${totH+m*2+fs*3}`;
+    const dim = dimLine(fs);
+
+    // body: panels straight to the underarm, gores step out T then flare to GW at hem
+    const bodyOutline = `
+      <polygon points="${-bw},0 ${bw},0 ${bw},${A} ${bw+T},${A} ${bw+GW},${L} ${-bw-GW},${L} ${-bw-T},${A} ${-bw},${A}"
+        fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+    const fGores = hasFront ? `
+      <polygon points="0,${WAIST_DEPTH} ${FG},${L} 0,${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,${WAIST_DEPTH} ${-FG},${L} 0,${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>` : '';
+    const gores = `
+      <polygon points="${bw},${A} ${bw+T},${A} ${bw+GW},${L} ${bw},${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${-bw},${A} ${-bw-T},${A} ${-bw-GW},${L} ${-bw},${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      ${fGores}`;
+    const neckW = P*0.42, neckD = A*0.42;
+    const centerFront = `
+      <line x1="0" y1="${neckD}" x2="0" y2="${L}" stroke="#26304a" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+      <path d="M ${-neckW} 0 Q 0 ${neckD*1.9} ${neckW} 0" fill="none" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+    let sleeves;
+    if (state.sleeve==='narrow'){
+      const x0 = bw;                      // sleeve springs from the shoulder edge
+      const sl = (s)=>`<polygon points="${s*x0},0 ${s*(x0+S)},0 ${s*(x0+S*0.55+C*0.45)},${sleeveDrop} ${s*(x0+S*0.55-C*0.55)},${sleeveDrop}"
+        fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+        <line x1="${s*(x0+S*0.55)}" y1="${Math.min(SLEEVE_STD,sleeveDrop)}" x2="${s*(x0+S*0.55)}" y2="${Math.min(SLEEVE_STD,sleeveDrop)+SLIT}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+      sleeves = sl(1)+sl(-1)+label(fs*.85, bw+S*0.55, Math.min(SLEEVE_STD,sleeveDrop)-fs*.6, 'slit', '#a93b2a');
+    } else {
+      const sl = (s)=>`<rect x="${s===1?bw:-bw-N}" y="0" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+      const btns = state.sleeve==='detach'
+        ? [0.25,0.5,0.75].map(t=>`<circle cx="${bw+fs*.9}" cy="${S*t}" r="${fs*.34}" fill="#1f4396"/><circle cx="${-bw-fs*.9}" cy="${S*t}" r="${fs*.34}" fill="#1f4396"/>`).join('')
+        : '';
+      sleeves = sl(1)+sl(-1)+btns;
+    }
+
+    return `<svg viewBox="${vb}" role="img" aria-label="Front view of the assembled kaftan: body ${fmt(2*bw)} across at the shoulders, side gores ${fmt(T)} wide at the underarm flaring to ${fmt(GW)} at the hem${hasFront?', front gores from the waist down':''}, and ${SLEEVES[state.sleeve].label.toLowerCase()} sleeves">
+      ${sleeves}
+      ${bodyOutline}
+      ${gores}
+      ${centerFront}
+      ${label(fs*.92, bw*0.55, (A+L)/2*.62, 'front', '#5a6382')}
+      ${dim(-bw, -fs*1.4, bw, -fs*1.4, `2P ${fmt(2*bw)}`, 0, -fs*1.9)}
+      ${dim(-bw-GW-fs*1.2, 0, -bw-GW-fs*1.2, L, `L ${fmt(L)}`, -bw-GW-fs*1.7, L/2, 'end')}
+      ${dim(bw+GW+fs*1.2, 0, bw+GW+fs*1.2, A, `A ${fmt(A)}`, bw+GW+fs*1.7, A/2+fs*.35, 'start')}
+      ${hasFront ? dim(fs*1.0, 0, fs*1.0, WAIST_DEPTH, `waist ${fmt(WAIST_DEPTH)}`, fs*1.5, WAIST_DEPTH-fs*.5, 'start') : ''}
+      ${dim(-bw-GW, L+fs*1.4, bw+GW, L+fs*1.4, `hem ${fmt(2*bw+2*GW)}${hasFront?' + front gores':''}`, 0, L+fs*2.6)}
+    </svg>`;
+  }
+
+  function layoutSVG(d){
+    const {P,L,S,N,T,GW,GH,FG,FH,hasFront} = d;
+    const FW = +$('fabricw').value || 0;
+    const half = FW/2;
+    if (!FW) return {svg:'<p class="note">Enter a fabric width to see the layout.</p>', yd:''};
+    const need = Math.max(P, S);
+    if (half < need){
+      return {svg:`<div class="warn">At ${FW}″ wide, this fabric folds to ${fmt(half)} — narrower than the widest piece (${fmt(need)}: ${S>=P?'the sleeve, opened flat':'a body panel'}). You can piece the panels, which is entirely period, or choose wider fabric.</div>`, yd:''};
+    }
+    const goreW = hasFront ? Math.max(GW, FG) : GW;
+    const goresBeside = (half - S) >= goreW;
+    const goreLen = goresBeside ? 0 : Math.max(GH, hasFront?FH:0) + 1;
+    const segs = [
+      {len: L+0.5, label:'back — on fold', h: P},
+      {len: L+0.5, label:'fronts — both layers', h: P},
+      {len: N+0.5, label:'sleeves — both layers', h: S},
+    ];
+    if (goreLen) segs.push({len: goreLen, label:'gores', h: goreW});
+    const total = segs.reduce((a,s)=>a+s.len, 0);
+    const fs = total/44;
+    const vb = `${-fs*3} ${-fs*3} ${total+fs*6} ${half+fs*7}`;
+    let x = 0, boxes = '';
+    for (const s of segs){
+      boxes += `
+        <rect x="${x}" y="${half-s.h}" width="${s.len}" height="${s.h}" fill="rgba(31,67,150,.12)" stroke="#1f4396" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+        ${label(fs*.95, x+s.len/2, half-s.h/2, s.label, '#1f4396')}`;
+      x += s.len;
+    }
+    const sleeveX = segs[0].len + segs[1].len;
+    const besideNote = goresBeside
+      ? label(fs*.9, sleeveX + segs[2].len/2, half - S - fs*1.1, 'gores nest above the sleeves — trapezoids pair head to toe', '#1d5f5d')
+      : '';
+    const svg = `<svg viewBox="${vb}" role="img" aria-label="Fabric folded lengthwise with the back on the fold, then fronts, sleeves, and gores placed along it">
+      <rect x="0" y="0" width="${total}" height="${half}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${half}" x2="${total}" y2="${half}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      ${label(fs, total/2, half+fs*2.2, 'lengthwise fold — selvages at the top', '#8a6d1f')}
+      ${boxes}${besideNote}
+      <text x="${total/2}" y="${-fs*1.2}" font-size="${fs}" fill="#26304a" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(total)} of fabric</text>
+    </svg>`;
+    const yards = Math.ceil((total/36)*4)/4;
+    return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(total)} along the fold), before shrinkage and without seam allowance — wash first and add a little for both. ${goresBeside ? 'The gores nest in the spare width above the sleeves — flip every other trapezoid head to toe and they pack tight.' : 'The gores need their own stretch of fabric at this width.'} Cutting through the folded fabric yields both fronts, both sleeves, and both of each gore at once.`};
+  }
+
+  function render(){
+    const d = dims();
+    const sv = SLEEVES[state.sleeve];
+    $('lenNote').textContent = LENGTHS[state.len].note;
+    $('customLenWrap').hidden = state.len!=='custom';
+    $('fitNote').textContent = state.fit==='fitted'
+      ? 'Fitted: 2″ of ease over the larger of chest and waist — closer to the body, like a zibin or underlayer kaftan.'
+      : `Full: ${d.girth >= LARGE_GIRTH ? 6 : 4}″ of ease over the larger of chest and waist — the standard outer kaftan, room for the layers underneath.`;
+    $('sleeveNote').textContent = sv.note;
+    $('stepSleeve').textContent = sv.step;
+    $('stepFrontGore').style.display = d.hasFront ? '' : 'none';
+    $('rowF').style.display = d.hasFront ? '' : 'none';
+    $('lblN').textContent = state.sleeve==='narrow' ? 'Sleeve length — hangs to the ankle' : 'Sleeve length, shoulder to cuff';
+    $('rowC').style.display = state.sleeve==='narrow' ? '' : 'none';
+    $('outP').textContent = fmt(d.P);
+    $('outL').textContent = fmt(d.L);
+    $('outA').textContent = fmt(d.A);
+    $('outS').textContent = fmt(d.S);
+    $('outN').textContent = fmt(d.N);
+    $('outC').textContent = fmt(d.C);
+    $('outT').textContent = fmt(d.T);
+    $('outG').textContent = `${fmt(d.GH)} × ${fmt(d.GW)}`;
+    $('outF').textContent = `${fmt(d.FH)} × ${fmt(d.FG)}`;
+    const bodyRound = 4*d.P + 2*d.T;
+    const hem = 4*d.P + 2*d.GW + (d.hasFront ? 2*d.FG : 0);
+    $('sweep').textContent = d.girth
+      ? `Around the body at the underarm: 4 × P + 2 × T = ${fmt(bodyRound)} (${fmt(bodyRound-d.girth)} of room, with ${fmt(d.ease)} ease built in). Hem sweep: ${fmt(hem)} around with the fronts edge to edge.`
+      : '';
+    const ck = $('check');
+    if (d.T <= 0 && d.girth){
+      ck.hidden = false;
+      ck.textContent = `Your shoulders (${fmt(d.SH)}) are broad enough that the panels alone cover your girth plus ease — the side gores come to a point at the underarm, which is fine, but double-check the shoulder measurement was taken seam to seam, not around.`;
+    } else if (d.WA > d.CH && state.fit==='fitted'){
+      ck.hidden = false;
+      ck.textContent = `Your waist is larger than your chest, so the body is sized on the waist (${fmt(d.WA)}). A fitted cut will still skim rather than shape — consider the full fit for more drape.`;
+    } else ck.hidden = true;
+    $('cT').textContent = fmt(d.T);
+    $('cA').textContent = fmt(d.A);
+    $('cWD').textContent = fmt(WAIST_DEPTH);
+    $('printMeta').textContent = `${LENGTHS[state.len].label.toLowerCase()} · ${state.fit} fit (${fmt(d.ease)} ease) · ${sv.label.toLowerCase()} sleeves — shoulders ${fmt(d.SH)} · chest ${fmt(d.CH)} · waist ${fmt(d.WA)} — ${new Date().toLocaleDateString()}`;
+    $('cutFig').innerHTML = cuttingSVG(d);
+    $('cutNote').textContent = (state.sleeve==='narrow'
+      ? `Body pieces at top; sleeve and gores below, drawn sideways to the same scale. The narrow sleeve tapers from S at the armhole to C at the cuff, with the wrist slit ${fmt(SLEEVE_STD)} from the shoulder end. `
+      : `Body pieces at top; sleeve and gores below, drawn sideways to the same scale. `)
+      + 'The side gore is a trapezoid: its short parallel edge (T) sews to the underside of the sleeve at the armpit. Cut fronts, sleeves, and gores through folded fabric to get both at once. Seam allowance is not included.';
+    $('sewnFig').innerHTML = sewnSVG(d);
+    const lay = layoutSVG(d);
+    $('layoutFig').innerHTML = lay.svg;
+    $('yardage').textContent = lay.yd;
+  }
+
+  $('printBtn').addEventListener('click', ()=> window.print());
+  render();
+</script>
