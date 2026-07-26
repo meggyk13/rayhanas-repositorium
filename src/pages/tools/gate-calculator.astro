@@ -1,0 +1,853 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Gate Calculator">
+  <div class="wrap">
+    <header class="entry-header">
+      <h1>Gate Calculator</h1>
+      <p class="prose">
+        Track attendance and tally fees at gate. Calculates change, logs each group's details, and summarizes your day.
+      </p>
+    </header>
+    <div class="tool-wrapper">
+      <h1><span>Gate Calculator</span>
+        <button class="iconbtn" id="openSettings">Prices ⚙</button>
+      </h1>
+
+      <div class="rows" id="tallyRows"></div>
+
+      <div class="total-bar">
+        <div class="label">Total owed</div>
+        <div class="amount" id="totalAmount">$0.00</div>
+      </div>
+
+      <div class="section-label">Amount tendered</div>
+      <div class="change-card">
+        <div class="quick-tender" id="quickTender">
+          <button data-amt="20">$20</button>
+          <button data-amt="40">$40</button>
+          <button data-amt="50">$50</button>
+          <button data-amt="100">$100</button>
+        </div>
+        <div class="manual-tender">
+          <input type="number" inputmode="decimal" id="manualTender" placeholder="Other amount">
+        </div>
+        <div class="change-result">
+          <div class="label">Change</div>
+          <div>
+            <div class="amount" id="changeAmount">$0.00</div>
+            <div class="short-note" id="shortNote"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="clear-btn" id="clearBtn">Clear / Next Group</button>
+
+      <div class="history-card">
+        <div class="history-head">
+          <span class="hlabel">Transaction Log</span>
+          <span class="htotal" id="historyTotal"></span>
+        </div>
+        <div class="day-summary" id="daySummary"></div>
+        <div class="history-list" id="historyList"></div>
+        <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Clear History Modal -->
+  <div class="modal-backdrop" id="confirmBackdrop">
+    <div class="modal">
+      <h2>Clear all history?</h2>
+      <p>This will erase all transaction records from today.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelConfirm">Cancel</button>
+        <button class="btn-danger" id="confirmClear">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsBackdrop">
+    <div class="modal">
+      <h2>Event Prices</h2>
+      <div class="field">
+        <label for="p_adult">Adult (non-member)</label>
+        <input type="number" id="p_adult" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label for="p_memberDiscount">Member discount</label>
+        <input type="number" id="p_memberDiscount" step="0.01" min="0">
+        <p class="note">E.g., $2 for member discount (subtracted from regular price)</p>
+      </div>
+      <div class="field">
+        <label for="p_under18">Under 18</label>
+        <input type="number" id="p_under18" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label for="p_lunch">Lunch (per meal)</label>
+        <input type="number" id="p_lunch" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label for="p_feast">Feast (per meal)</label>
+        <input type="number" id="p_feast" step="0.01" min="0">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelSettings">Cancel</button>
+        <button class="btn-primary" id="saveSettings">Save</button>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .tool-wrapper {
+    padding: 0 16px 40px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  :root {
+    --ink: #2b2420;
+    --paper: #faf6ee;
+    --panel: #fff;
+    --line: #ddd3c2;
+    --accent: #8a4b2f;
+    --accent-dark: #6e3a22;
+    --good: #3f6b3f;
+    --bad: #a33128;
+    --shadow: 0 2px 6px rgba(43, 36, 32, 0.12);
+  }
+
+  :global(body) {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    margin: 4px 0 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  button.iconbtn {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .total-bar {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  .total-bar .label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+
+  .total-bar .amount {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.05;
+  }
+
+  .rows {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row:last-child {
+    border-bottom: none;
+  }
+
+  .row .name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .feast-ratio {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #7a6f60;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1px 7px;
+    vertical-align: 1px;
+  }
+
+  .feast-ratio.over {
+    color: #fff;
+    background: var(--bad);
+    border-color: var(--bad);
+  }
+
+  .row .price {
+    display: block;
+    font-size: 0.8rem;
+    color: #7a6f60;
+    font-weight: 400;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stepper button {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .stepper button:active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .stepper .count {
+    min-width: 28px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a7c68;
+    margin: 18px 4px 8px;
+  }
+
+  .change-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .quick-tender {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .quick-tender button {
+    padding: 12px 4px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .quick-tender button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .manual-tender input {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    margin-bottom: 14px;
+    box-sizing: border-box;
+  }
+
+  .change-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 4px 4px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .change-result .label {
+    font-size: 0.9rem;
+    color: #7a6f60;
+  }
+
+  .change-result .amount {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--good);
+  }
+
+  .change-result .amount.negative {
+    color: var(--bad);
+  }
+
+  .short-note {
+    display: none;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--bad);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .short-note.show {
+    display: block;
+  }
+
+  .clear-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin-top: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 14px;
+    border: none;
+    background: var(--ink);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .clear-btn:active {
+    opacity: 0.85;
+  }
+
+  /* history */
+  .history-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-top: 18px;
+    overflow: hidden;
+  }
+
+  .history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .history-head .hlabel {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .history-head .htotal {
+    font-size: 0.85rem;
+    color: #7a6f60;
+  }
+
+  .day-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .day-summary:empty {
+    display: none;
+  }
+
+  .chip {
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    color: #5c5245;
+  }
+
+  .chip.main {
+    background: var(--good);
+    border-color: var(--good);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .history-list {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .hrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.88rem;
+  }
+
+  .hrow:last-child {
+    border-bottom: none;
+  }
+
+  .hrow .hdesc {
+    color: #5c5245;
+  }
+
+  .hrow .hamt {
+    font-weight: 700;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .hrow .htime {
+    display: block;
+    font-size: 0.75rem;
+    color: #a09480;
+  }
+
+  .history-empty {
+    padding: 16px 14px;
+    font-size: 0.88rem;
+    color: #8a7c68;
+  }
+
+  .clear-history-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--bad);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  /* modals */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 20;
+  }
+
+  .modal-backdrop.open {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--paper);
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    margin: 0 0 14px;
+    font-size: 1.15rem;
+  }
+
+  .modal p {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.85rem;
+    color: #7a6f60;
+    margin-bottom: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    box-sizing: border-box;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .modal-actions button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-danger {
+    background: var(--bad);
+    color: #fff;
+  }
+
+  .btn-cancel {
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--line) !important;
+  }
+
+  .note {
+    font-size: 0.78rem;
+    color: #8a7c68;
+    margin-top: 2px;
+  }
+</style>
+
+<script>
+  (function() {
+    const K_PRICES = 'gate_prices';
+    const K_TALLY = 'gate_tally';
+    const K_HISTORY = 'gate_history';
+
+    const defaultPrices = {
+      adult: 12,
+      memberDiscount: 2,
+      under18: 6,
+      lunch: 8,
+      feast: 12
+    };
+
+    const categories = [
+      { key: 'memberAdult', name: 'Member Adult', short: 'mem', meal: false },
+      { key: 'nonMemberAdult', name: 'Non-Member Adult', short: 'adult', meal: false },
+      { key: 'under18', name: 'Under 18', short: 'youth', meal: false },
+      { key: 'lunch', name: 'Lunch', short: 'lunch', meal: true, sub: 'meal' },
+      { key: 'feast', name: 'Feast', short: 'feast', meal: true, sub: 'meal' }
+    ];
+
+    function unitPrice(catKey, priceObj) {
+      if (catKey === 'memberAdult')
+        return Math.max(0, (priceObj.adult || 0) - (priceObj.memberDiscount || 0));
+      if (catKey === 'nonMemberAdult') return priceObj.adult || 0;
+      if (catKey === 'under18') return priceObj.under18 || 0;
+      if (catKey === 'lunch') return priceObj.lunch || 0;
+      if (catKey === 'feast') return priceObj.feast || 0;
+      return 0;
+    }
+
+    function load(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function save(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    function zeroTally() {
+      const t = {};
+      categories.forEach((c) => (t[c.key] = 0));
+      return t;
+    }
+
+    let prices = Object.assign({}, defaultPrices, load(K_PRICES, {}));
+    let tally = Object.assign(zeroTally(), load(K_TALLY, {}));
+    let history = load(K_HISTORY, []);
+    let tendered = null;
+
+    const rowsEl = document.getElementById('tallyRows');
+    const totalEl = document.getElementById('totalAmount');
+    const changeEl = document.getElementById('changeAmount');
+    const shortNote = document.getElementById('shortNote');
+    const manualInput = document.getElementById('manualTender');
+    const quickTenderEl = document.getElementById('quickTender');
+    const historyList = document.getElementById('historyList');
+    const historyTotal = document.getElementById('historyTotal');
+
+    function fmt(n) {
+      const sign = n < 0 ? '−' : '';
+      return sign + '$' + Math.abs(n).toFixed(2);
+    }
+
+    function renderRows() {
+      rowsEl.innerHTML = '';
+      categories.forEach((cat) => {
+        if (cat.meal && unitPrice(cat.key, prices) === 0) {
+          if (tally[cat.key]) {
+            tally[cat.key] = 0;
+            save(K_TALLY, tally);
+          }
+          return;
+        }
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML =
+          '<div><span class="name">' +
+          cat.name +
+          (cat.meal ? ' <span class="feast-ratio" id="ratio_' + cat.key + '"></span>' : '') +
+          '</span>' +
+          '<span class="price">' +
+          (unitPrice(cat.key, prices) === 0
+            ? 'Free'
+            : fmt(unitPrice(cat.key, prices)) + ' each') +
+          (cat.sub ? ' · ' + cat.sub : '') +
+          (cat.key === 'memberAdult' ? ' (' + fmt(prices.memberDiscount || 0) + ' member discount)' : '') +
+          '</span></div>' +
+          '<div class="stepper">' +
+          '<button data-cat="' +
+          cat.key +
+          '" data-dir="-1" aria-label="fewer ' +
+          cat.name +
+          '">−</button>' +
+          '<span class="count" id="count_' +
+          cat.key +
+          '">' +
+          tally[cat.key] +
+          '</span>' +
+          '<button data-cat="' +
+          cat.key +
+          '" data-dir="1" aria-label="more ' +
+          cat.name +
+          '">+</button>' +
+          '</div>';
+        rowsEl.appendChild(row);
+      });
+      rowsEl.querySelectorAll('button[data-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-cat');
+          const dir = parseInt(btn.getAttribute('data-dir'), 10);
+          tally[key] = Math.max(0, (tally[key] || 0) + dir);
+          document.getElementById('count_' + key).textContent = tally[key];
+          save(K_TALLY, tally);
+          renderTotals();
+        });
+      });
+    }
+
+    function computeTotal() {
+      return categories.reduce(
+        (sum, c) => sum + (tally[c.key] || 0) * unitPrice(c.key, prices),
+        0
+      );
+    }
+
+    function renderTotals() {
+      const total = computeTotal();
+      totalEl.textContent = fmt(total);
+      const party = (tally.memberAdult || 0) + (tally.nonMemberAdult || 0) + (tally.under18 || 0);
+      categories
+        .filter((c) => c.meal)
+        .forEach((c) => {
+          const el = document.getElementById('ratio_' + c.key);
+          if (!el) return;
+          const meals = tally[c.key] || 0;
+          if (party > 0 || meals > 0) {
+            el.textContent = meals + '/' + party;
+            el.classList.toggle('over', meals > party);
+          } else {
+            el.textContent = '';
+            el.classList.remove('over');
+          }
+        });
+      if (tendered === null) {
+        changeEl.textContent = fmt(0);
+        changeEl.classList.remove('negative');
+        shortNote.classList.remove('show');
+      } else {
+        const change = tendered - total;
+        changeEl.textContent = fmt(change);
+        changeEl.classList.toggle('negative', change < 0);
+        if (change < 0) {
+          shortNote.textContent = 'Still short ' + fmt(Math.abs(change));
+          shortNote.classList.add('show');
+        } else {
+          shortNote.classList.remove('show');
+        }
+      }
+    }
+
+    function describeTally(t) {
+      const parts = [];
+      categories.forEach((c) => {
+        if (t[c.key] > 0) parts.push(t[c.key] + ' ' + c.short);
+      });
+      return parts.length ? parts.join(' · ') : 'empty';
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      if (history.length === 0) {
+        historyList.innerHTML =
+          '<div class="history-empty">No transactions yet. Tap Clear / Next after each group to log it here.</div>';
+        historyTotal.textContent = '';
+        document.getElementById('daySummary').innerHTML = '';
+        return;
+      }
+      let sum = 0;
+      const dayCounts = zeroTally();
+      for (let i = history.length - 1; i >= 0; i--) {
+        const h = history[i];
+        sum += h.total;
+        if (h.t) {
+          categories.forEach((c) => {
+            dayCounts[c.key] += h.t[c.key] || 0;
+          });
+        }
+        const row = document.createElement('div');
+        row.className = 'hrow';
+        const desc = h.t ? describeTally(h.t) : h.desc || '';
+        row.innerHTML =
+          '<span class="hdesc">' +
+          desc +
+          '<span class="htime">' +
+          h.time +
+          '</span></span>' +
+          '<span class="hamt">' +
+          fmt(h.total) +
+          '</span>';
+        historyList.appendChild(row);
+      }
+      historyTotal.textContent = history.length + (history.length === 1 ? ' group' : ' groups');
+      const heads = dayCounts.memberAdult + dayCounts.nonMemberAdult + dayCounts.under18;
+      const chips = [];
+      chips.push('<span class="chip main">' + fmt(sum) + ' collected</span>');
+      if (heads > 0) chips.push('<span class="chip">' + heads + ' through gate</span>');
+      categories.forEach((c) => {
+        if (dayCounts[c.key] > 0) chips.push('<span class="chip">' + dayCounts[c.key] + ' ' + c.short + '</span>');
+      });
+      document.getElementById('daySummary').innerHTML = chips.join('');
+    }
+
+    quickTenderEl.querySelectorAll('button[data-amt]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tendered = parseFloat(btn.getAttribute('data-amt'));
+        manualInput.value = '';
+        quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTotals();
+      });
+    });
+
+    manualInput.addEventListener('input', () => {
+      const val = parseFloat(manualInput.value);
+      tendered = isNaN(val) ? null : val;
+      quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+      renderTotals();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      const total = computeTotal();
+      const anyCounts = categories.some((c) => tally[c.key] > 0);
+      if (anyCounts) {
+        history.push({
+          t: Object.assign({}, tally),
+          total: total,
+          time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        });
+        save(K_HISTORY, history);
+      }
+      tally = zeroTally();
+      save(K_TALLY, tally);
+      tendered = null;
+      manualInput.value = '';
+      quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+      renderRows();
+      renderTotals();
+      renderHistory();
+    });
+
+    const confirmBackdrop = document.getElementById('confirmBackdrop');
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      if (history.length === 0) return;
+      confirmBackdrop.classList.add('open');
+    });
+    document.getElementById('cancelConfirm').addEventListener('click', () => {
+      confirmBackdrop.classList.remove('open');
+    });
+    document.getElementById('confirmClear').addEventListener('click', () => {
+      history = [];
+      save(K_HISTORY, history);
+      confirmBackdrop.classList.remove('open');
+      renderHistory();
+    });
+
+    const settingsBackdrop = document.getElementById('settingsBackdrop');
+    document.getElementById('openSettings').addEventListener('click', () => {
+      ['adult', 'memberDiscount', 'under18', 'lunch', 'feast'].forEach((k) => {
+        document.getElementById('p_' + k).value = prices[k];
+      });
+      settingsBackdrop.classList.add('open');
+    });
+    document.getElementById('cancelSettings').addEventListener('click', () => {
+      settingsBackdrop.classList.remove('open');
+    });
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      ['adult', 'memberDiscount', 'under18', 'lunch', 'feast'].forEach((k) => {
+        prices[k] = parseFloat(document.getElementById('p_' + k).value) || 0;
+      });
+      save(K_PRICES, prices);
+      settingsBackdrop.classList.remove('open');
+      renderRows();
+      renderTotals();
+    });
+
+    renderRows();
+    renderTotals();
+    renderHistory();
+  })();
+</script>

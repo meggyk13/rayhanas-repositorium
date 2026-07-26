@@ -44,10 +44,14 @@ import Base from '../../layouts/Base.astro';
       <label class="gap">Sleeves</label>
       <div class="seg" role="group" aria-label="Sleeve style">
         <button id="slNarrow" aria-pressed="true">Ankle-length narrow</button>
-        <button id="slWide" aria-pressed="false">Wide</button>
-        <button id="slDetach" aria-pressed="false">Detachable</button>
+        <button id="slElbow" aria-pressed="false">Elbow with moon</button>
+        <button id="slWide" aria-pressed="false">Full-length wide</button>
       </div>
       <p class="note" id="sleeveNote"></p>
+      <div id="detachWrap" hidden>
+        <label class="detach-label"><input type="checkbox" id="detachCheck"> Add detachable narrow sleeves underneath</label>
+        <p class="note" id="detachNote">Narrow sleeves that button onto the shoulder under the elbow sleeve.</p>
+      </div>
     </section>
 
     <div class="gen-grid">
@@ -66,12 +70,9 @@ import Base from '../../layouts/Base.astro';
         <label for="fabricw">Fabric width <span class="hint">optional — for the layout and yardage below</span></label>
         <input id="fabricw" type="number" inputmode="decimal" min="20" max="120" step="0.5" value="45">
 
-        <p class="note">That's it. Ease comes from your fit choice; the side gore tops
-        are sized so the panels plus gores fit your body exactly; the armscye depth is
-        an eighth of your girth plus 4½″; the front gores are two-thirds the hem width
-        of the side gores; the waist sits 16″ below the shoulder; the standard sleeve
-        reaches the wrist at 24″. If a standard doesn't suit your body, tell me at an
-        event and I'll talk you through adjusting it.</p>
+        <p class="note">Everything else is derived: ease from the fit choice, armscye
+        from girth, gore widths from the body, waist at 16″ below the shoulder, wrist
+        at 24″. Seam allowance is not included.</p>
       </section>
 
       <section class="card" aria-label="Pattern dimensions">
@@ -84,18 +85,17 @@ import Base from '../../layouts/Base.astro';
             <tr><th>S</th><td>Sleeve width, opened flat (2 × A)</td><td class="val" id="outS"></td></tr>
             <tr><th>N</th><td id="lblN">Sleeve length</td><td class="val" id="outN"></td></tr>
             <tr id="rowC"><th>C</th><td>Cuff opening, flat</td><td class="val" id="outC"></td></tr>
+            <tr id="rowM"><th>M</th><td>Moon cutout radius</td><td class="val" id="outM"></td></tr>
+            <tr id="rowDN"><th>DN</th><td>Detachable sleeve length</td><td class="val" id="outDN"></td></tr>
+            <tr id="rowDW"><th>DW</th><td>Detachable sleeve width, flat</td><td class="val" id="outDW"></td></tr>
             <tr><th>T</th><td>Side gore width at the top, at the underarm</td><td class="val" id="outT"></td></tr>
+            <tr><th>U</th><td>Underarm gusset — square</td><td class="val" id="outU"></td></tr>
             <tr><th>G</th><td>Side gore — height × width at hem</td><td class="val" id="outG"></td></tr>
             <tr id="rowF"><th>F</th><td>Front gore — height × width at hem</td><td class="val" id="outF"></td></tr>
           </tbody>
         </table>
-        <p class="note">Rounded up to the nearest ½″ — generous, never tight, and seam
-        allowance is <em>not</em> included, so add your usual as you cut. The back is
-        cut 2 × P wide on a fold, each front one P — half your shoulder width each, so
-        the panels end at your shoulder seams. Each side gore is a trapezoid: T wide at
-        the underarm, where it makes up the width the body needs, flaring to G at the
-        hem. The front gores run from the waist to the hem, sewn to the straight
-        center-front edges.</p>
+        <p class="note">All dimensions rounded up to the nearest ½″. Seam allowance
+        is <em>not</em> included — add your usual as you cut.</p>
         <p class="note" id="sweep"></p>
         <div class="warn" id="check" hidden></div>
       </section>
@@ -110,11 +110,8 @@ import Base from '../../layouts/Base.astro';
     <section class="card diagram-card" id="sewnCard" aria-label="Assembled view">
       <h2>Assembled view — front</h2>
       <figure id="sewnFig"></figure>
-      <p class="note">Shaded pieces are the gores. The body panels end at your shoulder
-      seams; from the underarm down, the side gores carry the width — fitted at the top,
-      full at the hem. The front gores swing the center-front edges outward below the
-      waist so the fronts overlap when closed. The neckline is cut after the shoulder
-      seams are sewn — start shallow, try it on, and deepen the curve to taste.</p>
+      <p class="note">Shaded pieces are the gores. Cut the neckline after the shoulder
+      seams are sewn — start shallow and deepen to taste.</p>
     </section>
 
     <section class="card diagram-card" aria-label="Construction">
@@ -124,16 +121,22 @@ import Base from '../../layouts/Base.astro';
         <li>Cut the neckline — a shallow curve at first, deepened after a fitting.</li>
         <li>Sew each sleeve to the body, centering the sleeve on the shoulder seam,
         everything still flat.</li>
+        <li>Set the underarm gusset (U, <span class="ci" id="cU"></span> square) into the
+        armpit: one point up into the sleeve underarm seam, one down into the gore top,
+        the two sides into the front and back panel edges.</li>
         <li>Sew the top edge of each side gore (T, <span class="ci" id="cT"></span>) to
-        the underside of the sleeve at the armpit, splitting it evenly front and back.</li>
+        the underside of the sleeve at the armpit, up to the gusset.</li>
         <li>Sew the long edges of each side gore to the front and back panel edges, from
         the underarm (<span class="ci" id="cA"></span> below the shoulder) down to the
         hem — this closes the sides and fits the body in one seam per edge.</li>
-        <li>Sew the underarm seam of each sleeve from the cuff to the gore top.</li>
+        <li>Sew the underarm seam of each sleeve from the opening end to the gusset.</li>
         <li id="stepFrontGore">Sew a front gore to each straight center-front edge, wide
         end at the hem, starting <span class="ci" id="cWD"></span> below the shoulder at
         the waist.</li>
         <li id="stepSleeve"></li>
+        <li id="stepDetach">Sew each detachable sleeve into a tube. Face the body armhole
+        edge and the sleeve top. Sew loops to the armhole facing and silk-wrapped buttons
+        along the detachable sleeve top, then button them in under the elbow sleeves.</li>
         <li>Face the front edges (iç astar), then finish the hem and cuffs. Line the
         body if you're lining.</li>
         <li>Close the front with silk-wrapped buttons (düğme) and thread loops — loops,
@@ -169,6 +172,8 @@ import Base from '../../layouts/Base.astro';
   .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(31,67,150,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer;white-space:nowrap}
   .seg button[aria-pressed=true]{background:#1f4396;border-color:#1f4396;color:#fff}
   .seg button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .detach-label{display:flex;align-items:center;gap:.45rem;font-size:.92rem;font-weight:500;margin:.7rem 0 .15rem;cursor:pointer}
+  .detach-label input{width:1.1rem;height:1.1rem;accent-color:#1f4396}
   table{width:100%;border-collapse:collapse;margin-top:.25rem}
   td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(31,67,150,.28);text-align:left;font-size:.95rem}
   th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#2e8c8a;width:2.2rem}
@@ -223,6 +228,7 @@ import Base from '../../layouts/Base.astro';
   // ---- standards ----
   const WAIST_DEPTH = 16;   // shoulder to waist: where the front gores start
   const SLEEVE_STD  = 24;   // shoulder to wrist: cuff for wide/detachable, slit for narrow
+  const ELBOW_LEN   = 14;   // shoulder to just past the elbow
   const ANKLE_MIN   = 52;   // the narrow sleeve never hangs shorter than this
   const CUFF_FLAT   = 9;    // narrow sleeve cuff opening, flat
   const SLIT        = 5;    // wrist slit length
@@ -237,33 +243,35 @@ import Base from '../../layouts/Base.astro';
   const SLEEVES = {
     narrow: {
       label: 'Ankle-length narrow',
-      note: 'The classic decorative sleeve: a long tapering tube hanging to about the ankle, with a slit at the wrist so your hand comes out and the rest hangs.',
+      note: 'A long tapering tube hanging to about the ankle, with a slit at the wrist so your hand comes out.',
       step: 'Finish the wrist slit — a narrow hem or a facing — so your hand slips out cleanly at the wrist.',
     },
+    elbow: {
+      label: 'Elbow with moon',
+      note: 'An elbow-length sleeve with a crescent (ay) cutout at the opening — the classic outer kaftan sleeve.',
+      step: 'Face or hem the moon cutout edge and the sleeve opening.',
+    },
     wide: {
-      label: 'Wide',
-      note: 'A straight, roomy sleeve ending at the wrist. Angle the underarm seam outward as you sew if you want extra flare at the cuff.',
+      label: 'Full-length wide',
+      note: 'A straight, roomy rectangle sleeve ending at the wrist.',
       step: 'Hem the wide cuffs; add çaprast at the cuff edge if you like.',
     },
-    detach: {
-      label: 'Detachable',
-      note: 'A straight sleeve that buttons on at the shoulder join, so one kaftan wears two ways. The body armhole is faced and carries the loops.',
-      step: 'Face the body armhole edge and the sleeve top. Sew loops to the armhole facing and silk-wrapped buttons along the sleeve top, then button the sleeves in.',
-    },
   };
-  const state = { len:'full', fit:'full', sleeve:'narrow' };
+  const state = { len:'full', fit:'full', sleeve:'narrow', detach:false };
 
   function seg(btns, keys, prop){
     btns.forEach((b, i) => b.addEventListener('click', () => {
       btns.forEach((x, j) => x.setAttribute('aria-pressed', String(i===j)));
       state[prop] = keys[i];
+      if (prop==='sleeve' && keys[i]!=='elbow') state.detach = false;
       render();
     }));
   }
   seg([$('lenShort'),$('lenMedium'),$('lenFull'),$('lenCustom')], ['short','medium','full','custom'], 'len');
   seg([$('fitFitted'),$('fitFull')], ['fitted','full'], 'fit');
-  seg([$('slNarrow'),$('slWide'),$('slDetach')], ['narrow','wide','detach'], 'sleeve');
+  seg([$('slNarrow'),$('slElbow'),$('slWide')], ['narrow','elbow','wide'], 'sleeve');
 
+  $('detachCheck').addEventListener('change', function(){ state.detach = this.checked; render(); });
   ['shoulders','chest','waist','customLen','fabricw'].forEach(id => $(id).addEventListener('input', render));
 
   function dims(){
@@ -279,14 +287,21 @@ import Base from '../../layouts/Base.astro';
     const A = upHalf(girth/8 + 4.5);              // armscye depth from girth
     const S = 2*A;                                // sleeve width opened flat
     const C = CUFF_FLAT;                          // narrow cuff, flat
-    const N = state.sleeve==='narrow' ? Math.max(L, ANKLE_MIN) : upHalf(SLEEVE_STD + 1);
+    const N = state.sleeve==='narrow' ? Math.max(L, ANKLE_MIN)
+            : state.sleeve==='elbow' ? upHalf(ELBOW_LEN + 1)
+            : upHalf(SLEEVE_STD + 1);
+    const M = state.sleeve==='elbow' ? upHalf(S * 0.28) : 0;  // moon cutout radius
+    const hasDetach = state.sleeve==='elbow' && state.detach;
+    const DN = hasDetach ? upHalf(SLEEVE_STD + 1) : 0;        // detachable sleeve length
+    const DW = hasDetach ? upHalf(C + 2) : 0;                 // detachable sleeve width, flat
     const T = Math.max(upHalf(((girth+ease) - 4*P) / 2), 0);  // gore top: fits the body over the panels
     const GW = upHalf((girth+ease)/4);            // side gore width at hem
     const GH = Math.max(upHalf(L - A), 1);        // side gore height: underarm to hem
     const FG = upHalf(GW*0.66);                   // front gore two-thirds of the side gore hem
     const FH = upHalf(L - WAIST_DEPTH);           // front gore height: waist to hem
     const hasFront = FH >= 6;                     // very short customs skip the front gores
-    return { SH, CH, WA, girth, ease, P, L, A, S, C, N, T, GW, GH, FG, FH, hasFront };
+    const U = Math.max(upHalf(A/3), 3);           // underarm gusset, square
+    return { SH, CH, WA, girth, ease, P, L, A, S, C, N, M, T, GW, GH, FG, FH, hasFront, U, hasDetach, DN, DW };
   }
 
   // shared helpers
@@ -297,13 +312,14 @@ import Base from '../../layouts/Base.astro';
     `<text x="${x}" y="${y}" font-size="${fs}" fill="${color}" text-anchor="middle" ${rot?`transform="rotate(${rot} ${x} ${y})"`:''} font-family="Karla,sans-serif">${txt}</text>`;
 
   function cuttingSVG(d){
-    const {P,L,A,S,C,N,T,GW,GH,FG,FH,hasFront} = d;
-    const gap = Math.max(L,N)/22;
+    const {P,L,A,S,C,N,M,T,GW,GH,FG,FH,hasFront,U,hasDetach,DN,DW} = d;
+    const gap = Math.max(L,N,hasDetach?DN:0)/22;
     const row1w = 3*P + 2*gap;
-    const totW = Math.max(row1w, N, GH, FH);
+    const totW = Math.max(row1w, N, hasDetach?DN:0, GH, FH);
     const y1 = 0;
     const y2 = L + gap*2.6;            // sleeve row
-    const y3 = y2 + S + gap*2.6;       // side gore row
+    const y2b = y2 + S + (hasDetach ? gap*1.8 : 0); // detachable row (if any)
+    const y3 = (hasDetach ? y2b + DW : y2 + S) + gap*2.6;  // side gore row
     const y4 = y3 + GW + gap*2.6;      // front gore row
     const totH = hasFront ? y4 + FG : y3 + GW;
     const fs = Math.max(totW, totH)/44;
@@ -334,18 +350,30 @@ import Base from '../../layouts/Base.astro';
         ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
         ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}
         ${dim(N+fs*.9, y2+(S-C)/2, N+fs*.9, y2+(S+C)/2, `C ${fmt(C)}`, N+fs*1.4, y2+S/2, 'start')}`;
+    } else if (state.sleeve==='elbow'){
+      const cy = y2 + S/2;
+      sleeve = `
+        <path d="M 0,${y2} L ${N},${y2} L ${N},${cy-M} A ${M} ${M} 0 0 0 ${N},${cy+M} L ${N},${y2+S} L 0,${y2+S} Z" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        <text x="${N-M*0.5}" y="${cy}" font-size="${fs*.75}" fill="#c9a24b" text-anchor="middle" font-family="Karla,sans-serif">ay</text>
+        ${label(fs*.92, N*0.35, y2+S/2, 'sleeve — cut 2')}
+        ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
+        ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}
+        ${dim(N+fs*.9, cy-M, N+fs*.9, cy+M, `M ${fmt(M)}`, N+fs*1.4, cy, 'start')}`;
     } else {
-      const btn = state.sleeve==='detach'
-        ? [0.2,0.4,0.6,0.8].map(t=>`<circle cx="${fs*1.1}" cy="${y2+S*t}" r="${fs*.38}" fill="#1f4396"/>`).join('')
-          + label(fs*.85, fs*3.4, y2+fs*1.4, 'buttons + loops', '#1f4396')
-        : '';
       sleeve = `
         <rect x="0" y="${y2}" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-        ${btn}
         ${label(fs*.92, N/2, y2+S/2, 'sleeve — cut 2')}
         ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
         ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}`;
     }
+
+    const detachPiece = hasDetach ? `
+      <rect x="0" y="${y2b}" width="${DN}" height="${DW}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${[0.2,0.4,0.6,0.8].map(t=>`<circle cx="${fs*1.1}" cy="${y2b+DW*t}" r="${fs*.38}" fill="#1f4396"/>`).join('')}
+      ${label(fs*.85, fs*3.4, y2b+fs*1.2, 'buttons', '#1f4396')}
+      ${label(fs*.92, DN/2, y2b+DW/2, 'detachable sleeve — cut 2')}
+      ${dim(0, y2b+DW+fs*1.2, DN, y2b+DW+fs*1.2, `DN ${fmt(DN)}`, DN/2, y2b+DW+fs*2.4)}
+      ${dim(-fs*.9, y2b, -fs*.9, y2b+DW, `DW ${fmt(DW)}`, -fs*1.4, y2b+DW/2, 'end')}` : '';
 
     // side gore: trapezoid drawn sideways — top edge (T) at the left, hem (GW) at the right
     const sideGore = `
@@ -361,25 +389,39 @@ import Base from '../../layouts/Base.astro';
       ${dim(0, y4+FG+fs*1.2, FH, y4+FG+fs*1.2, `F ${fmt(FH)}`, FH/2, y4+FG+fs*2.4)}
       ${dim(FH+fs*.9, y4, FH+fs*.9, y4+FG, `${fmt(FG)}`, FH+fs*1.4, y4+FG/2, 'start')}` : '';
 
+    const gussetX = GH + gap;
+    const gussetY = y3 + (GW-U)/2;
+    const gusset = `
+      <rect x="${gussetX}" y="${gussetY}" width="${U}" height="${U}" fill="rgba(201,162,75,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${dim(gussetX, gussetY-fs*1.2, gussetX+U, gussetY-fs*1.2, `U ${fmt(U)}`, gussetX+U/2, gussetY-fs*1.7)}
+      ${label(fs*.85, gussetX+U/2, gussetY+U+fs*1.6, 'gusset — cut 2', '#8a6d1f')}`;
+
     return `<svg viewBox="${vb}" role="img" aria-label="Cutting diagram: back panel ${fmt(P)} wide on the fold by ${fmt(L)} long, two front panels ${fmt(P)} by ${fmt(L)}, two sleeves, two trapezoid side gores${hasFront?', and two front gores':''}">
       ${back}
       ${front(P+gap,1)}${front(2*(P+gap),2)}
       ${dim(row1w+fs*.9, y1, row1w+fs*.9, y1+L, `L ${fmt(L)}`, row1w+fs*1.4, y1+L/2, 'start')}
-      ${sleeve}${sideGore}${frontGore}
+      ${sleeve}${detachPiece}${sideGore}${gusset}${frontGore}
     </svg>`;
   }
 
   function sewnSVG(d){
-    const {P,L,A,S,C,N,T,GW,FG,hasFront} = d;
+    const {P,L,A,S,C,N,M,T,GW,FG,hasFront,U,hasDetach,DN,DW} = d;
     const bw = P;                         // body extends ±P from center front
-    const sleeveDrop = state.sleeve==='narrow' ? Math.min(N, L) : 0;
-    const reachX = state.sleeve==='narrow' ? Math.max(bw+T+S, bw+GW) : Math.max(bw+T+N, bw+GW);
+    const showN = state.sleeve==='narrow' ? Math.min(N, SLEEVE_STD+4) : N;
+    const showDN = hasDetach ? Math.min(DN, SLEEVE_STD+4) : 0;
+    const reachX = Math.max(bw+T+showN, bw+GW, hasDetach ? bw+T+showDN : 0);
     const totW = 2*reachX;
     const totH = L;
     const fs = Math.max(totW, totH)/40;
     const m = fs*3.4;
     const vb = `${-totW/2-m} ${-m} ${totW+2*m} ${totH+m*2+fs*3}`;
     const dim = dimLine(fs);
+
+    // underarm gusset — diamond at each armpit
+    const gh = U*0.707;
+    const gussets = `
+      <polygon points="${bw},${A-gh} ${bw+gh},${A} ${bw},${A+gh} ${bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#c9a24b" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${-bw},${A-gh} ${-bw+gh},${A} ${-bw},${A+gh} ${-bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#c9a24b" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
 
     // body: panels straight to the underarm, gores step out T then flare to GW at hem
     const bodyOutline = `
@@ -398,23 +440,49 @@ import Base from '../../layouts/Base.astro';
       <path d="M ${-neckW} 0 Q 0 ${neckD*1.9} ${neckW} 0" fill="none" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
     let sleeves;
     if (state.sleeve==='narrow'){
-      const x0 = bw;                      // sleeve springs from the shoulder edge
-      const sl = (s)=>`<polygon points="${s*x0},0 ${s*(x0+S)},0 ${s*(x0+S*0.55+C*0.45)},${sleeveDrop} ${s*(x0+S*0.55-C*0.55)},${sleeveDrop}"
-        fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-        <line x1="${s*(x0+S*0.55)}" y1="${Math.min(SLEEVE_STD,sleeveDrop)}" x2="${s*(x0+S*0.55)}" y2="${Math.min(SLEEVE_STD,sleeveDrop)+SLIT}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
-      sleeves = sl(1)+sl(-1)+label(fs*.85, bw+S*0.55, Math.min(SLEEVE_STD,sleeveDrop)-fs*.6, 'slit', '#a93b2a');
+      const clipped = showN < N;
+      const sl = (s)=>{
+        const x1 = s*bw, x2 = s*(bw+showN);
+        const tTop = (S-C)/2*(showN/N), tBot = S-tTop;
+        const slitX = s*(bw+SLEEVE_STD);
+        const slitY = (S-C)/2*(SLEEVE_STD/N);
+        let svg = `<polygon points="${x1},0 ${x2},${tTop} ${x2},${tBot} ${x1},${S}"
+          fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+          <line x1="${slitX}" y1="${slitY}" x2="${slitX}" y2="${slitY+SLIT}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+        if (clipped) svg += `<line x1="${x2}" y1="${tTop}" x2="${x2}" y2="${tBot}" stroke="#26304a" stroke-width="1.4" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+        return svg;
+      };
+      const clipNote = clipped ? label(fs*.8, bw+showN+fs*1.2, S/2, `→ ${fmt(N)} total`, '#5a6382') : '';
+      sleeves = sl(1)+sl(-1)+label(fs*.85, bw+SLEEVE_STD, (S-C)/2*(SLEEVE_STD/N)-fs*.8, 'slit', '#a93b2a')+clipNote;
+    } else if (state.sleeve==='elbow'){
+      const sl = (s)=>{
+        const x1 = s===1 ? bw : -bw;
+        const x2 = s===1 ? bw+N : -bw-N;
+        const cy = S/2;
+        return `<path d="M ${x1},0 L ${x2},0 L ${x2},${cy-M} A ${M} ${M} 0 0 ${s===1?0:1} ${x2},${cy+M} L ${x2},${S} L ${x1},${S} Z"
+          fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+      };
+      let detachUnder = '';
+      if (hasDetach){
+        const dsl = (s)=>{
+          const dx1 = s*bw, dx2 = s*(bw+showDN);
+          const dOff = (S-DW)/2;
+          return `<rect x="${Math.min(dx1,dx2)}" y="${dOff}" width="${showDN}" height="${DW}"
+            fill="none" stroke="#1f4396" stroke-width="1.2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`;
+        };
+        detachUnder = dsl(1)+dsl(-1)+label(fs*.7, bw+showDN*0.6, (S-DW)/2-fs*.5, 'detachable', '#1f4396');
+      }
+      sleeves = sl(1)+sl(-1)+detachUnder;
     } else {
       const sl = (s)=>`<rect x="${s===1?bw:-bw-N}" y="0" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
-      const btns = state.sleeve==='detach'
-        ? [0.25,0.5,0.75].map(t=>`<circle cx="${bw+fs*.9}" cy="${S*t}" r="${fs*.34}" fill="#1f4396"/><circle cx="${-bw-fs*.9}" cy="${S*t}" r="${fs*.34}" fill="#1f4396"/>`).join('')
-        : '';
-      sleeves = sl(1)+sl(-1)+btns;
+      sleeves = sl(1)+sl(-1);
     }
 
     return `<svg viewBox="${vb}" role="img" aria-label="Front view of the assembled kaftan: body ${fmt(2*bw)} across at the shoulders, side gores ${fmt(T)} wide at the underarm flaring to ${fmt(GW)} at the hem${hasFront?', front gores from the waist down':''}, and ${SLEEVES[state.sleeve].label.toLowerCase()} sleeves">
       ${sleeves}
       ${bodyOutline}
       ${gores}
+      ${gussets}
       ${centerFront}
       ${label(fs*.92, bw*0.55, (A+L)/2*.62, 'front', '#5a6382')}
       ${dim(-bw, -fs*1.4, bw, -fs*1.4, `2P ${fmt(2*bw)}`, 0, -fs*1.9)}
@@ -426,7 +494,7 @@ import Base from '../../layouts/Base.astro';
   }
 
   function layoutSVG(d){
-    const {P,L,S,N,T,GW,GH,FG,FH,hasFront} = d;
+    const {P,L,S,N,T,GW,GH,FG,FH,hasFront,hasDetach,DN,DW} = d;
     const FW = +$('fabricw').value || 0;
     const half = FW/2;
     if (!FW) return {svg:'<p class="note">Enter a fabric width to see the layout.</p>', yd:''};
@@ -442,6 +510,7 @@ import Base from '../../layouts/Base.astro';
       {len: L+0.5, label:'fronts — both layers', h: P},
       {len: N+0.5, label:'sleeves — both layers', h: S},
     ];
+    if (hasDetach) segs.push({len: DN+0.5, label:'detachable — both', h: DW});
     if (goreLen) segs.push({len: goreLen, label:'gores', h: goreW});
     const total = segs.reduce((a,s)=>a+s.len, 0);
     const fs = total/44;
@@ -465,7 +534,7 @@ import Base from '../../layouts/Base.astro';
       <text x="${total/2}" y="${-fs*1.2}" font-size="${fs}" fill="#26304a" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(total)} of fabric</text>
     </svg>`;
     const yards = Math.ceil((total/36)*4)/4;
-    return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(total)} along the fold), before shrinkage and without seam allowance — wash first and add a little for both. ${goresBeside ? 'The gores nest in the spare width above the sleeves — flip every other trapezoid head to toe and they pack tight.' : 'The gores need their own stretch of fabric at this width.'} Cutting through the folded fabric yields both fronts, both sleeves, and both of each gore at once.`};
+    return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(total)} along the fold), before shrinkage and without seam allowance — wash first and add a little for both. ${goresBeside ? 'The gores nest in the spare width above the sleeves — flip every other trapezoid head to toe and they pack tight.' : 'The gores need their own stretch of fabric at this width.'} Cutting through the folded fabric yields both fronts, both sleeves${hasDetach?', both detachable sleeves':''}, and both of each gore at once.`};
   }
 
   function render(){
@@ -478,41 +547,49 @@ import Base from '../../layouts/Base.astro';
       : `Full: ${d.girth >= LARGE_GIRTH ? 6 : 4}″ of ease over the larger of chest and waist — the standard outer kaftan, room for the layers underneath.`;
     $('sleeveNote').textContent = sv.note;
     $('stepSleeve').textContent = sv.step;
+    $('detachWrap').hidden = state.sleeve!=='elbow';
+    $('detachCheck').checked = state.detach;
+    $('stepDetach').style.display = d.hasDetach ? '' : 'none';
     $('stepFrontGore').style.display = d.hasFront ? '' : 'none';
     $('rowF').style.display = d.hasFront ? '' : 'none';
-    $('lblN').textContent = state.sleeve==='narrow' ? 'Sleeve length — hangs to the ankle' : 'Sleeve length, shoulder to cuff';
+    $('lblN').textContent = state.sleeve==='narrow' ? 'Sleeve length — hangs to the ankle'
+      : state.sleeve==='elbow' ? 'Sleeve length — shoulder to opening' : 'Sleeve length, shoulder to cuff';
     $('rowC').style.display = state.sleeve==='narrow' ? '' : 'none';
+    $('rowM').style.display = state.sleeve==='elbow' ? '' : 'none';
+    $('rowDN').style.display = d.hasDetach ? '' : 'none';
+    $('rowDW').style.display = d.hasDetach ? '' : 'none';
     $('outP').textContent = fmt(d.P);
     $('outL').textContent = fmt(d.L);
     $('outA').textContent = fmt(d.A);
     $('outS').textContent = fmt(d.S);
     $('outN').textContent = fmt(d.N);
     $('outC').textContent = fmt(d.C);
+    $('outM').textContent = fmt(d.M);
     $('outT').textContent = fmt(d.T);
+    $('outU').textContent = fmt(d.U);
+    if (d.hasDetach){ $('outDN').textContent = fmt(d.DN); $('outDW').textContent = fmt(d.DW); }
     $('outG').textContent = `${fmt(d.GH)} × ${fmt(d.GW)}`;
     $('outF').textContent = `${fmt(d.FH)} × ${fmt(d.FG)}`;
     const bodyRound = 4*d.P + 2*d.T;
     const hem = 4*d.P + 2*d.GW + (d.hasFront ? 2*d.FG : 0);
     $('sweep').textContent = d.girth
-      ? `Around the body at the underarm: 4 × P + 2 × T = ${fmt(bodyRound)} (${fmt(bodyRound-d.girth)} of room, with ${fmt(d.ease)} ease built in). Hem sweep: ${fmt(hem)} around with the fronts edge to edge.`
+      ? `Body at underarm: ${fmt(bodyRound)} (${fmt(d.ease)} ease). Hem sweep: ${fmt(hem)}.`
       : '';
     const ck = $('check');
     if (d.T <= 0 && d.girth){
       ck.hidden = false;
-      ck.textContent = `Your shoulders (${fmt(d.SH)}) are broad enough that the panels alone cover your girth plus ease — the side gores come to a point at the underarm, which is fine, but double-check the shoulder measurement was taken seam to seam, not around.`;
+      ck.textContent = `Shoulders (${fmt(d.SH)}) are broad enough that the panels alone cover the girth — side gores will come to a point at the underarm. Double-check the measurement is seam to seam, not around.`;
     } else if (d.WA > d.CH && state.fit==='fitted'){
       ck.hidden = false;
-      ck.textContent = `Your waist is larger than your chest, so the body is sized on the waist (${fmt(d.WA)}). A fitted cut will still skim rather than shape — consider the full fit for more drape.`;
+      ck.textContent = `Waist is larger than chest, so the body is sized on the waist (${fmt(d.WA)}). Fitted will skim, not shape — consider full fit for more drape.`;
     } else ck.hidden = true;
     $('cT').textContent = fmt(d.T);
+    $('cU').textContent = fmt(d.U);
     $('cA').textContent = fmt(d.A);
     $('cWD').textContent = fmt(WAIST_DEPTH);
-    $('printMeta').textContent = `${LENGTHS[state.len].label.toLowerCase()} · ${state.fit} fit (${fmt(d.ease)} ease) · ${sv.label.toLowerCase()} sleeves — shoulders ${fmt(d.SH)} · chest ${fmt(d.CH)} · waist ${fmt(d.WA)} — ${new Date().toLocaleDateString()}`;
+    $('printMeta').textContent = `${LENGTHS[state.len].label.toLowerCase()} · ${state.fit} fit (${fmt(d.ease)} ease) · ${sv.label.toLowerCase()} sleeves${d.hasDetach?' + detachable':''} — shoulders ${fmt(d.SH)} · chest ${fmt(d.CH)} · waist ${fmt(d.WA)} — ${new Date().toLocaleDateString()}`;
     $('cutFig').innerHTML = cuttingSVG(d);
-    $('cutNote').textContent = (state.sleeve==='narrow'
-      ? `Body pieces at top; sleeve and gores below, drawn sideways to the same scale. The narrow sleeve tapers from S at the armhole to C at the cuff, with the wrist slit ${fmt(SLEEVE_STD)} from the shoulder end. `
-      : `Body pieces at top; sleeve and gores below, drawn sideways to the same scale. `)
-      + 'The side gore is a trapezoid: its short parallel edge (T) sews to the underside of the sleeve at the armpit. Cut fronts, sleeves, and gores through folded fabric to get both at once. Seam allowance is not included.';
+    $('cutNote').textContent = 'All pieces to the same scale. Cut fronts, sleeves, and gores through folded fabric to get both at once. Seam allowance is not included.';
     $('sewnFig').innerHTML = sewnSVG(d);
     const lay = layoutSVG(d);
     $('layoutFig').innerHTML = lay.svg;
