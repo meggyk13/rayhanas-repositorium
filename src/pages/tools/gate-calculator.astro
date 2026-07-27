@@ -3,471 +3,611 @@ import Base from '../../layouts/Base.astro';
 ---
 
 <Base title="Gate Calculator">
-  <div class="wrap">
-    <header class="entry-header">
+  <div class="wrap gate">
+    <header class="gate-head">
       <h1>Gate Calculator</h1>
-      <p class="prose">
-        Track attendance and tally fees at gate. Calculates change, logs each group's details, and summarizes your day.
-      </p>
+      <button class="pricesbtn" id="openSettings" type="button">Prices</button>
     </header>
-    <div class="tool-wrapper">
-      <h1><span>Gate Calculator</span>
-        <button class="iconbtn" id="openSettings">Prices ⚙</button>
-      </h1>
+    <p class="lede">Tally a group, take payment, make change.</p>
 
-      <div class="rows" id="tallyRows"></div>
+    <div class="rows" id="tallyRows"></div>
 
-      <div class="total-bar">
-        <div class="label">Total owed</div>
-        <div class="amount" id="totalAmount">$0.00</div>
+    <div class="totals">
+      <div class="tcell">
+        <span class="tlabel">Total due</span>
+        <span class="tamt" id="totalAmount">$0.00</span>
       </div>
-
-      <div class="section-label">Amount tendered</div>
-      <div class="change-card">
-        <div class="quick-tender" id="quickTender">
-          <button data-amt="20">$20</button>
-          <button data-amt="40">$40</button>
-          <button data-amt="50">$50</button>
-          <button data-amt="100">$100</button>
-        </div>
-        <div class="manual-tender">
-          <input type="number" inputmode="decimal" id="manualTender" placeholder="Other amount">
-        </div>
-        <div class="change-result">
-          <div class="label">Change</div>
-          <div>
-            <div class="amount" id="changeAmount">$0.00</div>
-            <div class="short-note" id="shortNote"></div>
-          </div>
-        </div>
-      </div>
-
-      <button class="clear-btn" id="clearBtn">Clear / Next Group</button>
-
-      <div class="history-card">
-        <div class="history-head">
-          <span class="hlabel">Transaction Log</span>
-          <span class="htotal" id="historyTotal"></span>
-        </div>
-        <div class="day-summary" id="daySummary"></div>
-        <div class="history-list" id="historyList"></div>
-        <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+      <div class="tcell change" id="changeCell">
+        <span class="tlabel" id="changeLabel">Change</span>
+        <span class="tamt" id="changeAmount">&mdash;</span>
       </div>
     </div>
-  </div>
 
-  <!-- Confirm Clear History Modal -->
-  <div class="modal-backdrop" id="confirmBackdrop">
-    <div class="modal">
-      <h2>Clear all history?</h2>
-      <p>This will erase all transaction records from today.</p>
-      <div class="modal-actions">
-        <button class="btn-cancel" id="cancelConfirm">Cancel</button>
-        <button class="btn-danger" id="confirmClear">Clear</button>
+    <div class="tender">
+      <div class="tender-head">
+        <span class="tender-label">Cash received</span>
+        <span class="tender-actions">
+          <button type="button" id="exactBtn">Exact</button>
+          <button type="button" id="clearTenderBtn">Clear</button>
+        </span>
+      </div>
+      <input type="number" inputmode="decimal" id="manualTender" placeholder="Tap bills below, or type" />
+      <div class="quick-tender" id="quickTender">
+        <button type="button" data-amt="5">+$5</button>
+        <button type="button" data-amt="10">+$10</button>
+        <button type="button" data-amt="20">+$20</button>
+        <button type="button" data-amt="50">+$50</button>
+        <button type="button" data-amt="100">+$100</button>
       </div>
     </div>
-  </div>
 
-  <!-- Settings Modal -->
-  <div class="modal-backdrop" id="settingsBackdrop">
-    <div class="modal">
-      <h2>Event Prices</h2>
-      <div class="field">
-        <label for="p_adult">Adult (non-member)</label>
-        <input type="number" id="p_adult" step="0.01" min="0">
+    <button class="next-btn" id="clearBtn" type="button">Log group &amp; start next</button>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <section class="ledger">
+      <div class="ledger-head">
+        <span class="llabel">Today&rsquo;s log</span>
+        <span class="lhead-right">
+          <span class="lcount" id="historyTotal"></span>
+          <button class="edit-btn" id="editLog" type="button">Edit</button>
+        </span>
       </div>
-      <div class="field">
-        <label for="p_memberDiscount">Member discount</label>
-        <input type="number" id="p_memberDiscount" step="0.01" min="0">
-        <p class="note">E.g., $2 for member discount (subtracted from regular price)</p>
+      <div class="day-summary" id="daySummary"></div>
+      <div class="history-list" id="historyList"></div>
+      <button class="clear-history-btn" id="clearHistoryBtn" type="button">Clear today&rsquo;s log</button>
+    </section>
+
+    <!-- Confirm clearing the log -->
+    <div class="modal-backdrop" id="confirmBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">Clear today&rsquo;s log?</h2>
+        <p>This erases every group logged today. It can&rsquo;t be undone.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelConfirm" type="button">Cancel</button>
+          <button class="btn-danger" id="confirmClear" type="button">Clear log</button>
+        </div>
       </div>
-      <div class="field">
-        <label for="p_under18">Under 18</label>
-        <input type="number" id="p_under18" step="0.01" min="0">
+    </div>
+
+    <!-- Confirm deleting one logged group -->
+    <div class="modal-backdrop" id="deleteBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+        <h2 id="deleteTitle">Delete this group?</h2>
+        <p class="del-detail" id="deleteDetail"></p>
+        <p>The day&rsquo;s totals will drop by that amount.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelDelete" type="button">Keep it</button>
+          <button class="btn-danger" id="confirmDelete" type="button">Delete</button>
+        </div>
       </div>
-      <div class="field">
-        <label for="p_lunch">Lunch (per meal)</label>
-        <input type="number" id="p_lunch" step="0.01" min="0">
-      </div>
-      <div class="field">
-        <label for="p_feast">Feast (per meal)</label>
-        <input type="number" id="p_feast" step="0.01" min="0">
-      </div>
-      <div class="modal-actions">
-        <button class="btn-cancel" id="cancelSettings">Cancel</button>
-        <button class="btn-primary" id="saveSettings">Save</button>
+    </div>
+
+    <!-- Event prices -->
+    <div class="modal-backdrop" id="settingsBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pricesTitle">
+        <h2 id="pricesTitle">Event prices</h2>
+        <div class="field">
+          <label for="p_adult">Adult</label>
+          <input type="number" id="p_adult" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Full price. Non-members pay this.</p>
+        </div>
+        <div class="field">
+          <label for="p_memberDiscount">Member discount</label>
+          <input type="number" id="p_memberDiscount" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Taken off the adult price.</p>
+        </div>
+        <div class="field">
+          <label for="p_under18">Under 18</label>
+          <input type="number" id="p_under18" step="0.01" min="0" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="p_lunch">Lunch, per meal</label>
+          <input type="number" id="p_lunch" step="0.01" min="0" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="p_feast">Feast, per meal</label>
+          <input type="number" id="p_feast" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Set a meal to 0 to hide that row.</p>
+        </div>
+        <button class="reset-prices" id="resetPrices" type="button">Fill in default prices</button>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelSettings" type="button">Cancel</button>
+          <button class="btn-primary" id="saveSettings" type="button">Save</button>
+        </div>
       </div>
     </div>
   </div>
 </Base>
 
 <style>
-  .tool-wrapper {
-    padding: 0 16px 40px;
-    max-width: 520px;
-    margin: 0 auto;
-  }
+  /* Local tokens, prefixed so they never collide with global.css */
+  .gate {
+    --g-line: #ded2b4;
+    --g-panel: #fbf6e9;
+    --g-muted: #6d6a5c;
+    --g-ink: #26304a;
+    --g-cobalt: #16306e;
+    --g-gold: #c9a24b;
+    --g-green: #2e6b4f;
+    --g-red: #a93b2a;
 
-  :root {
-    --ink: #2b2420;
-    --paper: #faf6ee;
-    --panel: #fff;
-    --line: #ddd3c2;
-    --accent: #8a4b2f;
-    --accent-dark: #6e3a22;
-    --good: #3f6b3f;
-    --bad: #a33128;
-    --shadow: 0 2px 6px rgba(43, 36, 32, 0.12);
-  }
-
-  :global(body) {
+    max-width: 30rem;
+    padding-bottom: 3rem;
     -webkit-tap-highlight-color: transparent;
   }
 
-  h1 {
-    font-size: 1.3rem;
-    margin: 4px 0 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+  .gate :global(button),
+  .gate :global(input) {
+    font-family: inherit;
+    touch-action: manipulation;
   }
 
-  button.iconbtn {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 1rem;
-    color: var(--ink);
+  /* ---------- header ---------- */
+
+  .gate-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 1rem 0 0;
+  }
+
+  .gate-head h1 {
+    font-size: 30px;
+    margin: 0;
+  }
+
+  .pricesbtn {
+    flex: none;
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 15px;
+    color: var(--g-ink);
     cursor: pointer;
   }
 
-  .total-bar {
-    background: var(--accent);
-    color: #fff;
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow);
+  .lede {
+    font-size: 14px;
+    color: var(--g-muted);
+    margin: 2px 0 10px;
   }
 
-  .total-bar .label {
-    font-size: 0.85rem;
-    opacity: 0.9;
-  }
-
-  .total-bar .amount {
-    font-size: 2.6rem;
-    font-weight: 800;
-    line-height: 1.05;
-  }
+  /* ---------- tally rows ---------- */
 
   .rows {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 16px;
   }
 
-  .row {
+  .rows :global(.row) {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
+    gap: 10px;
+    padding: 5px 8px 5px 12px;
+    border-bottom: 1px solid var(--g-line);
   }
 
-  .row:last-child {
+  .rows :global(.row:last-child) {
     border-bottom: none;
   }
 
-  .row .name {
-    font-weight: 600;
-    font-size: 1rem;
+  .rows :global(.row.active) {
+    background: #f2ecd9;
   }
 
-  .feast-ratio {
+  .rows :global(.label) {
+    min-width: 0;
+    line-height: 1.25;
+  }
+
+  .rows :global(.name) {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .rows :global(.price) {
+    font-size: 15px;
+    color: var(--g-muted);
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  .rows :global(.ratio) {
     display: inline-block;
     margin-left: 6px;
-    font-size: 0.82rem;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 13px;
     font-weight: 700;
-    color: #7a6f60;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1px 7px;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
     vertical-align: 1px;
   }
 
-  .feast-ratio.over {
-    color: #fff;
-    background: var(--bad);
-    border-color: var(--bad);
+  .rows :global(.ratio:empty) {
+    display: none;
   }
 
-  .row .price {
-    display: block;
-    font-size: 0.8rem;
-    color: #7a6f60;
-    font-weight: 400;
+  .rows :global(.ratio.ok) {
+    background: var(--g-green);
   }
 
-  .stepper {
+  .rows :global(.ratio.off) {
+    background: var(--g-red);
+  }
+
+  .rows :global(.stepper) {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 4px;
+    flex: none;
+    user-select: none;
   }
 
-  .stepper button {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    background: var(--paper);
-    font-size: 1.5rem;
+  .rows :global(.stepper button) {
+    width: 44px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--accent-dark);
+    color: var(--g-cobalt);
     line-height: 1;
     cursor: pointer;
   }
 
-  .stepper button:active {
-    background: var(--accent);
+  .rows :global(.stepper button:active) {
+    background: var(--g-cobalt);
     color: #fff;
   }
 
-  .stepper .count {
-    min-width: 28px;
+  .rows :global(.count) {
+    min-width: 30px;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 20px;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
-  .section-label {
-    font-size: 0.75rem;
+  /* ---------- totals ---------- */
+
+  .totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--g-gold);
+    border: 1px solid var(--g-gold);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .tcell {
+    background: var(--g-cobalt);
+    color: #fff;
+    padding: 8px 12px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tlabel {
+    font-size: 12px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #8a7c68;
-    margin: 18px 4px 8px;
+    opacity: 0.85;
   }
 
-  .change-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 16px;
+  .tamt {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tcell.change {
+    background: var(--g-green);
+  }
+
+  .tcell.change.short {
+    background: var(--g-red);
+  }
+
+  .tcell.change.idle {
+    background: #4a5570;
+  }
+
+  /* ---------- cash received ---------- */
+
+  .tender-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+
+  .tender-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--g-muted);
+  }
+
+  .tender-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tender-actions button {
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 5px 13px;
+    font-size: 14px;
+    color: var(--g-cobalt);
+    cursor: pointer;
+  }
+
+  .tender-actions button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  #manualTender {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 19px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-ink);
+  }
+
+  #manualTender::placeholder {
+    font-size: 15px;
+    font-weight: 400;
+    color: #9a907c;
   }
 
   .quick-tender {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 10px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 6px;
   }
 
   .quick-tender button {
-    padding: 12px 4px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: var(--paper);
-    font-size: 1.05rem;
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: var(--g-panel);
+    font-size: 15px;
     font-weight: 700;
-    color: var(--ink);
+    color: var(--g-ink);
     cursor: pointer;
   }
 
-  .quick-tender button.active {
-    background: var(--accent);
+  .quick-tender button:active {
+    background: var(--g-cobalt);
+    border-color: var(--g-cobalt);
     color: #fff;
-    border-color: var(--accent);
   }
 
-  .manual-tender input {
-    width: 100%;
-    font-size: 1.1rem;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: var(--paper);
-    color: var(--ink);
-    margin-bottom: 14px;
-    box-sizing: border-box;
-  }
+  /* ---------- primary action ---------- */
 
-  .change-result {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 4px 4px;
-    border-top: 1px dashed var(--line);
-  }
-
-  .change-result .label {
-    font-size: 0.9rem;
-    color: #7a6f60;
-  }
-
-  .change-result .amount {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--good);
-  }
-
-  .change-result .amount.negative {
-    color: var(--bad);
-  }
-
-  .short-note {
-    display: none;
-    text-align: right;
-    font-size: 0.85rem;
-    color: var(--bad);
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  .short-note.show {
-    display: block;
-  }
-
-  .clear-btn {
+  .next-btn {
     display: block;
     width: 100%;
-    padding: 16px;
-    margin-top: 6px;
-    font-size: 1.1rem;
+    height: 52px;
+    margin-top: 8px;
+    font-size: 18px;
     font-weight: 700;
-    border-radius: 14px;
+    border-radius: 10px;
     border: none;
-    background: var(--ink);
+    background: var(--g-ink);
     color: #fff;
     cursor: pointer;
   }
 
-  .clear-btn:active {
+  .next-btn:active {
     opacity: 0.85;
   }
 
-  /* history */
-  .history-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    margin-top: 18px;
+  .toast {
+    height: 0;
     overflow: hidden;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--g-green);
+    transition: height 0.15s;
   }
 
-  .history-head {
+  .toast.show {
+    height: 22px;
+  }
+
+  /* ---------- ledger ---------- */
+
+  .ledger {
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 22px;
+  }
+
+  .ledger-head {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
+    align-items: baseline;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--g-line);
   }
 
-  .history-head .hlabel {
+  .llabel {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 16px;
   }
 
-  .history-head .htotal {
-    font-size: 0.85rem;
-    color: #7a6f60;
+  .lhead-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lcount {
+    font-size: 14px;
+    color: var(--g-muted);
+  }
+
+  .edit-btn {
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px 14px;
+    font-size: 14px;
+    color: var(--g-cobalt);
+    cursor: pointer;
+  }
+
+  .ledger.editing .edit-btn {
+    background: var(--g-cobalt);
+    border-color: var(--g-cobalt);
+    color: #fff;
   }
 
   .day-summary {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--line);
+    gap: 5px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--g-line);
   }
 
   .day-summary:empty {
     display: none;
   }
 
-  .chip {
-    font-size: 0.8rem;
+  .day-summary :global(.chip) {
+    font-size: 13px;
     font-weight: 600;
-    background: var(--paper);
-    border: 1px solid var(--line);
+    background: #fff;
+    border: 1px solid var(--g-line);
     border-radius: 999px;
-    padding: 3px 10px;
+    padding: 2px 10px;
     color: #5c5245;
   }
 
-  .chip.main {
-    background: var(--good);
-    border-color: var(--good);
+  .day-summary :global(.chip.main) {
+    background: var(--g-green);
+    border-color: var(--g-green);
     color: #fff;
-    font-weight: 700;
   }
 
   .history-list {
-    max-height: 260px;
+    max-height: 300px;
     overflow-y: auto;
   }
 
-  .hrow {
+  .history-list :global(.hrow) {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--line);
-    font-size: 0.88rem;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 6px 12px;
+    border-bottom: 1px solid var(--g-line);
+    font-size: 14px;
   }
 
-  .hrow:last-child {
+  .history-list :global(.hrow:last-child) {
     border-bottom: none;
   }
 
-  .hrow .hdesc {
+  .history-list :global(.hdesc) {
+    flex: 1;
+    min-width: 0;
     color: #5c5245;
+    line-height: 1.3;
   }
 
-  .hrow .hamt {
+  .history-list :global(.hamt) {
+    flex: none;
     font-weight: 700;
     white-space: nowrap;
-    margin-left: 10px;
+    font-variant-numeric: tabular-nums;
   }
 
-  .hrow .htime {
-    display: block;
-    font-size: 0.75rem;
-    color: #a09480;
-  }
-
-  .history-empty {
-    padding: 16px 14px;
-    font-size: 0.88rem;
-    color: #8a7c68;
-  }
-
-  .clear-history-btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-top: 1px solid var(--line);
-    background: var(--paper);
-    color: var(--bad);
-    font-weight: 700;
-    font-size: 0.95rem;
+  .history-list :global(.hdel) {
+    display: none;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-red);
+    font-size: 19px;
+    line-height: 1;
     cursor: pointer;
   }
 
-  /* modals */
+  .ledger.editing .history-list :global(.hdel) {
+    display: block;
+  }
+
+  .history-list :global(.hdel:active) {
+    background: var(--g-red);
+    border-color: var(--g-red);
+    color: #fff;
+  }
+
+  .history-list :global(.htime) {
+    display: block;
+    font-size: 12px;
+    color: #9a907c;
+  }
+
+  .history-list :global(.history-empty) {
+    padding: 14px 12px;
+    font-size: 14px;
+    color: var(--g-muted);
+  }
+
+  .clear-history-btn {
+    display: none;
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-top: 1px solid var(--g-line);
+    background: #f2ecd9;
+    color: var(--g-red);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .ledger.editing .clear-history-btn {
+    display: block;
+  }
+
+  /* ---------- modals ---------- */
+
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
     display: none;
     align-items: flex-end;
     justify-content: center;
-    z-index: 20;
+    z-index: 40;
   }
 
   .modal-backdrop.open {
@@ -475,23 +615,24 @@ import Base from '../../layouts/Base.astro';
   }
 
   .modal {
-    background: var(--paper);
+    background: var(--parchment, #f5eedc);
     width: 100%;
-    max-width: 480px;
-    border-radius: 20px 20px 0 0;
-    padding: 20px;
+    max-width: 30rem;
+    border-radius: 16px 16px 0 0;
+    padding: 18px;
     max-height: 88vh;
     overflow-y: auto;
   }
 
   .modal h2 {
-    margin: 0 0 14px;
-    font-size: 1.15rem;
+    margin: 0 0 10px;
+    font-size: 22px;
   }
 
   .modal p {
-    font-size: 0.95rem;
+    font-size: 15px;
     line-height: 1.45;
+    margin: 0 0 4px;
   }
 
   .field {
@@ -500,90 +641,129 @@ import Base from '../../layouts/Base.astro';
 
   .field label {
     display: block;
-    font-size: 0.85rem;
-    color: #7a6f60;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--g-ink);
     margin-bottom: 4px;
   }
 
   .field input {
     width: 100%;
-    font-size: 1.05rem;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    box-sizing: border-box;
+    height: 44px;
+    font-size: 16px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-ink);
+  }
+
+  .del-detail {
+    background: #fff;
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-weight: 600;
+    margin-bottom: 10px !important;
+  }
+
+  .reset-prices {
+    width: 100%;
+    padding: 10px;
+    margin-top: 2px;
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--g-muted);
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .note {
+    font-size: 13px;
+    color: var(--g-muted);
+    margin-top: 3px !important;
   }
 
   .modal-actions {
     display: flex;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .modal-actions button {
     flex: 1;
-    padding: 14px;
-    border-radius: 12px;
+    height: 48px;
+    border-radius: 10px;
     border: none;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
   }
 
   .btn-primary {
-    background: var(--accent);
+    background: var(--g-cobalt);
     color: #fff;
   }
 
   .btn-danger {
-    background: var(--bad);
+    background: var(--g-red);
     color: #fff;
   }
 
   .btn-cancel {
-    background: var(--panel);
-    color: var(--ink);
-    border: 1px solid var(--line) !important;
+    background: #fff;
+    color: var(--g-ink);
+    border: 1px solid var(--g-line) !important;
   }
 
-  .note {
-    font-size: 0.78rem;
-    color: #8a7c68;
-    margin-top: 2px;
+  /* ---------- short screens: trim so the working area still fits ---------- */
+
+  @media (max-height: 700px) {
+    .gate-head { margin-top: 0.6rem; }
+    .gate-head h1 { font-size: 22px; }
+    .lede { display: none; }
+    .rows :global(.row) { padding-top: 2px; padding-bottom: 2px; }
+    .rows :global(.stepper button) { height: 34px; }
+    .totals { margin: 6px 0; }
+    .tcell { padding: 4px 12px 6px; }
+    .tamt { font-size: 23px; }
+    .tender-head { margin-bottom: 3px; }
+    .tender-actions button { padding: 4px 11px; font-size: 13px; }
+    .quick-tender { margin-top: 4px; }
+    .quick-tender button,
+    #manualTender { height: 34px; }
+    #manualTender { font-size: 17px; }
+    .next-btn { height: 44px; font-size: 17px; margin-top: 6px; }
   }
 </style>
 
 <script>
-  (function() {
+  (function () {
     const K_PRICES = 'gate_prices';
     const K_TALLY = 'gate_tally';
     const K_HISTORY = 'gate_history';
 
     const defaultPrices = {
-      adult: 12,
-      memberDiscount: 2,
-      under18: 6,
-      lunch: 8,
-      feast: 12
+      adult: 30,
+      memberDiscount: 10,
+      under18: 0,
+      lunch: 10,
+      feast: 20
     };
 
     const categories = [
-      { key: 'memberAdult', name: 'Member Adult', short: 'mem', meal: false },
-      { key: 'nonMemberAdult', name: 'Non-Member Adult', short: 'adult', meal: false },
-      { key: 'under18', name: 'Under 18', short: 'youth', meal: false },
-      { key: 'lunch', name: 'Lunch', short: 'lunch', meal: true, sub: 'meal' },
-      { key: 'feast', name: 'Feast', short: 'feast', meal: true, sub: 'meal' }
+      { key: 'memberAdult', name: 'Member adult', short: 'members', one: 'member', meal: false },
+      { key: 'nonMemberAdult', name: 'Non-member adult', short: 'non-members', one: 'non-member', meal: false },
+      { key: 'under18', name: 'Under 18', short: 'under 18', meal: false },
+      { key: 'lunch', name: 'Lunch', short: 'lunch', meal: true },
+      { key: 'feast', name: 'Feast', short: 'feast', meal: true }
     ];
 
-    function unitPrice(catKey, priceObj) {
-      if (catKey === 'memberAdult')
-        return Math.max(0, (priceObj.adult || 0) - (priceObj.memberDiscount || 0));
-      if (catKey === 'nonMemberAdult') return priceObj.adult || 0;
-      if (catKey === 'under18') return priceObj.under18 || 0;
-      if (catKey === 'lunch') return priceObj.lunch || 0;
-      if (catKey === 'feast') return priceObj.feast || 0;
-      return 0;
+    function unitPrice(key, p) {
+      if (key === 'memberAdult') return Math.max(0, (p.adult || 0) - (p.memberDiscount || 0));
+      if (key === 'nonMemberAdult') return p.adult || 0;
+      return p[key] || 0;
     }
 
     function load(key, fallback) {
@@ -596,7 +776,11 @@ import Base from '../../layouts/Base.astro';
     }
 
     function save(key, val) {
-      localStorage.setItem(key, JSON.stringify(val));
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        /* private browsing */
+      }
     }
 
     function zeroTally() {
@@ -613,21 +797,56 @@ import Base from '../../layouts/Base.astro';
     const rowsEl = document.getElementById('tallyRows');
     const totalEl = document.getElementById('totalAmount');
     const changeEl = document.getElementById('changeAmount');
-    const shortNote = document.getElementById('shortNote');
+    const changeCell = document.getElementById('changeCell');
+    const changeLabel = document.getElementById('changeLabel');
     const manualInput = document.getElementById('manualTender');
-    const quickTenderEl = document.getElementById('quickTender');
+    const quickEl = document.getElementById('quickTender');
+    const exactBtn = document.getElementById('exactBtn');
     const historyList = document.getElementById('historyList');
-    const historyTotal = document.getElementById('historyTotal');
+    const historyCount = document.getElementById('historyTotal');
+    const daySummary = document.getElementById('daySummary');
+    const toast = document.getElementById('toast');
+    const ledger = document.querySelector('.ledger');
+    const editBtn = document.getElementById('editLog');
+    const deleteBackdrop = document.getElementById('deleteBackdrop');
+    const deleteDetail = document.getElementById('deleteDetail');
+    let pendingDelete = null;
 
-    function fmt(n) {
-      const sign = n < 0 ? '−' : '';
-      return sign + '$' + Math.abs(n).toFixed(2);
+    // $0.00 — for money that has to be counted out
+    function money(n) {
+      return (n < 0 ? '\u2212' : '') + '$' + Math.abs(n).toFixed(2);
+    }
+
+    // $20, or $7.50 — for prices on the tally rows
+    function price(n) {
+      return n % 1 === 0 ? '$' + n : money(n);
+    }
+
+    function countLabel(n, cat) {
+      return n + ' ' + (n === 1 && cat.one ? cat.one : cat.short);
+    }
+
+    function cents(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    // Every change to the cash figure goes through here so the field,
+    // the variable and the Change cell can never disagree.
+    function setTender(v) {
+      tendered = v === null ? null : cents(v);
+      manualInput.value = tendered === null ? '' : String(tendered);
+      renderTotals();
+    }
+
+    function headcount() {
+      return (tally.memberAdult || 0) + (tally.nonMemberAdult || 0) + (tally.under18 || 0);
     }
 
     function renderRows() {
       rowsEl.innerHTML = '';
       categories.forEach((cat) => {
-        if (cat.meal && unitPrice(cat.key, prices) === 0) {
+        const unit = unitPrice(cat.key, prices);
+        if (cat.meal && unit === 0) {
           if (tally[cat.key]) {
             tally[cat.key] = 0;
             save(K_TALLY, tally);
@@ -637,36 +856,19 @@ import Base from '../../layouts/Base.astro';
         const row = document.createElement('div');
         row.className = 'row';
         row.innerHTML =
-          '<div><span class="name">' +
-          cat.name +
-          (cat.meal ? ' <span class="feast-ratio" id="ratio_' + cat.key + '"></span>' : '') +
-          '</span>' +
-          '<span class="price">' +
-          (unitPrice(cat.key, prices) === 0
-            ? 'Free'
-            : fmt(unitPrice(cat.key, prices)) + ' each') +
-          (cat.sub ? ' · ' + cat.sub : '') +
-          (cat.key === 'memberAdult' ? ' (' + fmt(prices.memberDiscount || 0) + ' member discount)' : '') +
-          '</span></div>' +
+          '<div class="label">' +
+          '<span class="name">' + cat.name + '</span>' +
+          '<span class="price">' + (unit === 0 ? 'Free' : price(unit)) + '</span>' +
+          (cat.meal ? '<span class="ratio" id="ratio_' + cat.key + '"></span>' : '') +
+          '</div>' +
           '<div class="stepper">' +
-          '<button data-cat="' +
-          cat.key +
-          '" data-dir="-1" aria-label="fewer ' +
-          cat.name +
-          '">−</button>' +
-          '<span class="count" id="count_' +
-          cat.key +
-          '">' +
-          tally[cat.key] +
-          '</span>' +
-          '<button data-cat="' +
-          cat.key +
-          '" data-dir="1" aria-label="more ' +
-          cat.name +
-          '">+</button>' +
+          '<button type="button" data-cat="' + cat.key + '" data-dir="-1" aria-label="One fewer ' + cat.name + '">\u2212</button>' +
+          '<span class="count" id="count_' + cat.key + '">' + tally[cat.key] + '</span>' +
+          '<button type="button" data-cat="' + cat.key + '" data-dir="1" aria-label="One more ' + cat.name + '">+</button>' +
           '</div>';
         rowsEl.appendChild(row);
       });
+
       rowsEl.querySelectorAll('button[data-cat]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const key = btn.getAttribute('data-cat');
@@ -677,119 +879,161 @@ import Base from '../../layouts/Base.astro';
           renderTotals();
         });
       });
+      renderTotals();
     }
 
     function computeTotal() {
-      return categories.reduce(
-        (sum, c) => sum + (tally[c.key] || 0) * unitPrice(c.key, prices),
-        0
-      );
+      return categories.reduce((sum, c) => sum + (tally[c.key] || 0) * unitPrice(c.key, prices), 0);
     }
 
     function renderTotals() {
       const total = computeTotal();
-      totalEl.textContent = fmt(total);
-      const party = (tally.memberAdult || 0) + (tally.nonMemberAdult || 0) + (tally.under18 || 0);
-      categories
-        .filter((c) => c.meal)
-        .forEach((c) => {
-          const el = document.getElementById('ratio_' + c.key);
-          if (!el) return;
-          const meals = tally[c.key] || 0;
-          if (party > 0 || meals > 0) {
-            el.textContent = meals + '/' + party;
-            el.classList.toggle('over', meals > party);
-          } else {
-            el.textContent = '';
-            el.classList.remove('over');
-          }
-        });
-      if (tendered === null) {
-        changeEl.textContent = fmt(0);
-        changeEl.classList.remove('negative');
-        shortNote.classList.remove('show');
-      } else {
-        const change = tendered - total;
-        changeEl.textContent = fmt(change);
-        changeEl.classList.toggle('negative', change < 0);
-        if (change < 0) {
-          shortNote.textContent = 'Still short ' + fmt(Math.abs(change));
-          shortNote.classList.add('show');
-        } else {
-          shortNote.classList.remove('show');
+      totalEl.textContent = money(total);
+      exactBtn.disabled = total <= 0;
+
+      // dim rows that are still at zero
+      rowsEl.querySelectorAll('.row').forEach((row) => {
+        const key = row.querySelector('button[data-cat]').getAttribute('data-cat');
+        row.classList.toggle('active', (tally[key] || 0) > 0);
+      });
+
+      // meals bought vs people in the group: green when they match, red when they don't
+      const people = headcount();
+      categories.filter((c) => c.meal).forEach((c) => {
+        const el = document.getElementById('ratio_' + c.key);
+        if (!el) return;
+        const meals = tally[c.key] || 0;
+        if (people === 0 && meals === 0) {
+          el.textContent = '';
+          el.className = 'ratio';
+          el.removeAttribute('aria-label');
+          return;
         }
+        el.textContent = meals + '/' + people;
+        el.className = 'ratio ' + (meals === people ? 'ok' : 'off');
+        el.setAttribute('aria-label', meals + ' of ' + people + ' in this group');
+      });
+
+      if (tendered === null) {
+        changeEl.textContent = '\u2014';
+        changeLabel.textContent = 'Change';
+        changeCell.classList.add('idle');
+        changeCell.classList.remove('short');
+        return;
+      }
+
+      const change = tendered - total;
+      changeCell.classList.remove('idle');
+      if (change < 0) {
+        changeLabel.textContent = 'Still owed';
+        changeEl.textContent = money(Math.abs(change));
+        changeCell.classList.add('short');
+      } else {
+        changeLabel.textContent = 'Change';
+        changeEl.textContent = money(change);
+        changeCell.classList.remove('short');
       }
     }
 
     function describeTally(t) {
       const parts = [];
       categories.forEach((c) => {
-        if (t[c.key] > 0) parts.push(t[c.key] + ' ' + c.short);
+        if (t[c.key] > 0) parts.push(countLabel(t[c.key], c));
       });
-      return parts.length ? parts.join(' · ') : 'empty';
+      return parts.length ? parts.join(' \u00b7 ') : 'empty';
+    }
+
+    function describeEntry(h) {
+      const what = h.t ? describeTally(h.t) : h.desc || 'group';
+      return what + ' \u00b7 ' + money(h.total) + ' at ' + h.time;
+    }
+
+    function setEditing(on) {
+      ledger.classList.toggle('editing', on);
+      editBtn.textContent = on ? 'Done' : 'Edit';
+      editBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
 
     function renderHistory() {
       historyList.innerHTML = '';
       if (history.length === 0) {
         historyList.innerHTML =
-          '<div class="history-empty">No transactions yet. Tap Clear / Next after each group to log it here.</div>';
-        historyTotal.textContent = '';
-        document.getElementById('daySummary').innerHTML = '';
+          '<div class="history-empty">Nothing logged yet. Each group you log lands here.</div>';
+        historyCount.textContent = '';
+        daySummary.innerHTML = '';
+        setEditing(false);
+        editBtn.hidden = true;
         return;
       }
+      editBtn.hidden = false;
+
       let sum = 0;
       const dayCounts = zeroTally();
       for (let i = history.length - 1; i >= 0; i--) {
         const h = history[i];
         sum += h.total;
-        if (h.t) {
-          categories.forEach((c) => {
-            dayCounts[c.key] += h.t[c.key] || 0;
-          });
-        }
+        if (h.t) categories.forEach((c) => (dayCounts[c.key] += h.t[c.key] || 0));
         const row = document.createElement('div');
         row.className = 'hrow';
-        const desc = h.t ? describeTally(h.t) : h.desc || '';
         row.innerHTML =
-          '<span class="hdesc">' +
-          desc +
-          '<span class="htime">' +
-          h.time +
-          '</span></span>' +
-          '<span class="hamt">' +
-          fmt(h.total) +
-          '</span>';
+          '<span class="hdesc">' + (h.t ? describeTally(h.t) : h.desc || '') +
+          '<span class="htime">' + h.time + '</span></span>' +
+          '<span class="hamt">' + money(h.total) + '</span>' +
+          '<button type="button" class="hdel" data-idx="' + i +
+          '" aria-label="Delete the group logged at ' + h.time + '">\u00d7</button>';
         historyList.appendChild(row);
       }
-      historyTotal.textContent = history.length + (history.length === 1 ? ' group' : ' groups');
+
+      historyList.querySelectorAll('.hdel').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-idx'), 10);
+          if (!history[idx]) return;
+          pendingDelete = idx;
+          deleteDetail.textContent = describeEntry(history[idx]);
+          deleteBackdrop.classList.add('open');
+        });
+      });
+
+      historyCount.textContent = history.length + (history.length === 1 ? ' group' : ' groups');
+
       const heads = dayCounts.memberAdult + dayCounts.nonMemberAdult + dayCounts.under18;
-      const chips = [];
-      chips.push('<span class="chip main">' + fmt(sum) + ' collected</span>');
+      const chips = ['<span class="chip main">' + money(sum) + ' taken in</span>'];
       if (heads > 0) chips.push('<span class="chip">' + heads + ' through gate</span>');
       categories.forEach((c) => {
-        if (dayCounts[c.key] > 0) chips.push('<span class="chip">' + dayCounts[c.key] + ' ' + c.short + '</span>');
+        if (dayCounts[c.key] > 0) chips.push('<span class="chip">' + countLabel(dayCounts[c.key], c) + '</span>');
       });
-      document.getElementById('daySummary').innerHTML = chips.join('');
+      daySummary.innerHTML = chips.join('');
     }
 
-    quickTenderEl.querySelectorAll('button[data-amt]').forEach((btn) => {
+    function clearTender() {
+      tendered = null;
+      manualInput.value = '';
+    }
+
+    quickEl.querySelectorAll('button[data-amt]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        tendered = parseFloat(btn.getAttribute('data-amt'));
-        manualInput.value = '';
-        quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderTotals();
+        setTender((tendered || 0) + parseFloat(btn.getAttribute('data-amt')));
       });
     });
 
+    exactBtn.addEventListener('click', () => {
+      const total = computeTotal();
+      if (total > 0) setTender(total);
+    });
+
+    document.getElementById('clearTenderBtn').addEventListener('click', () => {
+      setTender(null);
+      manualInput.focus();
+    });
+
+    // typing wins over whatever the buttons added
     manualInput.addEventListener('input', () => {
       const val = parseFloat(manualInput.value);
       tendered = isNaN(val) ? null : val;
-      quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
       renderTotals();
     });
 
+    let toastTimer;
     document.getElementById('clearBtn').addEventListener('click', () => {
       const total = computeTotal();
       const anyCounts = categories.some((c) => tally[c.key] > 0);
@@ -800,15 +1044,17 @@ import Base from '../../layouts/Base.astro';
           time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
         });
         save(K_HISTORY, history);
+        toast.textContent = 'Logged ' + money(total);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
       }
       tally = zeroTally();
       save(K_TALLY, tally);
-      tendered = null;
-      manualInput.value = '';
-      quickTenderEl.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+      clearTender();
       renderRows();
-      renderTotals();
       renderHistory();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     const confirmBackdrop = document.getElementById('confirmBackdrop');
@@ -826,28 +1072,65 @@ import Base from '../../layouts/Base.astro';
       renderHistory();
     });
 
+    editBtn.addEventListener('click', () => {
+      setEditing(!ledger.classList.contains('editing'));
+    });
+
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+      pendingDelete = null;
+      deleteBackdrop.classList.remove('open');
+    });
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+      if (pendingDelete !== null && history[pendingDelete]) {
+        history.splice(pendingDelete, 1);
+        save(K_HISTORY, history);
+      }
+      pendingDelete = null;
+      deleteBackdrop.classList.remove('open');
+      renderHistory();
+    });
+
     const settingsBackdrop = document.getElementById('settingsBackdrop');
+    const priceFields = ['adult', 'memberDiscount', 'under18', 'lunch', 'feast'];
     document.getElementById('openSettings').addEventListener('click', () => {
-      ['adult', 'memberDiscount', 'under18', 'lunch', 'feast'].forEach((k) => {
+      priceFields.forEach((k) => {
         document.getElementById('p_' + k).value = prices[k];
       });
       settingsBackdrop.classList.add('open');
+    });
+    document.getElementById('resetPrices').addEventListener('click', () => {
+      priceFields.forEach((k) => {
+        document.getElementById('p_' + k).value = defaultPrices[k];
+      });
     });
     document.getElementById('cancelSettings').addEventListener('click', () => {
       settingsBackdrop.classList.remove('open');
     });
     document.getElementById('saveSettings').addEventListener('click', () => {
-      ['adult', 'memberDiscount', 'under18', 'lunch', 'feast'].forEach((k) => {
+      priceFields.forEach((k) => {
         prices[k] = parseFloat(document.getElementById('p_' + k).value) || 0;
       });
       save(K_PRICES, prices);
       settingsBackdrop.classList.remove('open');
       renderRows();
-      renderTotals();
+    });
+
+    document.querySelectorAll('.modal-backdrop').forEach((bd) => {
+      bd.addEventListener('click', (e) => {
+        if (e.target === bd) {
+          pendingDelete = null;
+          bd.classList.remove('open');
+        }
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        pendingDelete = null;
+        document.querySelectorAll('.modal-backdrop.open').forEach((bd) => bd.classList.remove('open'));
+      }
     });
 
     renderRows();
-    renderTotals();
     renderHistory();
   })();
 </script>
