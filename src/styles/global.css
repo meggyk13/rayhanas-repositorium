@@ -364,3 +364,168 @@ body.menu-locked { overflow: hidden; }
   .hero { padding: 2.5rem 1rem; }
   .hero-panel { padding: 2rem 1.25rem 1.5rem; }
 }
+
+/* ---------- Grouped index pages ---------- */
+
+[hidden] { display: none !important; }
+
+.group-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-utility);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.group-jump a {
+  color: var(--cobalt);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 2px;
+}
+.group-jump a:hover { color: var(--turquoise); border-bottom-color: var(--turquoise); }
+.group-jump .count { color: var(--ink-soft); }
+
+.group { scroll-margin-top: 1.5rem; }
+.group h2 { margin-top: 0.5rem; }
+.group-note {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.card .card-tags {
+  font-family: var(--font-utility);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin: 0.9rem 0 0;
+}
+
+.filter-empty { color: var(--ink-soft); font-style: italic; margin: 1.5rem 0 0; }
+
+.back-link {
+  font-family: var(--font-utility);
+  font-size: 0.85rem;
+  margin: 3.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--parchment-deep);
+}
+
+.empty-note {
+  background: var(--panel);
+  border: 1px dashed var(--gold);
+  border-radius: 12px;
+  padding: 2rem 1.75rem;
+  color: var(--ink-soft);
+  max-width: var(--measure);
+}
+.empty-note p { margin: 0 0 0.75rem; }
+.empty-note p:last-child { margin-bottom: 0; }
+
+/* ---------- Home page ---------- */
+
+.hero-panel h1 { margin-bottom: 1rem; }
+.hero-intro {
+  max-width: 38rem;
+  margin: 0 auto;
+  color: var(--ink-soft);
+  font-size: 1.08rem;
+}
+
+/* Hero image slot. Renders only when heroImage is set in index.astro. */
+.hero-figure {
+  margin: 2rem 0 0;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+}
+.hero-figure img { width: 100%; aspect-ratio: 5 / 2; object-fit: cover; }
+
+.section-lead {
+  font-size: 1.5rem;
+  margin: 3.5rem 0 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--gold);
+}
+
+.signposts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.75rem 0 0;
+}
+.signpost {
+  background: var(--panel);
+  border: 1px solid var(--parchment-deep);
+  border-left: 4px solid var(--gold);
+  border-radius: 6px;
+  padding: 1.25rem 1.25rem 1.1rem;
+}
+.signpost h3 { margin: 0 0 0.35rem; font-size: 1.3rem; }
+.signpost h3 a { text-decoration: none; }
+.signpost p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.signpost .count {
+  display: block;
+  margin-top: 0.85rem;
+  font-family: var(--font-utility);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--turquoise);
+}
+
+/* Full-bleed cobalt band for the featured pattern generators */
+.band {
+  margin-top: 4rem;
+  padding: 3rem 0;
+  background: var(--cobalt-deep);
+  border-top: 4px solid var(--gold);
+  border-bottom: 4px solid var(--gold);
+}
+.band h2 { color: var(--parchment); margin: 0 0 0.5rem; font-size: 1.7rem; }
+.band-note {
+  color: var(--parchment);
+  opacity: 0.82;
+  max-width: var(--measure);
+  margin: 0;
+  font-size: 0.98rem;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+}
+.feature {
+  background: var(--parchment);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 1.5rem 1.35rem 1.35rem;
+}
+.feature h3 { margin: 0 0 0.45rem; font-size: 1.3rem; }
+.feature h3 a { text-decoration: none; }
+.feature p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.band-more {
+  margin: 1.75rem 0 0;
+  font-family: var(--font-utility);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+.band-more a { color: var(--gold); text-decoration: none; }
+.band-more a:hover { color: var(--parchment); text-decoration: underline; }
+
+@media (max-width: 40rem) {
+  .hero-intro { font-size: 1rem; }
+  .band { padding: 2.25rem 0; }
+}

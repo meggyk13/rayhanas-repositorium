@@ -3,6 +3,7 @@ title: "Halloum with Tatbila"
 summary: "Home-made halloumi cheese aged two months, finished with a 14th-century seasoned paste of garlic, lime, walnuts, and herbs from al-Warraq."
 date: 2025-08-01
 tags: [culinary, redaction, summer-arts-2025]
+kind: project
 ---
 
 <!-- image: finished dish -->

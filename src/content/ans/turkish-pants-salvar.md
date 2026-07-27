@@ -3,6 +3,7 @@ title: "Guide to Making Turkish Pants (Şalvar)"
 summary: "Pattern drafting and construction for şalvar, the essential Ottoman lower layer, using rectangular construction."
 date: 2026-07-15
 tags: [garb, ottoman, sewing]
+kind: handout
 ---
 
 <!-- Add your figure images to /public/images/ and update the paths below. -->

@@ -3,6 +3,7 @@ title: "Sabuniyya: Egyptian Nougat Candy"
 summary: "A sesame and rosewater nougat redacted from three medieval Arabic cookbooks — al-Baghdadi, Familiar Foods, and the Kanz."
 date: 2022-01-01
 tags: [culinary, redaction, pentathlon-2022]
+kind: project
 ---
 
 ## Introduction

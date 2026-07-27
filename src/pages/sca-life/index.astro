@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('sca-life')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+---
+<Base title="SCA Life">
+  <div class="wrap">
+    <header class="entry-header">
+      <h1>SCA Life</h1>
+      <p class="prose">
+        Getting started, helping other people get started, and thinking out loud
+        about how the Society works.
+      </p>
+    </header>
+
+    {entries.length === 0 ? (
+      <div class="empty-note">
+        <p>Nothing here yet. This is where newcomer material and commentary will live.</p>
+        <p>In the meantime, try <a href="/ans/">Arts &amp; Sciences</a> or the <a href="/tools/">Tools</a>.</p>
+      </div>
+    ) : (
+      <>
+        {tags.length > 0 && (
+          <div class="tag-row no-print" id="tag-filter">
+            <button class="tag" data-tag="" aria-pressed="true">All</button>
+            {tags.map((t) => (
+              <button class="tag" data-tag={t} aria-pressed="false">{t}</button>
+            ))}
+          </div>
+        )}
+        <ul class="card-grid" id="entry-grid">
+          {entries.map((e) => (
+            <li class="card" data-tags={e.data.tags.join(',')}>
+              <p class="meta">{fmt(e.data.date)}</p>
+              <h3><a href={`/sca-life/${e.id}/`}>{e.data.title}</a></h3>
+              <p>{e.data.summary}</p>
+              {e.data.tags.length > 0 && (
+                <p class="card-tags">{e.data.tags.join(' · ')}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+
+  <script>
+    const filter = document.getElementById('tag-filter');
+    filter?.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('button[data-tag]');
+      if (!btn) return;
+      const tag = btn.dataset.tag || '';
+      filter.querySelectorAll('button').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === btn))
+      );
+      document.querySelectorAll<HTMLElement>('#entry-grid .card').forEach((card) => {
+        card.hidden = !(!tag || (card.dataset.tags || '').split(',').includes(tag));
+      });
+    });
+  </script>
+</Base>

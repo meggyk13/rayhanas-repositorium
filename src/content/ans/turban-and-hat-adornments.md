@@ -3,6 +3,7 @@ title: "Turban and Hat Adornments"
 summary: "Sorguç and other feathered ornaments worn on turbans and hats, with extant examples and period art."
 date: 2021-08-27
 tags: [garb, accessories, headwear]
+kind: research
 ---
 
 Commonly seen in Ottoman art, and with several extant examples, feathers were often added to adorn turbans and head coverings by both men and women in the Ottoman empire. These were called "sorguç", and were worn by both men and women. These feature holders can be worn as singles or multiples and feature different types of feathers, though peacock feathers are common.

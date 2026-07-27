@@ -1,34 +1,122 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { tools, featuredTools } from '../data/tools';
 
-const [ans, handouts, articles] = await Promise.all([
+const [ans, scaLife] = await Promise.all([
   getCollection('ans'),
-  getCollection('handouts'),
-  getCollection('articles'),
+  getCollection('sca-life'),
 ]);
 
+// --- Hero image -------------------------------------------------------
+// Drop a file in public/images/ and set the path here to fill the slot.
+// Example: const heroImage = '/images/hero-kaftan.jpg';
+// While it stays null the hero renders text-only — no empty box on the page.
+const heroImage: string | null = null;
+const heroAlt = '';
+// ----------------------------------------------------------------------
+
+// Signposts are derived from real counts, so an empty section hides itself.
+const sections = [
+  {
+    href: '/ans/',
+    label: 'Arts & Sciences',
+    note: 'Documented projects, class handouts, and research on Ottoman dress, cooking, and performance.',
+    count: ans.length,
+    unit: 'entries',
+  },
+  {
+    href: '/sca-life/',
+    label: 'SCA Life',
+    note: 'Getting started, helping other people get started, and notes on how the Society works.',
+    count: scaLife.length,
+    unit: 'entries',
+  },
+  {
+    href: '/tools/',
+    label: 'Tools',
+    note: 'Pattern generators and event calculators. Everything runs in your browser.',
+    count: tools.length,
+    unit: 'tools',
+  },
+].filter((s) => s.count > 0);
+
+const kindLabel = {
+  project: 'A&S Project',
+  handout: 'Class Handout',
+  research: 'Research',
+};
+
 const recent = [
-  ...ans.map((e) => ({ ...e, section: 'A&S', base: '/ans/' })),
-  ...handouts.map((e) => ({ ...e, section: 'Class handout', base: '/handouts/' })),
-  ...articles.map((e) => ({ ...e, section: 'Article', base: '/articles/' })),
+  ...ans.map((e) => ({ ...e, section: kindLabel[e.data.kind], base: '/ans/' })),
+  ...scaLife.map((e) => ({ ...e, section: 'SCA Life', base: '/sca-life/' })),
 ]
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .sort(
+    (a, b) =>
+      b.data.date.valueOf() - a.data.date.valueOf() ||
+      a.data.title.localeCompare(b.data.title)
+  )
   .slice(0, 6);
 ---
-<Base title="Home">
+<Base
+  title="Home"
+  description="Ottoman research, Arts & Sciences documentation, class handouts, and browser tools from Rayhana bint Estafanos al-Abbas, Kingdom of Caid."
+>
   <div class="hero">
     <div class="hero-panel">
       <h1>Rayhana&rsquo;s Repositorium</h1>
-      <p>
-        SCA Research and tools for the Current Middle Ages.
+      <p class="hero-intro">
+        Rayhana bint Estafanos al-Abbas is a 16th-century Ottoman persona in the
+        Kingdom of Caid. This site holds her Arts &amp; Sciences documentation,
+        handouts from the classes she teaches, and research on Ottoman dress,
+        cooking, and performance. It also has browser tools for drafting
+        patterns and running events. The focus is pre-1600.
       </p>
+
+      {heroImage && (
+        <figure class="hero-figure">
+          <img src={heroImage} alt={heroAlt} />
+        </figure>
+      )}
     </div>
   </div>
 
   <div class="wrap">
-    <h2 class="rule"><span></span></h2>
-    <h2>Recently added</h2>
+    <h2 class="section-lead">Start here</h2>
+    <ul class="signposts">
+      {sections.map((s) => (
+        <li class="signpost">
+          <h3><a href={s.href}>{s.label}</a></h3>
+          <p>{s.note}</p>
+          <span class="count">{s.count} {s.unit}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {featuredTools.length > 0 && (
+    <section class="band">
+      <div class="wrap">
+        <h2>Pattern generators</h2>
+        <p class="band-note">
+          Enter your own measurements and get a to-scale cutting diagram with
+          every dimension marked. Nothing you type is saved or sent anywhere.
+        </p>
+        <ul class="feature-grid">
+          {featuredTools.map((t) => (
+            <li class="feature">
+              <h3><a href={t.href}>{t.title}</a></h3>
+              <p>{t.summary}</p>
+            </li>
+          ))}
+        </ul>
+        <p class="band-more"><a href="/tools/">All tools &rarr;</a></p>
+      </div>
+    </section>
+  )}
+
+  <div class="wrap">
+    <h2 class="section-lead">Recently added</h2>
     <ul class="card-grid">
       {recent.map((e) => (
         <li class="card">

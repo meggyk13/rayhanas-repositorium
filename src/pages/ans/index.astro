@@ -2,27 +2,116 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
-const entries = (await getCollection('ans')).sort(
+const all = (await getCollection('ans')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+const groups = [
+  {
+    id: 'projects',
+    kind: 'project',
+    heading: 'Projects',
+    note: 'Entries made for competition and display, each documented with sources.',
+  },
+  {
+    id: 'handouts',
+    kind: 'handout',
+    heading: 'Class Handouts',
+    note: 'The take-home version of classes I teach. Built to print.',
+  },
+  {
+    id: 'research',
+    kind: 'research',
+    heading: 'Research & How-To',
+    note: 'Period evidence, garment surveys, and construction guides.',
+  },
+]
+  .map((g) => ({ ...g, entries: all.filter((e) => e.data.kind === g.kind) }))
+  .filter((g) => g.entries.length > 0);
+
+const tags = [...new Set(all.flatMap((e) => e.data.tags))].sort();
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 ---
 <Base title="Arts & Sciences">
   <div class="wrap">
     <header class="entry-header">
       <h1>Arts &amp; Sciences</h1>
       <p class="prose">
-        Documentation for competition and display projects, and scripts for
-        Karagöz shadow theater.
+        Ottoman costume, cooking, and performance: the things I have made, the
+        classes I teach, and the research behind both.
       </p>
+
+      {groups.length > 1 && (
+        <ul class="group-jump no-print">
+          {groups.map((g) => (
+            <li>
+              <a href={`#${g.id}`}>{g.heading} <span class="count">({g.entries.length})</span></a>
+            </li>
+          ))}
+        </ul>
+      )}
     </header>
-    <ul class="card-grid">
-      {entries.map((e) => (
-        <li class="card">
-          <p class="meta">{e.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
-          <h3><a href={`/ans/${e.id}/`}>{e.data.title}</a></h3>
-          <p>{e.data.summary}</p>
-        </li>
-      ))}
-    </ul>
+
+    {tags.length > 0 && (
+      <div class="tag-row no-print" id="tag-filter">
+        <button class="tag" data-tag="" aria-pressed="true">All</button>
+        {tags.map((t) => (
+          <button class="tag" data-tag={t} aria-pressed="false">{t}</button>
+        ))}
+      </div>
+    )}
+
+    <p class="filter-empty" id="filter-empty" hidden>Nothing tagged that way yet.</p>
+
+    {groups.map((g) => (
+      <section class="group" id={g.id} data-group>
+        <div class="rule" aria-hidden="true"><span></span></div>
+        <h2>{g.heading}</h2>
+        <p class="group-note">{g.note}</p>
+        <ul class="card-grid">
+          {g.entries.map((e) => (
+            <li class="card" data-tags={e.data.tags.join(',')}>
+              <p class="meta">{fmt(e.data.date)}</p>
+              <h3><a href={`/ans/${e.id}/`}>{e.data.title}</a></h3>
+              <p>{e.data.summary}</p>
+              {e.data.tags.length > 0 && (
+                <p class="card-tags">{e.data.tags.join(' · ')}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
   </div>
+
+  <script>
+    const filter = document.getElementById('tag-filter');
+    const emptyNote = document.getElementById('filter-empty');
+
+    filter?.addEventListener('click', (ev) => {
+      const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('button[data-tag]');
+      if (!btn) return;
+      const tag = btn.dataset.tag || '';
+
+      filter.querySelectorAll('button').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === btn))
+      );
+
+      let total = 0;
+      document.querySelectorAll<HTMLElement>('[data-group]').forEach((group) => {
+        let shown = 0;
+        group.querySelectorAll<HTMLElement>('.card').forEach((card) => {
+          const match = !tag || (card.dataset.tags || '').split(',').includes(tag);
+          card.hidden = !match;
+          if (match) shown++;
+        });
+        group.hidden = shown === 0;
+        total += shown;
+      });
+
+      if (emptyNote) emptyNote.hidden = total > 0;
+    });
+  </script>
 </Base>

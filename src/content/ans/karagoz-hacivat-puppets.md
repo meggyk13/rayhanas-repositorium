@@ -3,6 +3,7 @@ title: "Karagöz & Hacivat Puppets"
 summary: "Hand-painted goat skin shadow puppets with jointed limbs, redrawn from an 18th-century template to reflect 16th-century Ottoman costume."
 date: 2025-08-01
 tags: [ottoman, karagoz, puppetry, summer-arts-2025]
+kind: project
 ---
 
 <!-- image: finished puppets -->

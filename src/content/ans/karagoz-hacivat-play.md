@@ -3,6 +3,7 @@ title: "Karagöz & Hacivat Play"
 summary: "An original shadow play in the Ottoman Karagöz tradition — hand-painted goat skin puppets, a backlit screen, and a script that sends Karagöz volunteering at Great Western War."
 date: 2025-08-01
 tags: [ottoman, karagoz, performance, summer-arts-2025]
+kind: project
 ---
 
 <!-- image: performance photo -->

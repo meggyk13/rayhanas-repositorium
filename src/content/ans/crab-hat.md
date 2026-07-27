@@ -3,6 +3,7 @@ title: "16th c. Ottoman Turkish Hat (\"The Crab Hat\")"
 summary: "A red wool reconstruction of the distinctive hat seen on courtiers and attendants throughout 16th-century Ottoman miniatures."
 date: 2025-01-01
 tags: [ottoman, headwear, sewing]
+kind: project
 ---
 
 <!-- image: Türkisches Kostümbuch (Turkish Costume Book); Lambert de Vos - 1574 -->

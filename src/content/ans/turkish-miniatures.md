@@ -3,6 +3,7 @@ title: "Ottoman Miniatures from The Habits of the Grand Signor's Court"
 summary: "Gouache and ink reproductions of four miniatures from a c. 1620 folio of the Ottoman court held at The British Museum."
 date: 2022-01-01
 tags: [ottoman, painting, pentathlon-2022]
+kind: project
 ---
 
 ## Introduction

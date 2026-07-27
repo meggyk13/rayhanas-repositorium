@@ -3,6 +3,7 @@ title: "The Ottoman Caftan"
 summary: "The defining features of the Ottoman caftan — sleeves, closures, and cut — for recreating one in the SCA."
 date: 2024-08-31
 tags: [garb, ottoman-garb-basics]
+kind: research
 ---
 
 ![](https://rayhanasrepositorium.wordpress.com/wp-content/uploads/2024/08/rayhana-coronation-1.jpg?w=683)

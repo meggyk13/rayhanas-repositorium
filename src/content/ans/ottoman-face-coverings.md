@@ -3,6 +3,7 @@ title: "The Yashmak, Lisam, and Peche; Ottoman Face coverings"
 summary: "A look at the yashmak, lisam, and peche — Ottoman face coverings — with period images."
 date: 2021-08-24
 tags: [garb, veils, face-coverings, women]
+kind: research
 ---
 
 ![](https://rayhanasrepositorium.wordpress.com/wp-content/uploads/2021/08/vienna-ii-procession-to-the-hammam-973x519-1.png?w=973)

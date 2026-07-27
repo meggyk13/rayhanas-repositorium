@@ -1,15 +1,14 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// Shared frontmatter shape for all written content.
-// Every markdown file starts with:
+// Shared frontmatter for every written entry:
 // ---
 // title: "..."
 // summary: "One line shown on index pages"
 // date: 2026-07-15
-// tags: [chatelaine, cooking]
+// tags: [ottoman, sewing]
 // ---
-const entry = z.object({
+const base = z.object({
   title: z.string(),
   summary: z.string(),
   date: z.coerce.date(),
@@ -18,19 +17,29 @@ const entry = z.object({
   pdf: z.string().optional(),
 });
 
+// Arts & Sciences: the work itself, in three flavours.
+//   project  — something I made, documented, with sources
+//   handout  — the take-home version of a class I taught
+//   research — period evidence and construction guides
 const ans = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/ans' }),
-  schema: entry,
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/ans',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
+  schema: base.extend({
+    kind: z.enum(['project', 'handout', 'research']).default('project'),
+  }),
 });
 
-const handouts = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/handouts' }),
-  schema: entry,
+// SCA Life: newcomers, mentoring, opinion, commentary.
+const scaLife = defineCollection({
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/sca-life',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
+  schema: base,
 });
 
-const articles = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/articles' }),
-  schema: entry,
-});
-
-export const collections = { ans, handouts, articles };
+export const collections = { ans, 'sca-life': scaLife };

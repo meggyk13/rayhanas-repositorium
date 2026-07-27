@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('articles');
+  const entries = await getCollection('sca-life');
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -28,5 +28,6 @@ const { Content } = await render(entry);
     <article class="entry-body prose">
       <Content />
     </article>
+    <p class="back-link no-print"><a href="/sca-life/">&larr; All SCA Life</a></p>
   </div>
 </Base>

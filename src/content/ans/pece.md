@@ -3,6 +3,7 @@ title: "Peçe: Ottoman Face Veil"
 summary: "A handwoven wool-and-horsehair reconstruction of the stiff late 16th-century Ottoman eye veil, worn for only about fifty years."
 date: 2022-01-01
 tags: [ottoman, weaving, accessories, pentathlon-2022]
+kind: project
 ---
 
 ## Introduction

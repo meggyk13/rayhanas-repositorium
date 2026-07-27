@@ -3,6 +3,7 @@ title: "Ottoman Garb Layers - Gomlek"
 summary: "The gomlek, the innermost chemise layer of Ottoman garb: what we know and how to pattern one."
 date: 2024-08-31
 tags: [garb, how-to, ottoman-garb-basics]
+kind: research
 ---
 
 A gomlek is the inner most layer, the chemise portion of a Turkish ensemble. They have full length sleeves and are below knee to floor length. Often they are embroidered. The front features a round neckline that sits on the collarbone, with a long slit to the navel, held closed by a tie or a small button. The side gore is gathered into the waist, which gives additional bulk to the hips to support the outer layers of costume.

@@ -3,6 +3,7 @@ title: "Ottoman Costuming Basics"
 summary: "A layer-by-layer introduction to 16th-century Ottoman garb for men and women, with fabric guidance and recreation notes."
 date: 2026-07-16
 tags: [garb, ottoman]
+kind: handout
 ---
 
 ## Introduction
@@ -59,7 +60,7 @@ Salvar were worn by both men and women as the main trouser layer. Surviving exam
 - Men's examples tend toward a slightly tighter fit than women's
 - Made from patterned or solid fabrics; lightweight silk and cotton are common
 
-> For recreation: the basic salvar pattern is a wide-leg trouser with a drop crotch. Lightweight fabrics drape better. Avoid heavy denim-weight materials. See the [Turkish pants handout](/handouts/turkish-pants-salvar/) and the [Şalvar Pattern Generator](/tools/salvar/) for drafting your own.
+> For recreation: the basic salvar pattern is a wide-leg trouser with a drop crotch. Lightweight fabrics drape better. Avoid heavy denim-weight materials. See the [Turkish pants handout](/ans/turkish-pants-salvar/) and the [Şalvar Pattern Generator](/tools/salvar/) for drafting your own.
 
 ## Gömlek – Chemise
 

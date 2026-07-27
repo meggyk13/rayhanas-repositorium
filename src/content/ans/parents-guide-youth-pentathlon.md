@@ -3,6 +3,7 @@ title: "Accessible A&S: A Parent's Guide to Youth Pentathlon"
 summary: "How I helped my third-grader enter and win the full Caid Pentathlon — a practical guide to supporting young artisans through big A&S projects, with a kid-friendly documentation template."
 date: 2026-01-01
 tags: [youth, pentathlon, "a&s"]
+kind: handout
 ---
 
 *By THL Rayhana bint Estafanos al-Abbas and Hammad al-Khalil ibn Suleiman*

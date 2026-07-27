@@ -3,6 +3,7 @@ title: "Block Printed Sleeves"
 summary: "A project recreating detachable Ottoman caftan sleeves, block printed with the chintamani motif."
 date: 2024-08-31
 tags: [garb, projects, block-printing]
+kind: project
 ---
 
 ## 

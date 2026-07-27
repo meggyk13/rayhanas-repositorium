@@ -3,6 +3,7 @@ title: "Ottoman Gazel: Ey vücûd-i kâmilin esrâr-i hikmet masdarı"
 summary: "A dramatic interpretation of a 1562 gazel by Fuzuli, with analysis of the qasida meter, chain-verse structure, and Gibb's 1901 translation."
 date: 2022-01-01
 tags: [ottoman, poetry, performance, pentathlon-2022]
+kind: project
 ---
 
 ## Original

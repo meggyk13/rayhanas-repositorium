@@ -3,6 +3,7 @@ title: "Ottoman Style Tarpuş"
 summary: "A 16th-century Ottoman woman's hat in red cotton velveteen over a handmade pasteboard foundation — the base of the whole Ottoman headdress system."
 date: 2025-08-01
 tags: [ottoman, headwear, sewing, summer-arts-2025]
+kind: project
 ---
 
 *Riddle 2: A stalwart guard, I protect the most precious tool. I greet you first with warm embrace, then I see you off to find your grace. I am with you always in station and task.*
