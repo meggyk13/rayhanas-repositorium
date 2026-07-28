@@ -1,0 +1,903 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Awards exactly as they appear in the Caidan Awards form dropdown, grouped by
+// the kind of work they recognise. Descriptions are Caid's, spelling tidied.
+// Peerages are not on the form — they go to each Order's secretary by email.
+const AWARD_GROUPS = [
+  {
+    label: 'Service',
+    type: 'service',
+    awards: [
+      { name: 'Crescent', level: 'Grant Order, Kingdom of Caid', desc: 'Given to recognize outstanding service to the Kingdom.' },
+      { name: 'Dolphin', level: 'Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize superior service to the Kingdom of Caid.' },
+      { name: 'Legion of Courtesy', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize continuing courtesy.' },
+      { name: 'Ordo Cordis', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: '' },
+      { name: 'Right Noble', level: 'Miscellaneous Kingdom honor, Kingdom of Caid', desc: 'Given to recognize those Guilds/Households that have provided great service or contributed to the benefit of the Kingdom.' },
+      { name: 'Royal Recognition of Excellence', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize unique reasons, ranging from running a spectacular event to real-life heroism.' },
+    ],
+  },
+  {
+    label: 'Arts & Sciences',
+    type: 'ans',
+    awards: [
+      { name: 'Chanson', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize excellence in musical arts.' },
+      { name: 'Furison', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize teaching.' },
+      { name: 'Harp Argent', level: 'Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize a particular art form or scientific endeavor.' },
+      { name: 'Lux Caidis', level: 'Grant Order, Kingdom of Caid', desc: 'Given to recognize outstanding skill in the Arts and Sciences in Caid.' },
+      { name: 'Personal Heraldic Title', level: 'Non-armigerous Society-wide honor', desc: 'Given to recognize sustained devotion and extraordinary contributions to the arts of Heraldry and Armory.' },
+    ],
+  },
+  {
+    label: 'Martial',
+    type: 'martial',
+    awards: [
+      { name: 'Argent Arrow', level: 'Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize superior skill and appearance in target archery.' },
+      { name: 'Argent Blade', level: 'Grant Order, Kingdom of Caid', desc: 'Given to recognize outstanding ability in rapier combat.' },
+      { name: 'Chamfron', level: 'Armigerous Kingdom Order, Kingdom of Caid', desc: 'Given to recognize superior skill in equestrian arts.' },
+      { name: 'Corde de Guerre', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize exemplary fighting skill in war combat.' },
+      { name: 'Crescent Sword', level: 'Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize superior skill in armored combat.' },
+      { name: 'Crossed Swords', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize prowess in wars (fighting units).' },
+      { name: 'Duellist', level: 'Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize excellence in rapier combat.' },
+      { name: 'Gauntlet', level: 'Grant Order, Kingdom of Caid', desc: 'Given to recognize outstanding ability in SCA sanctioned armored combat.' },
+    ],
+  },
+  {
+    label: 'Youth',
+    type: 'youth',
+    awards: [
+      { name: 'Acorn', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize excellence in service by a youth.' },
+      { name: 'Argent Star', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize honor and chivalry in youth combat.' },
+      { name: 'Crescent and Flame', level: 'Non-Armigerous Kingdom Award, Kingdom of Caid', desc: 'Given to recognize youths for outstanding endeavors in the Arts and Sciences.' },
+    ],
+  },
+  {
+    label: 'Rank and general honors',
+    type: 'general',
+    awards: [
+      { name: 'Award of Arms', level: 'Kingdom of Caid armigerous award', desc: 'Given to recognize those who have been of diverse service to the Realm.' },
+      { name: 'Grant of Arms', level: 'Grant of Arms, Society-wide', desc: '' },
+      { name: 'Augmentation of Arms', level: 'Kingdom of Caid non-armigerous award', desc: 'Given to recognize years of consistent, exemplary service and dedication to the Kingdom of Caid. A rare and special award.' },
+      { name: 'Court Barony', level: 'Court Barony with Award of Arms, Society-wide', desc: '' },
+      { name: 'Other', level: '', desc: "Pick this if the award you want isn't listed. Name it at the start of your reasons." },
+    ],
+  },
+  {
+    label: 'Peerages — not on the form',
+    type: 'peerage',
+    peerage: true,
+    awards: [
+      { name: 'Chivalry (Knight)', level: 'Patent level Order, Society-wide', desc: 'Given to recognize those who have excelled in armored combat and exhibit peer-like qualities as a Knight. Gives the recipient the title of Sir.' },
+      { name: 'Master of Arms', level: 'Peerage, Society-wide', desc: 'Given to recognize martial arts.' },
+      { name: 'Laurel', level: 'Peerage, Society-wide', desc: 'Given to recognize highest excellence in Arts and Sciences.' },
+      { name: 'Pelican', level: 'Peerage, Society-wide', desc: 'Given to recognize the highest excellence in service to the realm. Is a Patent of Arms, and ranks equally to the Order of the Chivalry, the Master of Defense, and the Order of the Laurel.' },
+      { name: 'Master of Defense', level: 'Peerage, Society-wide', desc: 'Given to recognize the highest excellence in rapier combat. Is a Patent of Arms, and ranks equally to the Order of the Chivalry, the Order of the Pelican, and the Order of the Laurel.' },
+      { name: 'Order of the Mark', level: 'Patent level Order, Society-wide', desc: 'Given to recognize those who have excelled in ranged activities and exhibit peer-like qualities. Gives the recipient the title of Master.' },
+    ],
+  },
+];
+
+const FORM_URL = 'http://royals.sca-caid.org/awards/online.php';
+const OP_SEARCH = 'https://heralds.sca-caid.org/op/search.php';
+const WIKI_SEARCH = 'https://caidwiki.org/index.php';
+const RECS_URL = 'http://royals.sca-caid.org/awards/recs.php';
+---
+
+<Base
+  title="Award Recommendation Helper"
+  description="Look someone up in Caid's Order of Precedence and wiki, then write and stage every field of the Caidan Awards recommendation form."
+>
+  <div class="wrap">
+    <header class="entry-header prose">
+      <p class="meta">Tool</p>
+      <h1>Award Recommendation Helper</h1>
+      <p>
+        Awards happen because someone writes in. You don't need to be a member,
+        you don't need to hold the award yourself, and you can recommend a
+        friend. This walks you through Caid's award recommendation form field by
+        field, helps you look the person up first, and gives you a copy button
+        for every box. Every word of the case is yours. Nothing you type is saved
+        or sent anywhere.
+      </p>
+      <p class="reassure">
+        You do not have to write well to do this. The Crown needs facts, not
+        flourishes. If you can tell a friend what you saw someone do, you can
+        fill this out.
+      </p>
+    </header>
+
+    <!-- ============ STEP 1 ============ -->
+    <div class="tool-panel">
+      <p class="step">Step 1</p>
+      <h2>Look them up</h2>
+      <p class="hint-line">
+        Start here for three reasons. You want their registered name spelled the
+        way the Kingdom has it, you want to know they don't already hold the
+        award, and their wiki page will remind you of things you'd forgotten.
+      </p>
+
+      <label for="rec-name">Their SCA name</label>
+      <input type="text" id="rec-name" autocomplete="off" placeholder="Part of the name is enough" />
+      <p class="hint-line">
+        No titles. The form wants the registered name, so if the OP spells it
+        differently than you do, use the OP's spelling.
+      </p>
+
+      <div class="lookups">
+        <div class="lookup">
+          <a class="btn" id="op-link" href={OP_SEARCH} target="_blank" rel="noopener">Search the OP</a>
+          <p class="hint-line">
+            The Order of Precedence lists every award they already hold. Check it
+            before you recommend.
+          </p>
+        </div>
+        <div class="lookup">
+          <a class="btn secondary" id="wiki-link" href={WIKI_SEARCH} target="_blank" rel="noopener">Search the Caid wiki</a>
+          <p class="hint-line">
+            Wiki pages work like a CV. Offices, classes taught, projects, years
+            active — good raw material for step 3.
+          </p>
+        </div>
+      </div>
+
+      <label for="rec-op">Link to their OP page</label>
+      <p class="hint-line">
+        Open their entry from the OP search and paste the address here. The form
+        asks for this at the very bottom.
+      </p>
+      <input type="text" id="rec-op" autocomplete="off" placeholder="https://heralds.sca-caid.org/op/person.php?PersonID=…" />
+    </div>
+
+    <!-- ============ STEP 2 ============ -->
+    <div class="tool-panel">
+      <p class="step">Step 2</p>
+      <h2>Pick the award</h2>
+
+      <label for="rec-award">Award</label>
+      <select id="rec-award">
+        <option value="">Choose…</option>
+        {AWARD_GROUPS.map((g) => (
+          <optgroup label={g.label}>
+            {g.awards.map((a) => (
+              <option
+                value={a.name}
+                data-type={g.type}
+                data-level={a.level}
+                data-desc={a.desc}
+                data-peerage={g.peerage ? 'yes' : ''}
+              >{a.name}</option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+
+      <div class="award-card" id="award-card" hidden>
+        <p class="award-level" id="award-level"></p>
+        <p class="award-desc" id="award-desc"></p>
+      </div>
+
+      <div id="peerage-warning" class="warn" hidden>
+        <p>
+          Peerage recommendations don't go through the Caidan Awards form. Each
+          Order has its own secretary, and recommendations go to them by email.
+          Current contacts are on <a href={RECS_URL} target="_blank" rel="noopener">Caid's recommendations page</a>.
+        </p>
+      </div>
+
+      <div id="ans-field" hidden>
+        <label for="rec-field">Which art or science?</label>
+        <p class="hint-line">
+          The form asks for this by name on arts awards. Be specific — "Ottoman
+          costuming" or "Italian Renaissance dance," not "the arts."
+        </p>
+        <input type="text" id="rec-field" autocomplete="off" />
+      </div>
+    </div>
+
+    <!-- ============ STEP 3 ============ -->
+    <div class="tool-panel">
+      <p class="step">Step 3</p>
+      <h2>Answer four questions</h2>
+      <p class="hint-line">
+        Don't try to write a letter. Answer these the way you'd say them out
+        loud, and the tool puts them together at the bottom. One or two sentences
+        each is plenty.
+      </p>
+
+      <div class="qbox">
+        <label for="q-saw">What did you actually see them do?</label>
+        <p class="hint-line">
+          One specific thing. Where were you, and what were they doing? A single
+          real moment beats a pile of adjectives.
+        </p>
+        <button type="button" class="ex-btn" data-ex="ex-saw">Show an example</button>
+        <p class="example" id="ex-saw" hidden></p>
+        <div class="starter-row" id="st-saw"></div>
+        <textarea id="q-saw" rows="4"></textarea>
+      </div>
+
+      <div class="qbox">
+        <label for="q-long">How long, or how often?</label>
+        <p class="hint-line">
+          Years, seasons, or "every event since 2022." Guessing is fine — write
+          "about three years" if that's what you know.
+        </p>
+        <button type="button" class="ex-btn" data-ex="ex-long">Show an example</button>
+        <p class="example" id="ex-long" hidden></p>
+        <div class="starter-row" id="st-long"></div>
+        <textarea id="q-long" rows="2"></textarea>
+      </div>
+
+      <div class="qbox">
+        <label for="q-better">Who is better off because of it?</label>
+        <p class="hint-line">
+          Name people or a group. Newcomers, their barony, an office, a practice,
+          you. What would be missing if they stopped tomorrow?
+        </p>
+        <button type="button" class="ex-btn" data-ex="ex-better">Show an example</button>
+        <p class="example" id="ex-better" hidden></p>
+        <div class="starter-row" id="st-better"></div>
+        <textarea id="q-better" rows="3"></textarea>
+      </div>
+
+      <div class="qbox">
+        <label for="q-extra">Anything else the Crown should know? <span class="opt">optional</span></label>
+        <p class="hint-line">
+          Leave it blank if nothing comes to mind. Three answers is already a
+          complete recommendation.
+        </p>
+        <textarea id="q-extra" rows="2"></textarea>
+      </div>
+
+      <div class="nudge" id="nudge" hidden></div>
+
+      <label for="case-sign">Sign it <span class="opt">optional</span></label>
+      <p class="hint-line">
+        The form asks for no titles in the name fields. If you want yours on the
+        recommendation, it goes at the end of the reasons.
+      </p>
+      <input type="text" id="case-sign" autocomplete="off" placeholder="THL Rayhana bint Estafanos al-Abbas" />
+
+      <p class="hint-line" id="length-note"></p>
+    </div>
+
+    <!-- ============ STEP 4 ============ -->
+    <div class="tool-panel">
+      <p class="step">Step 4</p>
+      <h2>The rest of the form</h2>
+
+      <div class="field-grid">
+        <div>
+          <label for="from-name">Your SCA name</label>
+          <input type="text" id="from-name" autocomplete="off" />
+          <p class="hint-line">No titles here — they sort the database on this field.</p>
+        </div>
+        <div>
+          <label for="from-email">Your email</label>
+          <input type="text" id="from-email" autocomplete="off" />
+        </div>
+      </div>
+
+      <label for="rec-events">Events they'll be at next</label>
+      <p class="hint-line">
+        Royalty try to give awards where the recipient and their friends will be
+        present. This is often the field that decides when it happens.
+      </p>
+      <textarea id="rec-events" rows="2"></textarea>
+
+      <label for="rec-pic">Link to a picture of them <span class="opt">optional</span></label>
+      <input type="text" id="rec-pic" autocomplete="off" placeholder="Facebook or any image URL" />
+    </div>
+
+    <!-- ============ STEP 5 ============ -->
+    <div class="tool-panel">
+      <p class="step">Step 5</p>
+      <h2>Before you send it</h2>
+      <ul class="check-list">
+        <li><label><input type="checkbox" /> I checked the OP and they don't already hold this award</label></li>
+        <li><label><input type="checkbox" /> I spelled their name the way the OP does</label></li>
+        <li><label><input type="checkbox" /> I named at least one specific event, project, or office</label></li>
+        <li><label><input type="checkbox" /> Someone who's never met them would understand what they did</label></li>
+      </ul>
+    </div>
+
+    <!-- ============ OUTPUT: FORM MODE ============ -->
+    <div class="tool-panel" id="out-form">
+      <div class="out-head">
+        <h2>Ready to paste</h2>
+        <a class="btn" href={FORM_URL} target="_blank" rel="noopener">Open the form</a>
+      </div>
+      <p class="hint-line">
+        Same order as the form. Group and Gender aren't here — they're pick-lists
+        you'll answer on the form itself.
+      </p>
+
+      <div class="out-rows" id="out-rows"></div>
+    </div>
+
+    <!-- ============ OUTPUT: PEERAGE MODE ============ -->
+    <div class="tool-panel" id="out-peerage" hidden>
+      <div class="out-head">
+        <h2>Your email</h2>
+        <button class="btn" id="copy-email">Copy email</button>
+      </div>
+      <p class="hint-line">
+        Send this to the Order's secretary. Contacts are listed on
+        <a href={RECS_URL} target="_blank" rel="noopener">Caid's recommendations page</a>.
+      </p>
+      <pre id="email-body" class="letter"></pre>
+    </div>
+
+    <p class="back-link"><a href="/tools/">← All tools</a></p>
+  </div>
+
+  <style>
+    .reassure {
+      border-left: 4px solid var(--turquoise);
+      padding-left: 1rem;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+    .step {
+      font-family: var(--font-utility);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--turquoise);
+      margin: 0;
+    }
+    .tool-panel h2 { margin-top: 0.2rem; font-size: 1.45rem; }
+    .hint-line { font-size: 0.85rem; color: var(--ink-soft); margin: 0.25rem 0 1rem; }
+    .opt {
+      font-family: var(--font-utility);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+    }
+    .tool-panel textarea {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border: 1px solid var(--ink-soft);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: var(--font-body);
+      background: #fff;
+      resize: vertical;
+    }
+
+    .lookups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 1.25rem;
+      margin: 0 0 1.5rem;
+    }
+    .lookup .btn { display: inline-block; text-decoration: none; }
+    .lookup .hint-line { margin: 0.5rem 0 0; }
+
+    .qbox {
+      border-top: 1px solid var(--parchment-deep);
+      padding-top: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .qbox label {
+      font-size: 1rem;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--cobalt-deep);
+      font-family: var(--font-body);
+      font-weight: 600;
+    }
+    .ex-btn {
+      font-family: var(--font-utility);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border: 1px dashed var(--turquoise);
+      border-radius: 999px;
+      background: none;
+      color: var(--turquoise);
+      cursor: pointer;
+      margin-bottom: 0.6rem;
+    }
+    .ex-btn:hover { background: var(--turquoise); color: var(--parchment); }
+    .example {
+      background: var(--parchment);
+      border-left: 3px solid var(--gold);
+      border-radius: 4px;
+      padding: 0.6rem 0.85rem;
+      margin: 0 0 0.75rem;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      font-style: italic;
+    }
+
+    .starter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0 0 0.6rem;
+    }
+    .starter {
+      font-family: var(--font-utility);
+      font-size: 0.75rem;
+      line-height: 1.3;
+      text-align: left;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--cobalt);
+      border-radius: 999px;
+      background: none;
+      color: var(--cobalt);
+      cursor: pointer;
+    }
+    .starter:hover { background: var(--cobalt); color: var(--parchment); }
+
+    .nudge {
+      border: 1px solid var(--gold);
+      background: var(--parchment);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      margin: 0 0 1.5rem;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+    }
+    .nudge strong { color: var(--iznik-red); }
+
+    .award-card {
+      border-left: 4px solid var(--gold);
+      background: var(--parchment);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      margin: 1rem 0 0;
+    }
+    .award-level {
+      font-family: var(--font-utility);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--turquoise);
+      margin: 0;
+    }
+    .award-desc { margin: 0.35rem 0 0; font-family: var(--font-body); font-size: 0.95rem; }
+    .award-desc:empty { display: none; }
+
+    .warn {
+      border: 1px solid var(--iznik-red);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      margin: 1rem 0 0;
+      background: #fff;
+    }
+    .warn p { margin: 0; font-family: var(--font-body); font-size: 0.92rem; }
+
+    #ans-field { margin-top: 1.25rem; }
+
+    .check-list { list-style: none; padding: 0; margin: 0; font-family: var(--font-body); }
+    .check-list li { padding: 0.3rem 0; font-size: 0.95rem; }
+    .check-list input { width: auto; margin-right: 0.6rem; }
+
+    .out-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .out-head h2 { margin: 0; }
+    .out-head .btn { text-decoration: none; }
+
+    .out-rows { margin-top: 1rem; }
+    .out-row { border-top: 1px solid var(--parchment-deep); padding: 0.9rem 0; }
+    .out-row:last-child { border-bottom: 1px solid var(--parchment-deep); }
+    .out-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .out-label {
+      font-family: var(--font-utility);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
+    }
+    .out-copy {
+      font-family: var(--font-utility);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--cobalt);
+      border-radius: 6px;
+      background: none;
+      color: var(--cobalt);
+      cursor: pointer;
+      flex: none;
+    }
+    .out-copy:hover { background: var(--cobalt); color: var(--parchment); }
+    .out-value {
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      white-space: pre-wrap;
+      margin: 0.4rem 0 0;
+    }
+    .out-value.empty { color: var(--ink-soft); font-style: italic; }
+
+    .letter {
+      white-space: pre-wrap;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      background: var(--parchment);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      padding: 1.25rem;
+      min-height: 8rem;
+      margin-top: 1rem;
+    }
+  </style>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const OP_SEARCH = 'https://heralds.sca-caid.org/op/search.php';
+    const WIKI_SEARCH = 'https://caidwiki.org/index.php';
+
+    // One worked example per question, per kind of award. Shown as illustration
+    // only — they never fill the box, so nobody submits borrowed words.
+    const EXAMPLES = {
+      service: {
+        saw: 'At Potrero War she ran gate the whole weekend, including the 6am shift nobody wants.',
+        long: 'Three years running, every Potrero and most local events.',
+        better: 'Gate opened on time every day, and the two newcomers she trained now run shifts on their own.',
+      },
+      ans: {
+        saw: 'He taught tablet weaving at Collegium with handouts and loaner looms, so nobody had to buy anything first.',
+        long: 'Every Collegium since 2021, plus three classes at our own baronial events.',
+        better: 'Four people in our barony weave their own trim now, and two of them have started teaching it themselves.',
+      },
+      martial: {
+        saw: 'At Crown he fought all day, and between rounds he was lending gear and coaching two brand new fighters.',
+        long: 'At practice nearly every week for four years, and he marshals most of our tournaments.',
+        better: "Our practice has doubled, mostly because new fighters don't get scared off on their first night.",
+      },
+      youth: {
+        saw: 'At Twelfth Night she looked after the younger children all afternoon so their parents could sit through court.',
+        long: 'At every event she has come to for about two years.',
+        better: 'The little ones follow her lead, and parents can actually take part in court now.',
+      },
+      general: {
+        saw: "At Great Western War she spent all of Saturday repairing pavilions that weren't hers.",
+        long: "She's done something like this at every war I've attended for five years.",
+        better: 'Three households camped dry that weekend who otherwise would not have.',
+      },
+      peerage: {
+        saw: 'She has taught Ottoman costuming across the kingdom for a decade, and her documentation gets cited by people she has never met.',
+        long: 'Twelve years — at Collegium, at wars, and in her own barony.',
+        better: 'There is a generation of Caidan costumers who learned from her, and she never once made anyone feel stupid for asking a basic question.',
+      },
+    };
+
+    // Sentence openings. Each one is built to force a fact out — a place, a
+    // job, a number, a name — rather than an adjective.
+    const STARTERS = {
+      service: {
+        saw: ['At [event], they ran ', 'When we were short-handed, they ',
+              'They stayed after closing to ', 'They currently serve as ',
+              'Nobody asked them to, but they '],
+        long: ['For the past ___ years, ', 'At every [event] since ___, ',
+               "They've held this office since ", 'About ___ times a year, ',
+               'Two reigns running, '],
+        better: ['Because of them, ', 'The newcomers they trained ',
+                 'If they stopped tomorrow, ', 'Our branch can count on ',
+                 'The office they took over '],
+      },
+      ans: {
+        saw: ['They taught ___ at ', 'They entered ___ at ', 'They made ___ for ',
+              'They shared their documentation on ', 'They spent months researching '],
+        long: ['They have taught at ___ since ', 'For the past ___ years, ',
+               'This was their ___th year ', 'About ___ classes a year, ',
+               'Every Collegium since ___, '],
+        better: ['Their students now ', 'Because of their handouts, ',
+                 'They raised the standard for ', "People who had never tried ___ now ",
+                 'They answer questions from '],
+      },
+      martial: {
+        saw: ['On the field at [event], they ', 'Between rounds, they ',
+              'They marshaled ', 'They lent gear to ',
+              'They stayed late at practice to '],
+        long: ['At practice nearly every week for ', 'They have fought in ___ since ',
+               'For the past ___ years, ', 'They marshal about ___ events a year, ',
+               'Every war since ___, '],
+        better: ['New fighters ', 'Our practice ', 'The way they carry themselves ',
+                 'Fighters who would have quit ', 'The marshals rely on '],
+      },
+      youth: {
+        saw: ['At [event], they ', 'Without being asked, they ',
+              'They looked after ', 'They helped set up ',
+              'When another child ___, they '],
+        long: ['At every event for about ___ years, ', 'Since they were ___, ',
+               'For the past ___ years, ', 'Every practice since ___, ',
+               'All three days of ___, '],
+        better: ['The other children ', 'The adults in our group ',
+                 'Their parents could finally ', 'Because of them, ',
+                 'The younger ones copy '],
+      },
+      general: {
+        saw: ['At [event], they ', 'I first noticed when they ',
+              'They quietly ', 'They currently serve as ',
+              'When ___ went wrong, they '],
+        long: ['For the past ___ years, ', 'At every event since ___, ',
+               'About ___ times a year, ', 'Since before I joined, ',
+               'Every year I have known them, '],
+        better: ['Because of them, ', 'Our branch is better for ',
+                 'If they stopped, ', 'The people who benefit most are ',
+                 'Things run because '],
+      },
+      peerage: {
+        saw: ['For the past ___ years they have ',
+              'Across the kingdom they are known for ', 'They have taught ',
+              'They mentored ', 'When asked, they always '],
+        long: ['___ years, at ', 'Since ___, without a gap, ',
+               'Through ___ reigns, ', 'In three kingdoms, ',
+               'Long before it was noticed, '],
+        better: ['They set a standard that ', 'The people they taught ',
+                 'They share what they know by ', 'They never made anyone feel ',
+                 'Others measure their own work against '],
+      },
+    };
+
+    // Phrases that feel like praise but tell the Crown nothing they can act on.
+    const WEAK = [
+      'always helpful', 'so helpful', 'very helpful', 'always there',
+      'so nice', 'very nice', 'great person', 'wonderful person', 'amazing person',
+      'hard worker', 'works hard', 'does so much', 'does a lot',
+      'deserves', 'deserving', 'long overdue', 'about time',
+      'goes above and beyond', 'pillar of', 'backbone of',
+    ];
+
+    function currentOption() {
+      const sel = $('rec-award');
+      return sel.selectedIndex > 0 ? sel.options[sel.selectedIndex] : null;
+    }
+    function currentType() {
+      const opt = currentOption();
+      return opt ? opt.dataset.type : 'general';
+    }
+    function isPeerage() {
+      const opt = currentOption();
+      return !!(opt && opt.dataset.peerage);
+    }
+
+    function updateExamples() {
+      const ex = EXAMPLES[currentType()] || EXAMPLES.general;
+      $('ex-saw').textContent = ex.saw;
+      $('ex-long').textContent = ex.long;
+      $('ex-better').textContent = ex.better;
+    }
+
+    function renderStarters(rowId, textareaId, list) {
+      const row = $(rowId);
+      row.innerHTML = '';
+      list.forEach((text) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'starter';
+        b.textContent = text.trim() + '…';
+        b.addEventListener('click', () => {
+          const ta = $(textareaId);
+          const cur = ta.value;
+          const sep = !cur ? '' : (cur.endsWith('\n') ? '' : (/[.!?]\s*$/.test(cur) ? ' ' : '\n'));
+          ta.value = cur + sep + text;
+          ta.focus();
+          ta.setSelectionRange(ta.value.length, ta.value.length);
+          assemble();
+        });
+        row.appendChild(b);
+      });
+    }
+
+    function updateStarters() {
+      const s = STARTERS[currentType()] || STARTERS.general;
+      renderStarters('st-saw', 'q-saw', s.saw);
+      renderStarters('st-long', 'q-long', s.long);
+      renderStarters('st-better', 'q-better', s.better);
+    }
+
+    function updateAward() {
+      const opt = currentOption();
+      const card = $('award-card');
+
+      if (!opt) {
+        card.hidden = true;
+        $('peerage-warning').hidden = true;
+        $('ans-field').hidden = true;
+      } else {
+        card.hidden = false;
+        $('award-level').textContent = opt.dataset.level || '';
+        $('award-desc').textContent = opt.dataset.desc || '';
+        $('peerage-warning').hidden = !isPeerage();
+        $('ans-field').hidden = opt.dataset.type !== 'ans';
+      }
+
+      updateExamples();
+      updateStarters();
+      $('out-form').hidden = isPeerage();
+      $('out-peerage').hidden = !isPeerage();
+    }
+
+    function updateLookups() {
+      const name = $('rec-name').value.trim();
+      const op = $('op-link');
+      const wiki = $('wiki-link');
+      if (name) {
+        op.href = OP_SEARCH + '?SearchMe=' + encodeURIComponent(name) +
+                  '&MatchType=contains&Type=Name&Submit=';
+        wiki.href = WIKI_SEARCH + '?title=Special%3ASearch&search=' +
+                    encodeURIComponent(name) + '&go=Go';
+      } else {
+        op.href = OP_SEARCH;
+        wiki.href = WIKI_SEARCH + '?title=Special%3ASearch';
+      }
+    }
+
+    function allCaseText() {
+      return [$('q-saw').value, $('q-long').value, $('q-better').value, $('q-extra').value].join(' ');
+    }
+
+    function updateNudge() {
+      const text = allCaseText().toLowerCase();
+      const hit = WEAK.find((p) => text.includes(p));
+      const box = $('nudge');
+      if (!hit) { box.hidden = true; return; }
+      box.hidden = false;
+      box.innerHTML =
+        'You wrote <strong>&ldquo;' + hit + '&rdquo;</strong>. That reads as praise, but ' +
+        "there's nothing in it the Crown can act on. Name the thing that made you " +
+        'say it — the event, the job, the moment. Keep the phrase too if you like; ' +
+        'just put a fact beside it.';
+    }
+
+    function buildReasons() {
+      const saw = $('q-saw').value.trim();
+      const howLong = $('q-long').value.trim();
+      const better = $('q-better').value.trim();
+      const extra = $('q-extra').value.trim();
+      const field = $('rec-field').value.trim();
+      const sign = $('case-sign').value.trim();
+      const parts = [];
+
+      if (field && currentType() === 'ans') {
+        parts.push('This recommendation is for their work in ' + field + '.');
+      }
+
+      const first = [saw, howLong].filter(Boolean).join(' ');
+      if (first) parts.push(first);
+      if (better) parts.push(better);
+      if (extra) parts.push(extra);
+      if (sign) parts.push('— ' + sign);
+
+      return parts.join('\n\n');
+    }
+
+    function copyText(text, btn, restore) {
+      const done = () => {
+        btn.textContent = 'Copied';
+        setTimeout(() => (btn.textContent = restore), 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => {});
+      }
+    }
+
+    function renderFormRows() {
+      const opt = currentOption();
+      const rows = [
+        { label: 'Name', value: $('rec-name').value.trim() },
+        { label: 'Award', value: opt ? opt.value : '' },
+        { label: 'Reasons', value: buildReasons() },
+        { label: 'Picture URL', value: $('rec-pic').value.trim() },
+        { label: 'From', value: $('from-name').value.trim() },
+        { label: 'Email', value: $('from-email').value.trim() },
+        { label: 'Events', value: $('rec-events').value.trim() },
+        { label: 'Link to OP page', value: $('rec-op').value.trim() },
+      ];
+
+      const box = $('out-rows');
+      box.innerHTML = '';
+
+      rows.forEach((r) => {
+        const row = document.createElement('div');
+        row.className = 'out-row';
+
+        const head = document.createElement('div');
+        head.className = 'out-row-head';
+
+        const lab = document.createElement('span');
+        lab.className = 'out-label';
+        lab.textContent = r.label;
+        head.appendChild(lab);
+
+        if (r.value) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'out-copy';
+          btn.textContent = 'Copy';
+          btn.addEventListener('click', () => copyText(r.value, btn, 'Copy'));
+          head.appendChild(btn);
+        }
+
+        const val = document.createElement('p');
+        val.className = 'out-value' + (r.value ? '' : ' empty');
+        val.textContent = r.value || 'Not filled in yet';
+
+        row.appendChild(head);
+        row.appendChild(val);
+        box.appendChild(row);
+      });
+    }
+
+    function buildEmail() {
+      const opt = currentOption();
+      const award = opt ? opt.value : '[order]';
+      const name = $('rec-name').value.trim() || '[their name]';
+      const from = $('from-name').value.trim() || '[your name]';
+      const events = $('rec-events').value.trim();
+      const op = $('rec-op').value.trim();
+      const reasons = buildReasons();
+
+      const parts = [];
+      parts.push('Subject: Recommendation for ' + name + ' — ' + award);
+      parts.push('Unto the Secretary of the Order, greetings.');
+      parts.push('I write to recommend ' + name + ' for elevation to the ' + award + '.');
+      if (reasons) parts.push(reasons);
+      if (events) parts.push('Events they will be attending next: ' + events);
+      if (op) parts.push('Their Order of Precedence entry: ' + op);
+      parts.push('In service,\n' + from);
+
+      return parts.join('\n\n');
+    }
+
+    function assemble() {
+      if (isPeerage()) {
+        $('email-body').textContent = buildEmail();
+      } else {
+        renderFormRows();
+      }
+
+      updateNudge();
+
+      const words = allCaseText().split(/\s+/).filter(Boolean).length;
+      $('length-note').textContent =
+        words === 0 ? '' :
+        words < 35
+          ? "That's " + words + ' words. Short is fine — but if you can name one more specific thing, do.'
+          : "That's " + words + ' words. Plenty. Specific beats long.';
+    }
+
+    ['rec-name', 'rec-op', 'rec-field', 'q-saw', 'q-long', 'q-better', 'q-extra',
+     'case-sign', 'from-name', 'from-email', 'rec-events', 'rec-pic']
+      .forEach((id) => $(id).addEventListener('input', () => {
+        if (id === 'rec-name') updateLookups();
+        assemble();
+      }));
+
+    $('rec-award').addEventListener('change', () => { updateAward(); assemble(); });
+
+    document.querySelectorAll('.ex-btn').forEach((b) => {
+      b.addEventListener('click', () => {
+        const p = $(b.dataset.ex);
+        p.hidden = !p.hidden;
+        b.textContent = p.hidden ? 'Show an example' : 'Hide example';
+      });
+    });
+
+    $('copy-email').addEventListener('click', () => {
+      copyText($('email-body').textContent, $('copy-email'), 'Copy email');
+    });
+
+    updateAward();
+    updateLookups();
+    assemble();
+  </script>
+</Base>

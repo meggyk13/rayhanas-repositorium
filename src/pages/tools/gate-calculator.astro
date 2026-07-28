@@ -1,0 +1,1384 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Gate Calculator">
+  <div class="wrap gate">
+    <header class="gate-head">
+      <h1>Gate Calculator</h1>
+      <button class="pricesbtn" id="openSettings" type="button">Prices</button>
+    </header>
+    <p class="lede">Tally a group, take payment, make change.</p>
+
+    <div class="rows" id="tallyRows"></div>
+
+    <div class="totals">
+      <div class="tcell">
+        <span class="tlabel">Total due</span>
+        <span class="tamt" id="totalAmount">$0.00</span>
+      </div>
+      <div class="tcell change" id="changeCell">
+        <span class="tlabel" id="changeLabel">Change</span>
+        <span class="tamt" id="changeAmount">&mdash;</span>
+      </div>
+    </div>
+
+    <div class="tender">
+      <div class="tender-head">
+        <span class="tender-label">Cash received</span>
+        <span class="tender-actions">
+          <button type="button" id="exactBtn">Exact</button>
+          <button type="button" id="clearTenderBtn">Clear</button>
+        </span>
+      </div>
+      <input type="number" inputmode="decimal" id="manualTender" placeholder="Tap bills below, or type" />
+      <div class="quick-tender" id="quickTender">
+        <button type="button" data-amt="5">+$5</button>
+        <button type="button" data-amt="10">+$10</button>
+        <button type="button" data-amt="20">+$20</button>
+        <button type="button" data-amt="50">+$50</button>
+        <button type="button" data-amt="100">+$100</button>
+      </div>
+    </div>
+
+    <button class="next-btn" id="clearBtn" type="button">Log group &amp; start next</button>
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span id="toastText"></span>
+      <button type="button" class="undo-btn" id="undoBtn">Undo</button>
+    </div>
+
+    <section class="ledger">
+      <div class="ledger-head">
+        <span class="llabel">Today&rsquo;s log</span>
+        <span class="lhead-right">
+          <span class="lcount" id="historyTotal"></span>
+          <button class="edit-btn" id="editLog" type="button">Edit</button>
+        </span>
+      </div>
+      <div class="day-figures" id="dayFigures"></div>
+      <div class="day-summary" id="daySummary"></div>
+      <div class="history-list" id="historyList"></div>
+      <button class="clear-history-btn" id="clearHistoryBtn" type="button">Clear today&rsquo;s log</button>
+    </section>
+
+    <!-- Confirm clearing the log -->
+    <div class="modal-backdrop" id="confirmBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">Clear today&rsquo;s log?</h2>
+        <p>This erases every group logged today. It can&rsquo;t be undone.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelConfirm" type="button">Cancel</button>
+          <button class="btn-danger" id="confirmClear" type="button">Clear log</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guard against logging a group that has not paid in full -->
+    <div class="modal-backdrop" id="shortBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shortTitle">
+        <h2 id="shortTitle">Not paid in full</h2>
+        <p class="del-detail" id="shortDetail"></p>
+        <p>Only log it if you meant to take part payment.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelShort" type="button">Go back</button>
+          <button class="btn-danger" id="confirmShort" type="button">Log anyway</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm deleting one logged group -->
+    <div class="modal-backdrop" id="deleteBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+        <h2 id="deleteTitle">Delete this group?</h2>
+        <p class="del-detail" id="deleteDetail"></p>
+        <p>The day&rsquo;s totals will drop by that amount.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelDelete" type="button">Keep it</button>
+          <button class="btn-danger" id="confirmDelete" type="button">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event prices -->
+    <div class="modal-backdrop" id="settingsBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pricesTitle">
+        <h2 id="pricesTitle">Event setup</h2>
+        <div class="field">
+          <label for="p_adult">Adult</label>
+          <input type="number" id="p_adult" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Full price. Non-members pay this.</p>
+        </div>
+        <div class="field">
+          <label for="p_memberDiscount">Member discount</label>
+          <input type="number" id="p_memberDiscount" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Taken off the adult price.</p>
+        </div>
+        <div class="field">
+          <label for="p_under18">Under 18</label>
+          <input type="number" id="p_under18" step="0.01" min="0" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="p_lunch">Lunch, per meal</label>
+          <input type="number" id="p_lunch" step="0.01" min="0" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="p_feast">Feast, per meal</label>
+          <input type="number" id="p_feast" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Set a meal to 0 to hide that row.</p>
+        </div>
+        <div class="field">
+          <label for="p_float">Starting cash in the box</label>
+          <input type="number" id="p_float" step="0.01" min="0" inputmode="decimal" />
+          <p class="note">Your change float. Used to work out what the box should hold at day&rsquo;s end.</p>
+        </div>
+        <button class="reset-prices" id="resetPrices" type="button">Fill in default prices</button>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelSettings" type="button">Cancel</button>
+          <button class="btn-primary" id="saveSettings" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  /* Local tokens, prefixed so they never collide with global.css */
+  .gate {
+    --g-line: #ded2b4;
+    --g-panel: #fbf6e9;
+    --g-muted: #6d6a5c;
+    --g-ink: #26304a;
+    --g-cobalt: #16306e;
+    --g-gold: #c9a24b;
+    --g-green: #2e6b4f;
+    --g-red: #a93b2a;
+
+    max-width: 30rem;
+    padding-bottom: 3rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .gate :global(button),
+  .gate :global(input) {
+    font-family: inherit;
+    touch-action: manipulation;
+  }
+
+  /* ---------- header ---------- */
+
+  .gate-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 1rem 0 0;
+  }
+
+  .gate-head h1 {
+    font-size: 30px;
+    margin: 0;
+  }
+
+  .pricesbtn {
+    flex: none;
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 15px;
+    color: var(--g-ink);
+    cursor: pointer;
+  }
+
+  .lede {
+    font-size: 14px;
+    color: var(--g-muted);
+    margin: 2px 0 10px;
+  }
+
+  /* ---------- tally rows ---------- */
+
+  .rows {
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .rows :global(.row) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 8px 5px 12px;
+    border-bottom: 1px solid var(--g-line);
+  }
+
+  .rows :global(.row:last-child) {
+    border-bottom: none;
+  }
+
+  .rows :global(.row.active) {
+    background: #f2ecd9;
+  }
+
+  .rows :global(.label) {
+    min-width: 0;
+    line-height: 1.25;
+  }
+
+  .rows :global(.name) {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .rows :global(.price) {
+    font-size: 15px;
+    color: var(--g-muted);
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  .rows :global(.ratio) {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    vertical-align: 1px;
+  }
+
+  .rows :global(.ratio:empty) {
+    display: none;
+  }
+
+  .rows :global(.ratio.ok) {
+    background: var(--g-green);
+  }
+
+  .rows :global(.ratio.off) {
+    background: var(--g-red);
+  }
+
+  .rows :global(.stepper) {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+    user-select: none;
+  }
+
+  .rows :global(.stepper button) {
+    width: 44px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--g-cobalt);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .rows :global(.stepper button:active) {
+    background: var(--g-cobalt);
+    color: #fff;
+  }
+
+  .rows :global(.count) {
+    min-width: 30px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- totals ---------- */
+
+  .totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--g-gold);
+    border: 1px solid var(--g-gold);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .tcell {
+    background: var(--g-cobalt);
+    color: #fff;
+    padding: 8px 12px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tlabel {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .tamt {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tcell.change {
+    background: var(--g-green);
+  }
+
+  .tcell.change.short {
+    background: var(--g-red);
+  }
+
+  .tcell.change.idle {
+    background: #4a5570;
+  }
+
+  /* ---------- cash received ---------- */
+
+  .tender-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+
+  .tender-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--g-muted);
+  }
+
+  .tender-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tender-actions button {
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 5px 13px;
+    font-size: 14px;
+    color: var(--g-cobalt);
+    cursor: pointer;
+  }
+
+  .tender-actions button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  #manualTender {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 19px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-ink);
+  }
+
+  #manualTender::placeholder {
+    font-size: 15px;
+    font-weight: 400;
+    color: #9a907c;
+  }
+
+  .quick-tender {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .quick-tender button {
+    position: relative;
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: var(--g-panel);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--g-ink);
+    cursor: pointer;
+  }
+
+  .quick-tender button:active {
+    background: var(--g-cobalt);
+    border-color: var(--g-cobalt);
+    color: #fff;
+  }
+
+  /* a denomination that has been tapped at least once */
+  .quick-tender button.used {
+    background: #e4eaf5;
+    border-color: var(--g-cobalt);
+  }
+
+  .quick-tender :global(.billcount) {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    pointer-events: none;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--g-cobalt);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- primary action ---------- */
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    height: 52px;
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 10px;
+    border: none;
+    background: var(--g-ink);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .next-btn:active {
+    opacity: 0.85;
+  }
+
+  .toast {
+    height: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--g-green);
+    transition: height 0.15s;
+  }
+
+  .toast.show {
+    height: 38px;
+  }
+
+  .undo-btn {
+    border: 1px solid var(--g-green);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--g-green);
+    padding: 5px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ---------- ledger ---------- */
+
+  .ledger {
+    background: var(--g-panel);
+    border: 1px solid var(--g-line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 22px;
+  }
+
+  .ledger-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--g-line);
+  }
+
+  .llabel {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .lhead-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .lcount {
+    font-size: 14px;
+    color: var(--g-muted);
+  }
+
+  .edit-btn {
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px 14px;
+    font-size: 14px;
+    color: var(--g-cobalt);
+    cursor: pointer;
+  }
+
+  .ledger.editing .edit-btn {
+    background: var(--g-cobalt);
+    border-color: var(--g-cobalt);
+    color: #fff;
+  }
+
+  /* the three figures that get transcribed onto event paperwork */
+  .day-figures:empty {
+    display: none;
+  }
+
+  .day-figures :global(.figrow) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--g-line);
+  }
+
+  .day-figures :global(.figlabel) {
+    font-size: 15px;
+    font-weight: 600;
+    color: #5c5245;
+  }
+
+  .day-figures :global(.fignote) {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: #9a907c;
+  }
+
+  .day-figures :global(.figval) {
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .day-figures :global(.figrow.income .figval) {
+    color: var(--g-green);
+  }
+
+  .day-figures :global(.figrow.nms .figval) {
+    color: var(--g-red);
+  }
+
+  .day-figures :global(.figrow.box .figval) {
+    color: var(--g-cobalt);
+  }
+
+  .day-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--g-line);
+  }
+
+  .day-summary:empty {
+    display: none;
+  }
+
+  .day-summary :global(.chip) {
+    font-size: 13px;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid var(--g-line);
+    border-radius: 999px;
+    padding: 2px 10px;
+    color: #5c5245;
+  }
+
+  .day-summary :global(.chip.main) {
+    background: var(--g-green);
+    border-color: var(--g-green);
+    color: #fff;
+  }
+
+  .day-summary :global(.chip.box) {
+    background: var(--g-cobalt);
+    border-color: var(--g-cobalt);
+    color: #fff;
+  }
+
+  .history-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .history-list :global(.hrow) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 6px 12px;
+    border-bottom: 1px solid var(--g-line);
+    font-size: 14px;
+  }
+
+  .history-list :global(.hrow:last-child) {
+    border-bottom: none;
+  }
+
+  .history-list :global(.hdesc) {
+    flex: 1;
+    min-width: 0;
+    color: #5c5245;
+    line-height: 1.3;
+  }
+
+  .history-list :global(.hamt) {
+    flex: none;
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-list :global(.hdel) {
+    display: none;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-red);
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .ledger.editing .history-list :global(.hdel) {
+    display: block;
+  }
+
+  .history-list :global(.hdel:active) {
+    background: var(--g-red);
+    border-color: var(--g-red);
+    color: #fff;
+  }
+
+  .history-list :global(.htime) {
+    display: block;
+    font-size: 12px;
+    color: #9a907c;
+  }
+
+  .history-list :global(.history-empty) {
+    padding: 14px 12px;
+    font-size: 14px;
+    color: var(--g-muted);
+  }
+
+  .clear-history-btn {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-top: 1px solid var(--g-line);
+    background: #f2ecd9;
+    color: var(--g-red);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  /* ---------- modals ---------- */
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 40;
+  }
+
+  .modal-backdrop.open {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--parchment, #f5eedc);
+    width: 100%;
+    max-width: 30rem;
+    border-radius: 16px 16px 0 0;
+    padding: 18px;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+  }
+
+  .modal p {
+    font-size: 15px;
+    line-height: 1.45;
+    margin: 0 0 4px;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--g-ink);
+    margin-bottom: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    height: 44px;
+    font-size: 16px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--g-line);
+    background: #fff;
+    color: var(--g-ink);
+  }
+
+  .del-detail {
+    background: #fff;
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-weight: 600;
+    margin-bottom: 10px !important;
+  }
+
+  .reset-prices {
+    width: 100%;
+    padding: 10px;
+    margin-top: 2px;
+    border: 1px solid var(--g-line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--g-muted);
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .note {
+    font-size: 13px;
+    color: var(--g-muted);
+    margin-top: 3px !important;
+  }
+
+  /* pinned so Save is always reachable, however long the sheet gets */
+  .modal-actions {
+    position: sticky;
+    bottom: -18px;
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 0 18px;
+    background: var(--parchment, #f5eedc);
+    border-top: 1px solid var(--g-line);
+  }
+
+  .modal-actions button {
+    flex: 1;
+    height: 48px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--g-cobalt);
+    color: #fff;
+  }
+
+  .btn-danger {
+    background: var(--g-red);
+    color: #fff;
+  }
+
+  .btn-cancel {
+    background: #fff;
+    color: var(--g-ink);
+    border: 1px solid var(--g-line) !important;
+  }
+
+  /* ---------- short screens: trim so the working area still fits ---------- */
+
+  @media (max-height: 700px) {
+    .gate-head { margin-top: 0.6rem; }
+    .gate-head h1 { font-size: 22px; }
+    .lede { display: none; }
+    .rows :global(.row) { padding-top: 2px; padding-bottom: 2px; }
+    .rows :global(.stepper button) { height: 34px; }
+    .totals { margin: 6px 0; }
+    .tcell { padding: 4px 12px 6px; }
+    .tamt { font-size: 23px; }
+    .tender-head { margin-bottom: 3px; }
+    .tender-actions button { padding: 4px 11px; font-size: 13px; }
+    .quick-tender { margin-top: 6px; }
+    .quick-tender button,
+    #manualTender { height: 34px; }
+    #manualTender { font-size: 17px; }
+    .next-btn { height: 44px; font-size: 17px; margin-top: 6px; }
+  }
+</style>
+
+<script>
+  (function () {
+    const K_PRICES = 'gate_prices';
+    const K_TALLY = 'gate_tally';
+    const K_HISTORY = 'gate_history';
+
+    const defaultPrices = {
+      adult: 30,
+      memberDiscount: 10,
+      under18: 0,
+      lunch: 10,
+      feast: 20,
+      float: 0
+    };
+
+    const categories = [
+      { key: 'memberAdult', name: 'Member adult', short: 'members', one: 'member', meal: false },
+      { key: 'nonMemberAdult', name: 'Non-member adult', short: 'non-members', one: 'non-member', meal: false },
+      { key: 'under18', name: 'Under 18', short: 'under 18', meal: false },
+      { key: 'lunch', name: 'Lunch', short: 'lunch', meal: true },
+      { key: 'feast', name: 'Feast', short: 'feast', meal: true }
+    ];
+
+    function unitPrice(key, p) {
+      if (key === 'memberAdult') return Math.max(0, (p.adult || 0) - (p.memberDiscount || 0));
+      if (key === 'nonMemberAdult') return p.adult || 0;
+      return p[key] || 0;
+    }
+
+    function load(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function save(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        /* private browsing */
+      }
+    }
+
+    function zeroTally() {
+      const t = {};
+      categories.forEach((c) => (t[c.key] = 0));
+      return t;
+    }
+
+    let prices = Object.assign({}, defaultPrices, load(K_PRICES, {}));
+    let tally = Object.assign(zeroTally(), load(K_TALLY, {}));
+    let history = load(K_HISTORY, []);
+    let tendered = null;
+    let bills = {}; // how many of each denomination have been tapped
+
+    const rowsEl = document.getElementById('tallyRows');
+    const totalEl = document.getElementById('totalAmount');
+    const changeEl = document.getElementById('changeAmount');
+    const changeCell = document.getElementById('changeCell');
+    const changeLabel = document.getElementById('changeLabel');
+    const manualInput = document.getElementById('manualTender');
+    const quickEl = document.getElementById('quickTender');
+    const exactBtn = document.getElementById('exactBtn');
+    const historyList = document.getElementById('historyList');
+    const historyCount = document.getElementById('historyTotal');
+    const daySummary = document.getElementById('daySummary');
+    const dayFigures = document.getElementById('dayFigures');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const undoBtn = document.getElementById('undoBtn');
+    const shortBackdrop = document.getElementById('shortBackdrop');
+    const shortDetail = document.getElementById('shortDetail');
+    let lastLog = null; // the one group that can still be taken back
+    const ledger = document.querySelector('.ledger');
+    const editBtn = document.getElementById('editLog');
+    const deleteBackdrop = document.getElementById('deleteBackdrop');
+    const deleteDetail = document.getElementById('deleteDetail');
+    let pendingDelete = null;
+
+    // $0.00 — for money that has to be counted out
+    function money(n) {
+      return (n < 0 ? '\u2212' : '') + '$' + Math.abs(n).toFixed(2);
+    }
+
+    // $20, or $7.50 — for prices on the tally rows
+    function price(n) {
+      return n % 1 === 0 ? '$' + n : money(n);
+    }
+
+    function countLabel(n, cat) {
+      return n + ' ' + (n === 1 && cat.one ? cat.one : cat.short);
+    }
+
+    // Badge each denomination with the number of times it has been tapped,
+    // so the cash figure can always be checked against the bills in hand.
+    function renderBills() {
+      quickEl.querySelectorAll('button[data-amt]').forEach((btn) => {
+        const amt = btn.getAttribute('data-amt');
+        const n = bills[amt] || 0;
+        let badge = btn.querySelector('.billcount');
+        if (n > 0) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'billcount';
+            btn.appendChild(badge);
+          }
+          badge.textContent = n;
+          btn.classList.add('used');
+          btn.setAttribute('aria-label', n + ' x $' + amt + ' counted');
+        } else {
+          if (badge) badge.remove();
+          btn.classList.remove('used');
+          btn.removeAttribute('aria-label');
+        }
+      });
+    }
+
+    // Any amount that did not come from tapping bills clears the badges,
+    // so they never describe a figure they did not build.
+    function resetBills() {
+      bills = {};
+      renderBills();
+    }
+
+    function cents(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    // Every change to the cash figure goes through here so the field,
+    // the variable and the Change cell can never disagree.
+    function setTender(v) {
+      tendered = v === null ? null : cents(v);
+      manualInput.value = tendered === null ? '' : String(tendered);
+      renderTotals();
+    }
+
+    function headcount() {
+      return (tally.memberAdult || 0) + (tally.nonMemberAdult || 0) + (tally.under18 || 0);
+    }
+
+    function renderRows() {
+      rowsEl.innerHTML = '';
+      categories.forEach((cat) => {
+        const unit = unitPrice(cat.key, prices);
+        if (cat.meal && unit === 0) {
+          if (tally[cat.key]) {
+            tally[cat.key] = 0;
+            save(K_TALLY, tally);
+          }
+          return;
+        }
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML =
+          '<div class="label">' +
+          '<span class="name">' + cat.name + '</span>' +
+          '<span class="price">' + (unit === 0 ? 'Free' : price(unit)) + '</span>' +
+          (cat.meal ? '<span class="ratio" id="ratio_' + cat.key + '"></span>' : '') +
+          '</div>' +
+          '<div class="stepper">' +
+          '<button type="button" data-cat="' + cat.key + '" data-dir="-1" aria-label="One fewer ' + cat.name + '">\u2212</button>' +
+          '<span class="count" id="count_' + cat.key + '">' + tally[cat.key] + '</span>' +
+          '<button type="button" data-cat="' + cat.key + '" data-dir="1" aria-label="One more ' + cat.name + '">+</button>' +
+          '</div>';
+        rowsEl.appendChild(row);
+      });
+
+      rowsEl.querySelectorAll('button[data-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-cat');
+          const dir = parseInt(btn.getAttribute('data-dir'), 10);
+          tally[key] = Math.max(0, (tally[key] || 0) + dir);
+          document.getElementById('count_' + key).textContent = tally[key];
+          save(K_TALLY, tally);
+          renderTotals();
+        });
+      });
+      renderTotals();
+    }
+
+    function computeTotal() {
+      return categories.reduce((sum, c) => sum + (tally[c.key] || 0) * unitPrice(c.key, prices), 0);
+    }
+
+    function renderTotals() {
+      const total = computeTotal();
+      totalEl.textContent = money(total);
+      exactBtn.disabled = total <= 0;
+
+      // dim rows that are still at zero
+      rowsEl.querySelectorAll('.row').forEach((row) => {
+        const key = row.querySelector('button[data-cat]').getAttribute('data-cat');
+        row.classList.toggle('active', (tally[key] || 0) > 0);
+      });
+
+      // meals bought vs people in the group: green when they match, red when they don't
+      const people = headcount();
+      categories.filter((c) => c.meal).forEach((c) => {
+        const el = document.getElementById('ratio_' + c.key);
+        if (!el) return;
+        const meals = tally[c.key] || 0;
+        if (people === 0 && meals === 0) {
+          el.textContent = '';
+          el.className = 'ratio';
+          el.removeAttribute('aria-label');
+          return;
+        }
+        el.textContent = meals + '/' + people;
+        el.className = 'ratio ' + (meals === people ? 'ok' : 'off');
+        el.setAttribute('aria-label', meals + ' of ' + people + ' in this group');
+      });
+
+      if (tendered === null) {
+        changeEl.textContent = '\u2014';
+        changeLabel.textContent = 'Change';
+        changeCell.classList.add('idle');
+        changeCell.classList.remove('short');
+        return;
+      }
+
+      const change = tendered - total;
+      changeCell.classList.remove('idle');
+      if (change < 0) {
+        changeLabel.textContent = 'Still owed';
+        changeEl.textContent = money(Math.abs(change));
+        changeCell.classList.add('short');
+      } else {
+        changeLabel.textContent = 'Change';
+        changeEl.textContent = money(change);
+        changeCell.classList.remove('short');
+      }
+    }
+
+    function describeTally(t) {
+      const parts = [];
+      categories.forEach((c) => {
+        if (t[c.key] > 0) parts.push(countLabel(t[c.key], c));
+      });
+      return parts.length ? parts.join(' \u00b7 ') : 'empty';
+    }
+
+    function describeEntry(h) {
+      const what = h.t ? describeTally(h.t) : h.desc || 'group';
+      return what + ' \u00b7 ' + money(h.total) + ' at ' + h.time;
+    }
+
+    function setEditing(on) {
+      ledger.classList.toggle('editing', on);
+      editBtn.textContent = on ? 'Done' : 'Edit';
+      editBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      if (history.length === 0) {
+        historyList.innerHTML =
+          '<div class="history-empty">Nothing logged yet. Each group you log lands here.</div>';
+        historyCount.textContent = '';
+        daySummary.innerHTML = '';
+        dayFigures.innerHTML = '';
+        setEditing(false);
+        editBtn.hidden = true;
+        return;
+      }
+      editBtn.hidden = false;
+
+      let sum = 0;
+      const dayCounts = zeroTally();
+      for (let i = history.length - 1; i >= 0; i--) {
+        const h = history[i];
+        sum += h.total;
+        if (h.t) categories.forEach((c) => (dayCounts[c.key] += h.t[c.key] || 0));
+        const row = document.createElement('div');
+        row.className = 'hrow';
+        row.innerHTML =
+          '<span class="hdesc">' + (h.t ? describeTally(h.t) : h.desc || '') +
+          '<span class="htime">' + h.time + '</span></span>' +
+          '<span class="hamt">' + money(h.total) + '</span>' +
+          '<button type="button" class="hdel" data-idx="' + i +
+          '" aria-label="Delete the group logged at ' + h.time + '">\u00d7</button>';
+        historyList.appendChild(row);
+      }
+
+      historyList.querySelectorAll('.hdel').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-idx'), 10);
+          if (!history[idx]) return;
+          pendingDelete = idx;
+          deleteDetail.textContent = describeEntry(history[idx]);
+          deleteBackdrop.classList.add('open');
+        });
+      });
+
+      historyCount.textContent = history.length + (history.length === 1 ? ' group' : ' groups');
+
+      // Figures that get copied onto the event report and the NMS form.
+      function figRow(cls, label, note, value) {
+        return (
+          '<div class="figrow ' + cls + '"><span class="figlabel">' + label +
+          (note ? '<span class="fignote">' + note + '</span>' : '') +
+          '</span><span class="figval">' + value + '</span></div>'
+        );
+      }
+
+      const figs = [figRow('income', 'Gate income', '', money(sum))];
+
+      // The member discount is the non-member surcharge, so the amount owed
+      // to Kingdom is simply that rate times the non-member adults counted.
+      const nmsRate = prices.memberDiscount || 0;
+      const nmsHeads = dayCounts.nonMemberAdult;
+      if (nmsRate > 0 && nmsHeads > 0) {
+        figs.push(
+          figRow(
+            'nms',
+            'NMS to remit',
+            nmsHeads + (nmsHeads === 1 ? ' non-member' : ' non-members') + ' \u00d7 ' + money(nmsRate),
+            money(nmsHeads * nmsRate)
+          )
+        );
+      }
+
+      if (prices.float > 0) {
+        figs.push(
+          figRow(
+            'box',
+            'Box should hold',
+            money(prices.float) + ' float + ' + money(sum) + ' taken',
+            money(prices.float + sum)
+          )
+        );
+      }
+
+      dayFigures.innerHTML = figs.join('');
+
+      const heads = dayCounts.memberAdult + dayCounts.nonMemberAdult + dayCounts.under18;
+      const chips = [];
+      if (heads > 0) chips.push('<span class="chip main">' + heads + ' through gate</span>');
+      categories.forEach((c) => {
+        if (dayCounts[c.key] > 0) chips.push('<span class="chip">' + countLabel(dayCounts[c.key], c) + '</span>');
+      });
+      daySummary.innerHTML = chips.join('');
+    }
+
+    function clearTender() {
+      tendered = null;
+      manualInput.value = '';
+      resetBills();
+    }
+
+    quickEl.querySelectorAll('button[data-amt]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const amt = btn.getAttribute('data-amt');
+        bills[amt] = (bills[amt] || 0) + 1;
+        renderBills();
+        setTender((tendered || 0) + parseFloat(amt));
+      });
+    });
+
+    exactBtn.addEventListener('click', () => {
+      const total = computeTotal();
+      if (total > 0) {
+        resetBills();
+        setTender(total);
+      }
+    });
+
+    document.getElementById('clearTenderBtn').addEventListener('click', () => {
+      resetBills();
+      setTender(null);
+      manualInput.focus();
+    });
+
+    // typing wins over whatever the buttons added
+    manualInput.addEventListener('input', () => {
+      const val = parseFloat(manualInput.value);
+      tendered = isNaN(val) ? null : val;
+      resetBills();
+      renderTotals();
+    });
+
+    let toastTimer;
+
+    function hideToast() {
+      toast.classList.remove('show');
+      clearTimeout(toastTimer);
+    }
+
+    function commitGroup() {
+      const total = computeTotal();
+      const anyCounts = categories.some((c) => tally[c.key] > 0);
+      if (anyCounts) {
+        history.push({
+          t: Object.assign({}, tally),
+          total: total,
+          time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        });
+        save(K_HISTORY, history);
+        lastLog = { tally: Object.assign({}, tally), index: history.length - 1 };
+        toastText.textContent = 'Logged ' + money(total);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+          lastLog = null;
+        }, 8000);
+      }
+      tally = zeroTally();
+      save(K_TALLY, tally);
+      clearTender();
+      renderRows();
+      renderHistory();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      const total = computeTotal();
+      // Cash entered but not enough is nearly always a mistake. Nothing
+      // entered at all is normal: pre-paid, comped, or paying by cheque.
+      if (tendered !== null && tendered < total - 0.005) {
+        shortDetail.textContent =
+          'Still owed ' + money(total - tendered) + ' of ' + money(total);
+        shortBackdrop.classList.add('open');
+        return;
+      }
+      commitGroup();
+    });
+
+    document.getElementById('cancelShort').addEventListener('click', () => {
+      shortBackdrop.classList.remove('open');
+    });
+    document.getElementById('confirmShort').addEventListener('click', () => {
+      shortBackdrop.classList.remove('open');
+      commitGroup();
+    });
+
+    undoBtn.addEventListener('click', () => {
+      if (!lastLog) return;
+      // only unwind if nothing else has been logged since
+      if (history.length === lastLog.index + 1) {
+        history.splice(lastLog.index, 1);
+        save(K_HISTORY, history);
+      }
+      tally = Object.assign(zeroTally(), lastLog.tally);
+      save(K_TALLY, tally);
+      lastLog = null;
+      hideToast();
+      renderRows();
+      renderHistory();
+    });
+
+    const confirmBackdrop = document.getElementById('confirmBackdrop');
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      if (history.length === 0) return;
+      confirmBackdrop.classList.add('open');
+    });
+    document.getElementById('cancelConfirm').addEventListener('click', () => {
+      confirmBackdrop.classList.remove('open');
+    });
+    document.getElementById('confirmClear').addEventListener('click', () => {
+      history = [];
+      save(K_HISTORY, history);
+      confirmBackdrop.classList.remove('open');
+      renderHistory();
+    });
+
+    editBtn.addEventListener('click', () => {
+      setEditing(!ledger.classList.contains('editing'));
+    });
+
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+      pendingDelete = null;
+      deleteBackdrop.classList.remove('open');
+    });
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+      if (pendingDelete !== null && history[pendingDelete]) {
+        history.splice(pendingDelete, 1);
+        save(K_HISTORY, history);
+      }
+      pendingDelete = null;
+      deleteBackdrop.classList.remove('open');
+      renderHistory();
+    });
+
+    const settingsBackdrop = document.getElementById('settingsBackdrop');
+    const priceFields = ['adult', 'memberDiscount', 'under18', 'lunch', 'feast', 'float'];
+    document.getElementById('openSettings').addEventListener('click', () => {
+      priceFields.forEach((k) => {
+        document.getElementById('p_' + k).value = prices[k];
+      });
+      settingsBackdrop.classList.add('open');
+    });
+    document.getElementById('resetPrices').addEventListener('click', () => {
+      priceFields.forEach((k) => {
+        document.getElementById('p_' + k).value = defaultPrices[k];
+      });
+    });
+    document.getElementById('cancelSettings').addEventListener('click', () => {
+      settingsBackdrop.classList.remove('open');
+    });
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      priceFields.forEach((k) => {
+        prices[k] = parseFloat(document.getElementById('p_' + k).value) || 0;
+      });
+      save(K_PRICES, prices);
+      settingsBackdrop.classList.remove('open');
+      renderRows();
+    });
+
+    document.querySelectorAll('.modal-backdrop').forEach((bd) => {
+      bd.addEventListener('click', (e) => {
+        if (e.target === bd) {
+          pendingDelete = null;
+          bd.classList.remove('open');
+        }
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        pendingDelete = null;
+        document.querySelectorAll('.modal-backdrop.open').forEach((bd) => bd.classList.remove('open'));
+      }
+    });
+
+    renderRows();
+    renderHistory();
+  })();
+</script>
