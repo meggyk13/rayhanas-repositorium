@@ -58,7 +58,10 @@ import Base from '../../layouts/Base.astro';
       <div class="day-figures" id="dayFigures"></div>
       <div class="day-summary" id="daySummary"></div>
       <div class="history-list" id="historyList"></div>
-      <button class="clear-history-btn" id="clearHistoryBtn" type="button">Clear today&rsquo;s log</button>
+      <div class="ledger-foot">
+        <button class="foot-btn export" id="exportBtn" type="button">Export</button>
+        <button class="foot-btn danger" id="clearHistoryBtn" type="button">Clear today&rsquo;s log</button>
+      </div>
     </section>
 
     <!-- Confirm clearing the log -->
@@ -95,6 +98,25 @@ import Base from '../../layouts/Base.astro';
         <div class="modal-actions">
           <button class="btn-cancel" id="cancelDelete" type="button">Keep it</button>
           <button class="btn-danger" id="confirmDelete" type="button">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export the day's log -->
+    <div class="modal-backdrop" id="exportBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+        <h2 id="exportTitle">Export today&rsquo;s log</h2>
+        <p class="del-detail" id="exportDetail"></p>
+        <div class="field">
+          <label for="x_event">Event name</label>
+          <input type="text" id="x_event" autocapitalize="words" autocomplete="off" placeholder="e.g. Highland War" />
+          <p class="note">Goes in the file name and the top line of the file.</p>
+        </div>
+        <p class="note" id="exportHow"></p>
+        <button class="reset-prices" id="copyCsv" type="button">Copy for Sheets</button>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="cancelExport" type="button">Cancel</button>
+          <button class="btn-primary" id="doExport" type="button">Save CSV</button>
         </div>
       </div>
     </div>
@@ -694,16 +716,32 @@ import Base from '../../layouts/Base.astro';
     color: var(--g-muted);
   }
 
-  .clear-history-btn {
-    width: 100%;
+  .ledger-foot {
+    display: flex;
+    border-top: 1px solid var(--g-line);
+  }
+
+  .foot-btn {
+    flex: 1;
     padding: 11px;
     border: none;
-    border-top: 1px solid var(--g-line);
     background: #f2ecd9;
-    color: var(--g-red);
     font-weight: 700;
     font-size: 15px;
     cursor: pointer;
+  }
+
+  .foot-btn.export {
+    color: var(--g-cobalt);
+    border-right: 1px solid var(--g-line);
+  }
+
+  .foot-btn.export[hidden] {
+    display: none;
+  }
+
+  .foot-btn.danger {
+    color: var(--g-red);
   }
 
   /* ---------- modals ---------- */
@@ -857,6 +895,7 @@ import Base from '../../layouts/Base.astro';
     const K_PRICES = 'gate_prices';
     const K_TALLY = 'gate_tally';
     const K_HISTORY = 'gate_history';
+    const K_EVENT = 'gate_event';
 
     const defaultPrices = {
       adult: 30,
@@ -907,6 +946,7 @@ import Base from '../../layouts/Base.astro';
     let prices = Object.assign({}, defaultPrices, load(K_PRICES, {}));
     let tally = Object.assign(zeroTally(), load(K_TALLY, {}));
     let history = load(K_HISTORY, []);
+    let eventName = load(K_EVENT, '');
     let tendered = null;
     let bills = {}; // how many of each denomination have been tapped
 
@@ -930,6 +970,7 @@ import Base from '../../layouts/Base.astro';
     let lastLog = null; // the one group that can still be taken back
     const ledger = document.querySelector('.ledger');
     const editBtn = document.getElementById('editLog');
+    const exportBtn = document.getElementById('exportBtn');
     const deleteBackdrop = document.getElementById('deleteBackdrop');
     const deleteDetail = document.getElementById('deleteDetail');
     let pendingDelete = null;
@@ -1117,9 +1158,11 @@ import Base from '../../layouts/Base.astro';
         dayFigures.innerHTML = '';
         setEditing(false);
         editBtn.hidden = true;
+        exportBtn.hidden = true;
         return;
       }
       editBtn.hidden = false;
+      exportBtn.hidden = false;
 
       let sum = 0;
       const dayCounts = zeroTally();
@@ -1336,6 +1379,208 @@ import Base from '../../layouts/Base.astro';
       pendingDelete = null;
       deleteBackdrop.classList.remove('open');
       renderHistory();
+    });
+
+    /* ---------- export ---------- */
+
+    const exportBackdrop = document.getElementById('exportBackdrop');
+    const exportDetail = document.getElementById('exportDetail');
+    const exportHow = document.getElementById('exportHow');
+    const eventInput = document.getElementById('x_event');
+    const doExportBtn = document.getElementById('doExport');
+    const copyBtn = document.getElementById('copyCsv');
+
+    // Phones get the share sheet, which is the only route to Drive, Files or
+    // Mail from Safari. Desktops just get a download.
+    function canShareFiles() {
+      try {
+        return !!(navigator.canShare && navigator.share &&
+          navigator.canShare({ files: [new File(['x'], 'x.csv', { type: 'text/csv' })] }));
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function dayTotals() {
+      const counts = zeroTally();
+      let sum = 0;
+      history.forEach((h) => {
+        sum += h.total;
+        if (h.t) categories.forEach((c) => (counts[c.key] += h.t[c.key] || 0));
+      });
+      return { counts: counts, sum: sum };
+    }
+
+    function amount(n) {
+      return (Math.round(n * 100) / 100).toFixed(2);
+    }
+
+    function today() {
+      const d = new Date();
+      const p = (n) => (n < 10 ? '0' + n : '' + n);
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+    }
+
+    // One table of groups, then the figures that go on the event report.
+    // Money is written as bare numbers so a spreadsheet can add it up.
+    function buildRows() {
+      const day = dayTotals();
+      const rows = [];
+      rows.push(['Gate log', eventName || '']);
+      rows.push(['Date', today()]);
+      rows.push([]);
+
+      rows.push(['Time'].concat(categories.map((c) => c.name)).concat(['Amount']));
+      history.forEach((h) => {
+        const t = h.t || zeroTally();
+        rows.push(
+          [h.time || '']
+            .concat(categories.map((c) => t[c.key] || 0))
+            .concat([amount(h.total)])
+        );
+      });
+      rows.push(
+        ['Total'].concat(categories.map((c) => day.counts[c.key])).concat([amount(day.sum)])
+      );
+      rows.push([]);
+
+      rows.push(['Gate income', amount(day.sum)]);
+      const nmsRate = prices.memberDiscount || 0;
+      if (nmsRate > 0) {
+        rows.push(['Non-members', day.counts.nonMemberAdult]);
+        rows.push(['NMS to remit', amount(day.counts.nonMemberAdult * nmsRate)]);
+      }
+      if (prices.float > 0) {
+        rows.push(['Starting float', amount(prices.float)]);
+        rows.push(['Box should hold', amount(prices.float + day.sum)]);
+      }
+      rows.push([
+        'Through gate',
+        day.counts.memberAdult + day.counts.nonMemberAdult + day.counts.under18
+      ]);
+      categories.forEach((c) => {
+        if (c.meal) rows.push([c.name + ' meals', day.counts[c.key]]);
+      });
+      rows.push([]);
+
+      rows.push(['Prices used', '']);
+      rows.push(['Adult', amount(prices.adult || 0)]);
+      rows.push(['Member discount', amount(prices.memberDiscount || 0)]);
+      rows.push(['Under 18', amount(prices.under18 || 0)]);
+      rows.push(['Lunch', amount(prices.lunch || 0)]);
+      rows.push(['Feast', amount(prices.feast || 0)]);
+      return rows;
+    }
+
+    function csvCell(v) {
+      const s = v === null || v === undefined ? '' : String(v);
+      return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function toCSV(rows) {
+      return rows.map((r) => r.map(csvCell).join(',')).join('\r\n');
+    }
+
+    // Tab separated, because that is what pastes into Google Sheets as columns.
+    function toTSV(rows) {
+      return rows
+        .map((r) => r.map((v) => String(v === null || v === undefined ? '' : v).replace(/[\t\r\n]/g, ' ')).join('\t'))
+        .join('\n');
+    }
+
+    function fileName() {
+      const slug = (eventName || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40);
+      return 'gate-' + today() + (slug ? '-' + slug : '') + '.csv';
+    }
+
+    function readEventName() {
+      eventName = (eventInput.value || '').trim();
+      save(K_EVENT, eventName);
+    }
+
+    eventInput.addEventListener('input', readEventName);
+
+    exportBtn.addEventListener('click', () => {
+      if (history.length === 0) return;
+      const day = dayTotals();
+      exportDetail.textContent =
+        history.length + (history.length === 1 ? ' group' : ' groups') + ' \u00b7 ' + money(day.sum);
+      eventInput.value = eventName || '';
+      const sharing = canShareFiles();
+      doExportBtn.textContent = sharing ? 'Save CSV' : 'Download CSV';
+      exportHow.textContent = sharing
+        ? 'Opens the share sheet. Send it to Drive, Files, or mail it to yourself.'
+        : 'Downloads a .csv you can open in Sheets or Excel.';
+      copyBtn.textContent = 'Copy for Sheets';
+      exportBackdrop.classList.add('open');
+    });
+
+    document.getElementById('cancelExport').addEventListener('click', () => {
+      readEventName();
+      exportBackdrop.classList.remove('open');
+    });
+
+    doExportBtn.addEventListener('click', async () => {
+      readEventName();
+      const csv = '\ufeff' + toCSV(buildRows()); // BOM keeps Excel happy
+      const name = fileName();
+
+      if (canShareFiles()) {
+        try {
+          await navigator.share({
+            files: [new File([csv], name, { type: 'text/csv' })],
+            title: name
+          });
+          exportBackdrop.classList.remove('open');
+          return;
+        } catch (e) {
+          if (e && e.name === 'AbortError') return; // they backed out
+          // anything else: fall through and download instead
+        }
+      }
+
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      exportBackdrop.classList.remove('open');
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      readEventName();
+      const text = toTSV(buildRows());
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(text);
+        ok = true;
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        try {
+          ok = document.execCommand('copy');
+        } catch (e2) {
+          ok = false;
+        }
+        ta.remove();
+      }
+      copyBtn.textContent = ok ? 'Copied \u2014 paste into a sheet' : 'Copy failed';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy for Sheets';
+      }, 2500);
     });
 
     const settingsBackdrop = document.getElementById('settingsBackdrop');
