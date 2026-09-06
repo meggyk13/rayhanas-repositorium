@@ -1,0 +1,29 @@
+---
+// Brambletally — a full-screen client app, deliberately NOT wrapped in
+// Base.astro: it ships its own styling (Inter, its own tokens) and noodlr's
+// generic class names (.card, .header, .tabs…) would collide with the site's
+// global.css. A back link stands in for the site chrome.
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Brambletally</title>
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Project tracker for Rayhana's Repositorium." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/brambletally/app.css" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+  </head>
+  <body>
+    <div id="bt-app"></div>
+    <script src="/brambletally/app.js" is:inline></script>
+  </body>
+</html>
