@@ -518,6 +518,7 @@ function renderProject(app) {
           <div class="pickup-text" id="bt-pickup">${p.pickup_note ? esc(p.pickup_note) : '<span style="color:var(--text-faint)">—</span>'}</div>
         </div>
         ${b.steps.length ? `<div class="progress-bar-wrap" style="margin:14px 0"><div class="progress-bar-fill" style="width:${pct}%;background:${STATUS_COLOR[p.status]}"></div></div>` : ''}
+        <button class="noodle-detail-btn" id="bt-focus">▶ Start a focus session</button>
         <div class="detail-tabs">
           ${['steps', 'supplies', 'timeline']
             .map(
@@ -538,9 +539,13 @@ function renderProject(app) {
     state.project = null;
     renderApp();
   });
+  on(view, '#bt-focus', 'click', () => openFocusSession(state.project));
   if (canEdit) on(view, '#bt-editproj', 'click', () => openProjectForm(p));
   on(view, '[data-tab]', 'click', (e) => {
     state.detailTab = e.currentTarget.dataset.tab;
+    view
+      .querySelectorAll('.detail-tab')
+      .forEach((t) => t.classList.toggle('active', t.dataset.tab === state.detailTab));
     renderPanel(view.querySelector('#bt-panel'));
   });
 
@@ -951,13 +956,204 @@ async function renderReview(main) {
   main.replaceChildren(wrap);
 }
 
-// ── Signed-in shell fallback (kept for reference) ─────────────────────────
-function renderSignedShell() {
-  root().replaceChildren(
-    h(`<div class="bt-signed"><div class="wordmark">brambletally<span>.</span></div>
-      <p class="who">Signed in.</p></div>`)
-  );
+// ── Focus session ─────────────────────────────────────────────────────────
+const DURATIONS = [10, 25, 45, 60];
+const RING = 326.7; // 2πr for r=52
+
+let focusTimer = null;
+
+function mmss(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
-void renderSignedShell;
+
+function openFocusSession(bundle) {
+  const open = bundle.steps.filter((s) => !s.completed);
+  const sess = { projectId: bundle.project.id, projectTitle: bundle.project.title, stepId: null, minutes: 25 };
+
+  const screen = h('<div id="noodle-screen" class="open"></div>');
+  const close = () => {
+    if (focusTimer) {
+      clearInterval(focusTimer);
+      focusTimer = null;
+    }
+    screen.remove();
+  };
+
+  function setup() {
+    screen.replaceChildren(
+      h(`
+      <div>
+        <div class="noodle-head">
+          <div class="noodle-wordmark">focus session</div>
+          <button class="noodle-close" aria-label="Close">✕</button>
+        </div>
+        <div class="noodle-body">
+          <div class="noodle-project-name">${esc(sess.projectTitle)}</div>
+          <div class="noodle-hero-text">What are you working on?</div>
+          <div class="noodle-checklist" id="fs-steps">
+            ${
+              open.length
+                ? open
+                    .map(
+                      (s) =>
+                        `<div class="noodle-check-row" data-step="${s.id}">
+                          <span class="noodle-check-box"><span class="noodle-check-icon">✓</span></span>
+                          <span class="noodle-check-label">${esc(s.title)}</span>
+                        </div>`
+                    )
+                    .join('')
+                : '<div class="noodle-next-step empty">No open steps — just work on the project.</div>'
+            }
+          </div>
+          <div class="noodle-time-label">How long?</div>
+          <div class="noodle-time-options" id="fs-times">
+            ${DURATIONS.map(
+              (m) => `<button class="noodle-time-btn${m === sess.minutes ? ' selected' : ''}" data-min="${m}">${m} min</button>`
+            ).join('')}
+          </div>
+          <button class="noodle-go-btn" id="fs-go">Start ${sess.minutes} minutes</button>
+          <div class="noodle-reassure">Stop whenever you need to. Nothing is lost.</div>
+        </div>
+      </div>
+    `)
+    );
+    on(screen, '.noodle-close', 'click', close);
+    on(screen, '#fs-steps .noodle-check-row', 'click', (e) => {
+      const row = e.currentTarget;
+      const id = row.dataset.step;
+      const already = sess.stepId === id;
+      screen.querySelectorAll('.noodle-check-row').forEach((r) => r.classList.remove('checked'));
+      sess.stepId = already ? null : id;
+      if (!already) row.classList.add('checked');
+    });
+    on(screen, '#fs-times .noodle-time-btn', 'click', (e) => {
+      sess.minutes = Number(e.currentTarget.dataset.min);
+      screen.querySelectorAll('.noodle-time-btn').forEach((b) => b.classList.remove('selected'));
+      e.currentTarget.classList.add('selected');
+      screen.querySelector('#fs-go').textContent = `Start ${sess.minutes} minutes`;
+    });
+    on(screen, '#fs-go', 'click', () => running());
+  }
+
+  function running() {
+    const totalMs = sess.minutes * 60000;
+    const endsAt = Date.now() + totalMs;
+    const step = open.find((s) => s.id === sess.stepId);
+
+    screen.replaceChildren(
+      h(`
+      <div>
+        <div class="noodle-head">
+          <div class="noodle-wordmark">focus session</div>
+          <button class="noodle-close" aria-label="Close">✕</button>
+        </div>
+        <div class="noodle-body noodle-body-timer">
+          <div class="noodle-timer-project">${esc(sess.projectTitle)}</div>
+          <div class="noodle-timer-step">${step ? esc(step.title) : 'Working on the project'}</div>
+          <div class="noodle-ring-wrap">
+            <svg class="noodle-ring" viewBox="0 0 120 120">
+              <circle class="noodle-ring-track" cx="60" cy="60" r="52"></circle>
+              <circle class="noodle-ring-fill" id="fs-ring" cx="60" cy="60" r="52" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="noodle-timer-display" id="fs-clock">${mmss(totalMs)}</div>
+          </div>
+          <div class="noodle-timer-nudge">Head down. You've got this.</div>
+          <button class="noodle-done-early-btn" id="fs-done">I'm done</button>
+        </div>
+      </div>
+    `)
+    );
+    on(screen, '.noodle-close', 'click', close);
+    on(screen, '#fs-done', 'click', () => {
+      clearInterval(focusTimer);
+      focusTimer = null;
+      finish(Date.now() - (endsAt - totalMs));
+    });
+
+    const clock = screen.querySelector('#fs-clock');
+    const ring = screen.querySelector('#fs-ring');
+    const tick = () => {
+      const remaining = endsAt - Date.now();
+      clock.textContent = mmss(remaining);
+      ring.setAttribute('stroke-dashoffset', String(RING * Math.min(1, 1 - remaining / totalMs)));
+      if (remaining <= 0) {
+        clearInterval(focusTimer);
+        focusTimer = null;
+        finish(totalMs);
+      }
+    };
+    if (focusTimer) clearInterval(focusTimer);
+    focusTimer = setInterval(tick, 250);
+    tick();
+  }
+
+  function finish(elapsedMs) {
+    const mins = Math.max(1, Math.round(elapsedMs / 60000));
+    const step = open.find((s) => s.id === sess.stepId);
+    screen.replaceChildren(
+      h(`
+      <div>
+        <div class="noodle-head">
+          <div class="noodle-wordmark">focus session</div>
+          <button class="noodle-close" aria-label="Close">✕</button>
+        </div>
+        <div class="noodle-body noodle-body-timer">
+          <div class="noodle-finish-emoji">✅</div>
+          <div class="noodle-finish-headline">Session done</div>
+          <div class="noodle-finish-time">${mins} minute${mins === 1 ? '' : 's'} on ${esc(sess.projectTitle)}</div>
+          <div class="noodle-finish-msg">What did you get done?</div>
+          <textarea id="fs-note" rows="2" placeholder="Optional — adds a timeline note" style="width:100%;padding:12px 14px;border-radius:9px;border:1px solid var(--border-strong);background:var(--input);color:var(--text);font:inherit;font-size:15px;resize:vertical;margin-bottom:12px"></textarea>
+          <div class="noodle-finish-actions">
+            ${step ? `<button class="btn-sm btn-sm-sage" id="fs-markdone">Mark “${esc(step.title)}” done</button>` : ''}
+            <button class="btn-sm btn-sm-amethyst" id="fs-again">Another session</button>
+            <button class="btn-sm btn-sm-ghost" id="fs-close">Done</button>
+          </div>
+        </div>
+      </div>
+    `)
+    );
+
+    const saveNote = async () => {
+      const text = screen.querySelector('#fs-note').value.trim();
+      if (text) {
+        try {
+          await API.addJournal(sess.projectId, `[${mins}m focus] ${text}`);
+        } catch {
+          /* non-fatal */
+        }
+      }
+    };
+
+    on(screen, '.noodle-close, #fs-close', 'click', async () => {
+      await saveNote();
+      close();
+      if (state.view === 'project' && state.project && state.project.project.id === sess.projectId) {
+        refreshDetail();
+      }
+    });
+    if (step) {
+      on(screen, '#fs-markdone', 'click', async (e) => {
+        e.currentTarget.disabled = true;
+        await saveNote();
+        try {
+          await API.updateStep(sess.projectId, step.id, { completed: true });
+        } catch {
+          /* toast shown */
+        }
+        close();
+        if (state.view === 'project') refreshDetail();
+      });
+    }
+    on(screen, '#fs-again', 'click', async () => {
+      await saveNote();
+      sess.stepId = null;
+      setup();
+    });
+  }
+
+  document.body.appendChild(screen);
+  setup();
+}
 
 boot();

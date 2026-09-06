@@ -894,3 +894,17 @@ textarea{resize:vertical;min-height:60px}
   transition: opacity .25s, transform .25s; z-index: 9999; pointer-events: none; max-width: 90vw;
 }
 .bt-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Focus session screen (positioning was inline in noodlr's HTML) ─────── */
+#noodle-screen {
+  position: fixed; inset: 0; z-index: 400;
+  background: var(--bg); overflow-y: auto; flex-direction: column;
+}
+#noodle-screen > div { max-width: 430px; margin: 0 auto; width: 100%; }
+#noodle-screen .noodle-finish-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; width: 100%; }
+#noodle-screen .noodle-finish-actions .btn-sm { width: 100%; }
+#noodle-screen .noodle-done-early-btn {
+  margin-top: 26px; background: none; border: 1px solid var(--border-strong);
+  color: var(--text-muted); padding: 10px 20px; border-radius: 10px;
+  font: inherit; font-weight: 600; cursor: pointer;
+}
