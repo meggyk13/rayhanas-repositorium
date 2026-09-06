@@ -396,8 +396,10 @@ function projectCard(p) {
 }
 
 // ── New / edit project form ────────────────────────────────────────────────
-function openProjectForm(existing) {
-  const p = existing || {};
+// opts: { prefillTitle, onCreate(project) } — onCreate runs after a successful
+// create, before navigating to the new project.
+function openProjectForm(existing, opts = {}) {
+  const p = existing || (opts.prefillTitle ? { title: opts.prefillTitle } : {});
   const overlay = h(`
     <div class="modal-overlay open">
       <div class="modal">
@@ -459,6 +461,13 @@ function openProjectForm(existing) {
         openProject(existing.id);
       } else {
         const { project } = await guard(() => API.createProject(body));
+        if (opts.onCreate) {
+          try {
+            await opts.onCreate(project);
+          } catch {
+            /* non-fatal */
+          }
+        }
         close();
         openProject(project.id);
       }
@@ -868,20 +877,27 @@ async function renderInbox(main) {
       return;
     }
     arr.forEach((it) => {
-      const row = h(`
-        <div class="check-row">
-          <div class="check-content"><div class="check-title" style="font-weight:400;white-space:pre-wrap">${esc(
-            it.text
-          )}</div>
-          <div class="check-sub">${esc(timeAgo(it.created_at))}</div></div>
-          <button class="card-menu-btn" data-del aria-label="Delete">✕</button>
-        </div>
-      `);
-      on(row, '[data-del]', 'click', async () => {
+      const drop = async () => {
         await guard(() => API.deleteInbox(it.id));
         arr = arr.filter((x) => x.id !== it.id);
         paint(arr);
+      };
+      const row = h(`
+        <div class="inbox-item">
+          <div class="check-title" style="font-weight:400;white-space:pre-wrap">${esc(it.text)}</div>
+          <div class="check-sub">${esc(timeAgo(it.created_at))}</div>
+          <div class="inbox-actions">
+            <button class="btn-sm btn-sm-ghost" data-toproj>→ Project</button>
+            <button class="btn-sm btn-sm-ghost" data-tostep>→ Step in…</button>
+            <button class="btn-sm btn-sm-ghost" data-del>Delete</button>
+          </div>
+        </div>
+      `);
+      on(row, '[data-del]', 'click', drop);
+      on(row, '[data-toproj]', 'click', () => {
+        openProjectForm(null, { prefillTitle: it.text, onCreate: () => API.deleteInbox(it.id) });
       });
+      on(row, '[data-tostep]', 'click', () => openAssignStep(it.text, drop));
       listEl.appendChild(row);
     });
   };
@@ -898,6 +914,59 @@ async function renderInbox(main) {
 
   paint(items);
   main.replaceChildren(wrap);
+}
+
+// Pick a project and drop the inbox text in as a step.
+async function openAssignStep(text, done) {
+  let projects;
+  try {
+    ({ projects } = await guard(() => API.listProjects()));
+  } catch {
+    return;
+  }
+  const usable = projects.filter((p) => p.role === 'owner' || p.role === 'editor');
+  if (!usable.length) return toast('No project you can edit yet — make one first.');
+
+  const overlay = h(`
+    <div class="modal-overlay open">
+      <div class="modal">
+        <div class="modal-header"><span class="modal-title">Add as a step</span>
+          <button class="modal-close">×</button></div>
+        <form id="bt-assign">
+          <div class="pickup-box" style="margin-bottom:14px"><div class="pickup-text">${esc(text)}</div></div>
+          <label class="sp-label">Project</label>
+          <select class="sp-select" name="project" required>
+            ${usable
+              .map((p) => `<option value="${p.id}">${esc(p.title)}</option>`)
+              .join('')}
+          </select>
+          <label class="sp-label">Context</label>
+          <select class="sp-select" name="context">
+            <option value="">none</option>
+            ${CONTEXTS.map((c) => `<option>${c}</option>`).join('')}
+          </select>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button type="submit" class="btn-sm btn-sm-sage">Add step</button>
+            <button type="button" class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `);
+  const close = () => overlay.remove();
+  on(overlay, '.modal-close, [data-cancel]', 'click', close);
+  overlay.addEventListener('click', (e) => e.target === overlay && close());
+  on(overlay, '#bt-assign', 'submit', async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    await guard(() =>
+      API.addStep(f.get('project'), { title: text, context: f.get('context') || null })
+    );
+    close();
+    toast('Added to the project');
+    await done();
+  });
+  document.body.appendChild(overlay);
 }
 
 // ── Weekly review ──────────────────────────────────────────────────────────

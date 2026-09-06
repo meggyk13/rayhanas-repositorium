@@ -908,3 +908,9 @@ textarea{resize:vertical;min-height:60px}
   color: var(--text-muted); padding: 10px 20px; border-radius: 10px;
   font: inherit; font-weight: 600; cursor: pointer;
 }
+
+/* ── Inbox items ──────────────────────────────────────────────────────────── */
+#bt-app .inbox-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+#bt-app .inbox-item:last-child { border-bottom: none; }
+#bt-app .inbox-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+#bt-app .inbox-actions .btn-sm { padding: 5px 10px; font-size: 12px; }
