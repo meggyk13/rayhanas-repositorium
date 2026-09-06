@@ -1,19 +1,21 @@
-// Runs for every /api/* request. Populates context.data.user (or null) from the
-// session cookie. It does NOT require auth — individual endpoints check.
-// Sliding expiry: when a valid session is within a day of its window closing,
-// push the expiry back out and refresh the cookie.
+// Populates context.data.user (or null) from the session cookie. Does NOT
+// require auth — individual endpoints check. Sliding expiry: when a valid
+// session is within a day of its window closing, push the expiry back out and
+// tell the caller to refresh the cookie.
 
 import { SESSION_COOKIE, SESSION_TTL_DAYS } from './lib/constants.js';
 import { readCookie, sessionCookie } from './lib/sessions.js';
 import { sqlNow, parseSql } from './lib/time.js';
 
-export async function onRequest(context) {
+// Returns { slideCookie?: string } — the router appends slideCookie to the
+// response if present.
+export async function loadSession(context) {
   const { request, env } = context;
   context.data.user = null;
   context.data.sessionId = null;
 
   const sid = readCookie(request, SESSION_COOKIE);
-  if (!sid) return context.next();
+  if (!sid) return {};
 
   const row = await env.DB.prepare(
     `SELECT s.expires_at AS expires_at,
@@ -25,7 +27,7 @@ export async function onRequest(context) {
     .bind(sid)
     .first();
 
-  if (!row) return context.next();
+  if (!row) return {};
 
   context.data.user = {
     id: row.id,
@@ -41,10 +43,8 @@ export async function onRequest(context) {
     await env.DB.prepare('UPDATE sessions SET expires_at = ? WHERE id = ?')
       .bind(sqlNow(windowMs), sid)
       .run();
-    const res = await context.next();
-    res.headers.append('Set-Cookie', sessionCookie(sid));
-    return res;
+    return { slideCookie: sessionCookie(sid) };
   }
 
-  return context.next();
+  return {};
 }
