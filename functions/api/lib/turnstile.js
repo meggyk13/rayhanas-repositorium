@@ -4,7 +4,7 @@
 
 export async function verifyTurnstile(env, token, ip) {
   if (!env.TURNSTILE_SECRET_KEY) {
-    console.warn('[defter] TURNSTILE_SECRET_KEY not set — skipping bot check');
+    console.warn('[brambletally] TURNSTILE_SECRET_KEY not set — skipping bot check');
     return { ok: true, skipped: true };
   }
   if (!token) return { ok: false };

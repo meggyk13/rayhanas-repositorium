@@ -1,4 +1,4 @@
-# Defter — Build Plan
+# Brambletally — Build Plan
 
 Rebranded, self-hosted version of "noodlr" (a craft-project tracker) for
 Rayhana's Repositorium's Tools section, restructured around GTD (Getting
@@ -12,19 +12,19 @@ Site: Astro, static output, deployed on Cloudflare Pages.
 
 - **Backend:** Cloudflare Pages Functions (`/functions` folder in the same
   repo — deploys with the existing Pages project, same domain, no CORS).
-- **Database:** Cloudflare D1 (SQLite). Schema already drafted:
-  `defter_schema.sql` (attached / in repo root — ask user if not present).
+- **Database:** Cloudflare D1 (SQLite). Schema: `brambletally_schema.sql`
+  in repo root. D1 binding name is `DB`; database name `brambletally-db`.
 - **Auth:** Magic-link email, no passwords stored anywhere.
 - **Bot protection:** Cloudflare Turnstile on signup/login.
 - **Email delivery:** Resend (free tier) for sending magic links.
-- **Frontend:** Astro stays static. Defter's UI is client-side JS calling
-  the Pages Functions API — no change to Astro's build mode needed.
+- **Frontend:** Astro stays static. Brambletally's UI is client-side JS
+  calling the Pages Functions API — no change to Astro's build mode needed.
 
 ## Naming
 
-Product name: **Defter** (Ottoman administrative register — the book where
-you track things). Rename all "noodlr" branding, copy, and the "noodle"
-session terminology throughout.
+Product name: **Brambletally**. Rename all "noodlr" branding, copy, and the
+"noodle" session terminology throughout. (Earlier drafts used "Defter" —
+fully replaced.)
 
 ## Feature scope (from noodlr, keep/cut/add)
 
@@ -53,9 +53,11 @@ session terminology throughout.
 - Invite by searching existing users, too (both methods supported)
 - One-click ownership transfer — old owner drops to **editor**, not viewer
   (`ownership_transfer_log` keeps an audit trail)
-- Same collaboration model applies to gate calculator events
+- Same collaboration model applies to saved gate calculator events
   (`gate_event_collaborators`, parallel to `project_collaborators` since
-  gate events aren't projects)
+  gate events aren't projects). The calculator itself stays usable without
+  logging in; **saving** an event and its log requires a login (user
+  decision, 2026-09-06).
 
 **Add (tie-ins to existing tools):**
 - `saved_patterns`: save kaftan/şalvar generator inputs so measurements
@@ -63,34 +65,34 @@ session terminology throughout.
 - Gate calculator event history (`gate_events`, `gate_log_entries`) lives
   in the same login/collaboration system as everything else — this was a
   deliberate choice despite the financial-data sensitivity, confirmed with
-  the user. No separate/lighter-touch handling was requested.
+  the user. No separate/lighter-touch handling was requested. The unsaved
+  calculator works logged-out; a signed-in user can save the current event
+  to their history and share it with collaborators.
 
 ## Schema
 
-Full D1 schema already written: `defter_schema.sql`. Covers all tables
+Full D1 schema already written: `brambletally_schema.sql`. Covers all tables
 above. One thing NOT enforced at the SQL level, flagged for the app layer:
 `projects.owner_id` should always have a matching `role='owner'` row in
 `project_collaborators` — D1/SQLite can't express that as a constraint
 cleanly, so this needs to be enforced in the API code (e.g., always
 insert/update both in the same transaction).
 
-## Open questions to resolve early in the build
+## Decisions (were open questions — resolved 2026-09-06)
 
-1. Does the user already have Resend and Turnstile accounts set up, or
-   does setup need to happen first? (Likely needs setup — ask.)
-2. Session length / "remember me" behavior — how long before a user needs
-   to click a new magic link?
-3. Should Viewers see project journal entries, or is the journal
-   editor-and-up only?
-4. Office-type projects: is creating one restricted to the current
-   Chatelaine, or can anyone label their own project "Office"? (User's
-   Chatelaine term runs through ~2027 — site content is being kept
-   general/non-chatelaine-specific for that reason, but this is a
-   different question: access control on a feature, not site content.)
-5. Sanity-check `astro.config.mjs` and `wrangler.jsonc` against the
-   Pages-Functions-bolt-on assumption above before writing API code —
-   confirm output mode and current Cloudflare config match what's assumed
-   here rather than taking it from memory.
+1. **Resend + Turnstile:** not set up yet. User is provisioning both; API
+   code no-ops each with a console warning until its secret is present.
+2. **Session length:** 30-day sliding — each authenticated request extends
+   it. No separate "remember me".
+3. **Viewers + journal:** viewers CAN read the journal/timeline; editors
+   and up can post.
+4. **Office-type projects:** no restriction. "Office" is a personal filter
+   tag anyone can put on their own project.
+5. **Config sanity-check:** done. Astro output is `static` (no adapter).
+   The Pages project is Git-connected (build `npm run build`), so
+   `/functions` auto-deploys and D1 is bound in the dashboard. The existing
+   `wrangler.jsonc` is written Workers-static-assets style and is not read
+   by the Git-connected Pages build — left as-is.
 
 ## User's working style (context for Claude Code)
 
@@ -104,5 +106,16 @@ insert/update both in the same transaction).
   no "not only X but also Y," no "In conclusion," no templated openings.
 - Astro CSS scoping gotcha: JS-built DOM children need `:global()` wrappers.
 - Build verification pattern for this repo: 31 pages = correct build
-  (deployment sanity check, not related to Defter specifically, but a
+  (deployment sanity check, not related to Brambletally specifically, but a
   useful thing to know when touching the Astro build).
+
+## Build progress
+
+- Backend (Pages Functions, `functions/api/`): auth (magic link, 30-day
+  sliding session), projects + steps + supplies + journal + collaborators +
+  ownership transfer, weekly review, inbox, user search, saved patterns,
+  gate events + log + sharing. All inert until the `DB` binding exists.
+- Next: Phase 2 provisioning (D1 + Resend + Turnstile in the dashboard),
+  then the frontend port from noodlr's single `index.html` into
+  `public/brambletally/app.{js,css}` + `src/pages/tools/brambletally.astro`
+  + a `src/data/tools.ts` entry.

@@ -13,7 +13,7 @@ export async function onRequestGet(context) {
   const sql = tool
     ? 'SELECT * FROM saved_patterns WHERE user_id = ? AND tool = ? ORDER BY created_at DESC'
     : 'SELECT * FROM saved_patterns WHERE user_id = ? ORDER BY created_at DESC';
-  const stmt = context.env.DEFTER_DB.prepare(sql);
+  const stmt = context.env.DB.prepare(sql);
   const { results } = await (tool ? stmt.bind(user.id, tool) : stmt.bind(user.id)).all();
 
   return json({
@@ -32,13 +32,13 @@ export async function onRequestPost(context) {
   if (body.input == null || typeof body.input !== 'object') return error(400, 'input object required');
 
   const id = uuid();
-  await context.env.DEFTER_DB.prepare(
+  await context.env.DB.prepare(
     'INSERT INTO saved_patterns (id, user_id, tool, name, input_json) VALUES (?, ?, ?, ?, ?)'
   )
     .bind(id, user.id, body.tool, body.name.trim(), JSON.stringify(body.input))
     .run();
 
-  const row = await context.env.DEFTER_DB.prepare('SELECT * FROM saved_patterns WHERE id = ?')
+  const row = await context.env.DB.prepare('SELECT * FROM saved_patterns WHERE id = ?')
     .bind(id)
     .first();
   return json({ pattern: { ...row, input: safeParse(row.input_json) } }, { status: 201 });

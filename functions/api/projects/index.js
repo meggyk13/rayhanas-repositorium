@@ -7,7 +7,7 @@ export async function onRequestGet(context) {
   const user = context.data.user;
   if (!user) return error(401, 'Not signed in');
 
-  const { results } = await context.env.DEFTER_DB.prepare(
+  const { results } = await context.env.DB.prepare(
     `SELECT p.*, pc.role,
             (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id) AS step_count,
             (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id AND s.completed = 1) AS step_done
@@ -41,8 +41,8 @@ export async function onRequestPost(context) {
   }
 
   const id = uuid();
-  await context.env.DEFTER_DB.batch([
-    context.env.DEFTER_DB.prepare(
+  await context.env.DB.batch([
+    context.env.DB.prepare(
       `INSERT INTO projects (id, owner_id, project_type, title, description, status, deadline)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).bind(
@@ -54,12 +54,12 @@ export async function onRequestPost(context) {
       status,
       body.deadline ?? null
     ),
-    context.env.DEFTER_DB.prepare(
+    context.env.DB.prepare(
       "INSERT INTO project_collaborators (project_id, user_id, role) VALUES (?, ?, 'owner')"
     ).bind(id, user.id),
   ]);
 
-  const project = await context.env.DEFTER_DB.prepare('SELECT * FROM projects WHERE id = ?')
+  const project = await context.env.DB.prepare('SELECT * FROM projects WHERE id = ?')
     .bind(id)
     .first();
 

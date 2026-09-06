@@ -6,7 +6,7 @@ export async function onRequestGet(context) {
   const user = context.data.user;
   if (!user) return error(401, 'Not signed in');
 
-  const db = context.env.DEFTER_DB;
+  const db = context.env.DB;
   const projects = (await db.prepare(
     `SELECT p.id, p.title, p.project_type, p.status, p.deadline, pc.role
        FROM projects p

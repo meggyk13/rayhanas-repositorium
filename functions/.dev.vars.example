@@ -2,4 +2,4 @@
 # All optional — leave blank to log magic links to the console and skip the bot check.
 RESEND_API_KEY=
 TURNSTILE_SECRET_KEY=
-DEFTER_FROM_EMAIL=
+MAIL_FROM=

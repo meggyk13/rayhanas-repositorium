@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
   const g = await requireProject(context, id, 'viewer');
   if (g.fail) return g.fail;
 
-  const { results } = await context.env.DEFTER_DB.prepare(
+  const { results } = await context.env.DB.prepare(
     'SELECT * FROM project_steps WHERE project_id = ? ORDER BY sort_order, created_at'
   )
     .bind(id)
@@ -28,15 +28,15 @@ export async function onRequestPost(context) {
   }
 
   const stepId = uuid();
-  await context.env.DEFTER_DB.batch([
-    context.env.DEFTER_DB.prepare(
+  await context.env.DB.batch([
+    context.env.DB.prepare(
       `INSERT INTO project_steps (id, project_id, title, context, sort_order)
        VALUES (?, ?, ?, ?, ?)`
     ).bind(stepId, id, body.title.trim(), body.context ?? null, Number(body.sort_order) || 0),
     touchStmt(context.env, id),
   ]);
 
-  const step = await context.env.DEFTER_DB.prepare('SELECT * FROM project_steps WHERE id = ?')
+  const step = await context.env.DB.prepare('SELECT * FROM project_steps WHERE id = ?')
     .bind(stepId)
     .first();
   return json({ step }, { status: 201 });

@@ -17,7 +17,7 @@ export async function onRequestPatch(context) {
   if ('cost' in fields) fields.cost = fields.cost == null ? null : Number(fields.cost);
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 
-  const owned = await context.env.DEFTER_DB.prepare(
+  const owned = await context.env.DB.prepare(
     'SELECT id FROM project_supplies WHERE id = ? AND project_id = ?'
   )
     .bind(supplyId, id)
@@ -25,14 +25,14 @@ export async function onRequestPatch(context) {
   if (!owned) return error(404, 'Supply not found');
 
   const cols = Object.keys(fields);
-  await context.env.DEFTER_DB.batch([
-    context.env.DEFTER_DB.prepare(
+  await context.env.DB.batch([
+    context.env.DB.prepare(
       `UPDATE project_supplies SET ${cols.map((c) => `${c} = ?`).join(', ')} WHERE id = ?`
     ).bind(...cols.map((c) => fields[c]), supplyId),
     touchStmt(context.env, id),
   ]);
 
-  const supply = await context.env.DEFTER_DB.prepare('SELECT * FROM project_supplies WHERE id = ?')
+  const supply = await context.env.DB.prepare('SELECT * FROM project_supplies WHERE id = ?')
     .bind(supplyId)
     .first();
   return json({ supply });
@@ -43,7 +43,7 @@ export async function onRequestDelete(context) {
   const g = await requireProject(context, id, 'editor');
   if (g.fail) return g.fail;
 
-  const res = await context.env.DEFTER_DB.prepare(
+  const res = await context.env.DB.prepare(
     'DELETE FROM project_supplies WHERE id = ? AND project_id = ?'
   )
     .bind(supplyId, id)

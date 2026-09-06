@@ -13,7 +13,7 @@ export async function onRequestPost(context) {
   if (!body || !body.toUserId) return error(400, 'toUserId required');
   if (body.toUserId === g.user.id) return error(400, "You're already the owner");
 
-  const db = context.env.DEFTER_DB;
+  const db = context.env.DB;
   const target = await db.prepare(
     'SELECT role FROM project_collaborators WHERE project_id = ? AND user_id = ?'
   )

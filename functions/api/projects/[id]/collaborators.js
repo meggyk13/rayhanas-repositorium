@@ -11,7 +11,7 @@ export async function onRequestGet(context) {
   const g = await requireProject(context, id, 'viewer');
   if (g.fail) return g.fail;
 
-  const db = context.env.DEFTER_DB;
+  const db = context.env.DB;
   const collaborators = (await db.prepare(
     `SELECT pc.user_id, pc.role, pc.added_at, u.name, u.email
        FROM project_collaborators pc JOIN users u ON u.id = pc.user_id
@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
   if (!body || !COLLAB_ROLES.includes(body.role)) {
     return error(400, `role must be one of: ${COLLAB_ROLES.join(', ')}`);
   }
-  const db = context.env.DEFTER_DB;
+  const db = context.env.DB;
 
   let targetUserId = body.userId ?? null;
   if (!targetUserId && typeof body.email === 'string' && EMAIL_RE.test(body.email.trim())) {
@@ -77,7 +77,7 @@ export async function onRequestPatch(context) {
   }
   if (body.userId === g.user.id) return error(400, "Use transfer to change the owner");
 
-  const res = await context.env.DEFTER_DB.prepare(
+  const res = await context.env.DB.prepare(
     "UPDATE project_collaborators SET role = ? WHERE project_id = ? AND user_id = ? AND role != 'owner'"
   )
     .bind(body.role, id, body.userId)
@@ -96,7 +96,7 @@ export async function onRequestDelete(context) {
   if (!body || !body.userId) return error(400, 'userId required');
   if (body.userId === g.user.id) return error(400, "The owner can't be removed; transfer first");
 
-  const res = await context.env.DEFTER_DB.prepare(
+  const res = await context.env.DB.prepare(
     "DELETE FROM project_collaborators WHERE project_id = ? AND user_id = ? AND role != 'owner'"
   )
     .bind(id, body.userId)

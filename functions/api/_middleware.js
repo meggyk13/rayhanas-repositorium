@@ -15,7 +15,7 @@ export async function onRequest(context) {
   const sid = readCookie(request, SESSION_COOKIE);
   if (!sid) return context.next();
 
-  const row = await env.DEFTER_DB.prepare(
+  const row = await env.DB.prepare(
     `SELECT s.expires_at AS expires_at,
             u.id, u.email, u.name, u.avatar_url
        FROM sessions s
@@ -38,7 +38,7 @@ export async function onRequest(context) {
   const windowMs = SESSION_TTL_DAYS * 86400 * 1000;
   const remaining = parseSql(row.expires_at).getTime() - Date.now();
   if (remaining < windowMs - 86400 * 1000) {
-    await env.DEFTER_DB.prepare('UPDATE sessions SET expires_at = ? WHERE id = ?')
+    await env.DB.prepare('UPDATE sessions SET expires_at = ? WHERE id = ?')
       .bind(sqlNow(windowMs), sid)
       .run();
     const res = await context.next();

@@ -9,7 +9,7 @@ export async function onRequestGet(context) {
   const g = await requireProject(context, id, 'viewer');
   if (g.fail) return g.fail;
 
-  const { results } = await context.env.DEFTER_DB.prepare(
+  const { results } = await context.env.DB.prepare(
     `SELECT j.*, u.name AS author_name
        FROM project_journal j JOIN users u ON u.id = j.user_id
       WHERE j.project_id = ? ORDER BY j.created_at DESC`
@@ -28,14 +28,14 @@ export async function onRequestPost(context) {
   if (!body || !isNonEmptyString(body.text)) return error(400, 'Text required');
 
   const entryId = uuid();
-  await context.env.DEFTER_DB.batch([
-    context.env.DEFTER_DB.prepare(
+  await context.env.DB.batch([
+    context.env.DB.prepare(
       'INSERT INTO project_journal (id, project_id, user_id, text) VALUES (?, ?, ?, ?)'
     ).bind(entryId, id, g.user.id, body.text.trim()),
     touchStmt(context.env, id),
   ]);
 
-  const entry = await context.env.DEFTER_DB.prepare(
+  const entry = await context.env.DB.prepare(
     `SELECT j.*, u.name AS author_name
        FROM project_journal j JOIN users u ON u.id = j.user_id
       WHERE j.id = ?`

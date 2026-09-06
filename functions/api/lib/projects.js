@@ -5,7 +5,7 @@ const RANK = { viewer: 1, editor: 2, owner: 3 };
 // 'owner' | 'editor' | 'viewer' | null
 export async function projectRole(env, projectId, userId) {
   if (!userId) return null;
-  const row = await env.DEFTER_DB.prepare(
+  const row = await env.DB.prepare(
     'SELECT role FROM project_collaborators WHERE project_id = ? AND user_id = ?'
   )
     .bind(projectId, userId)
@@ -26,6 +26,6 @@ export async function requireProject(context, projectId, min = 'viewer') {
 
 // Statement that marks a project as just-touched; add to a batch on child writes.
 export const touchStmt = (env, projectId) =>
-  env.DEFTER_DB
+  env.DB
     .prepare("UPDATE projects SET updated_at = datetime('now') WHERE id = ?")
     .bind(projectId);

@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
   const g = await requireProject(context, id, 'viewer');
   if (g.fail) return g.fail;
 
-  const db = context.env.DEFTER_DB;
+  const db = context.env.DB;
   const project = await db.prepare('SELECT * FROM projects WHERE id = ?').bind(id).first();
   const steps = (await db.prepare(
     'SELECT * FROM project_steps WHERE project_id = ? ORDER BY sort_order, created_at'
@@ -50,13 +50,13 @@ export async function onRequestPatch(context) {
 
   const cols = Object.keys(fields);
   const set = cols.map((c) => `${c} = ?`).join(', ');
-  await context.env.DEFTER_DB.prepare(
+  await context.env.DB.prepare(
     `UPDATE projects SET ${set}, updated_at = datetime('now') WHERE id = ?`
   )
     .bind(...cols.map((c) => fields[c]), id)
     .run();
 
-  const project = await context.env.DEFTER_DB.prepare('SELECT * FROM projects WHERE id = ?')
+  const project = await context.env.DB.prepare('SELECT * FROM projects WHERE id = ?')
     .bind(id)
     .first();
   return json({ project: { ...project, role: g.role } });
@@ -68,6 +68,6 @@ export async function onRequestDelete(context) {
   const g = await requireProject(context, id, 'owner');
   if (g.fail) return g.fail;
 
-  await context.env.DEFTER_DB.prepare('DELETE FROM projects WHERE id = ?').bind(id).run();
+  await context.env.DB.prepare('DELETE FROM projects WHERE id = ?').bind(id).run();
   return json({ ok: true });
 }

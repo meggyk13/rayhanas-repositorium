@@ -14,7 +14,7 @@ export async function onRequestGet(context) {
   const token = new URL(request.url).searchParams.get('token');
   if (!token) return redirect(`${APP_PATH}?auth=invalid`);
 
-  const link = await env.DEFTER_DB.prepare(
+  const link = await env.DB.prepare(
     `SELECT id, email FROM magic_links
       WHERE token_hash = ? AND used_at IS NULL AND expires_at > datetime('now')`
   )
@@ -23,17 +23,17 @@ export async function onRequestGet(context) {
 
   if (!link) return redirect(`${APP_PATH}?auth=invalid`);
 
-  await env.DEFTER_DB.prepare('UPDATE magic_links SET used_at = ? WHERE id = ?')
+  await env.DB.prepare('UPDATE magic_links SET used_at = ? WHERE id = ?')
     .bind(sqlNow(), link.id)
     .run();
 
-  let user = await env.DEFTER_DB.prepare('SELECT id FROM users WHERE email = ?')
+  let user = await env.DB.prepare('SELECT id FROM users WHERE email = ?')
     .bind(link.email)
     .first();
 
   if (!user) {
     const id = uuid();
-    await env.DEFTER_DB.prepare('INSERT INTO users (id, email, name) VALUES (?, ?, ?)')
+    await env.DB.prepare('INSERT INTO users (id, email, name) VALUES (?, ?, ?)')
       .bind(id, link.email, link.email.split('@')[0])
       .run();
     user = { id };
@@ -47,19 +47,19 @@ export async function onRequestGet(context) {
 
 // Turn any email invites for this address into real collaborator rows.
 async function resolvePendingInvites(env, email, userId) {
-  const { results } = await env.DEFTER_DB.prepare(
+  const { results } = await env.DB.prepare(
     'SELECT id, project_id, role FROM pending_invites WHERE email = ? AND accepted_at IS NULL'
   )
     .bind(email)
     .all();
 
   for (const inv of results) {
-    await env.DEFTER_DB.batch([
-      env.DEFTER_DB.prepare(
+    await env.DB.batch([
+      env.DB.prepare(
         `INSERT INTO project_collaborators (project_id, user_id, role) VALUES (?, ?, ?)
          ON CONFLICT(project_id, user_id) DO UPDATE SET role = excluded.role`
       ).bind(inv.project_id, userId, inv.role),
-      env.DEFTER_DB.prepare('UPDATE pending_invites SET accepted_at = ? WHERE id = ?')
+      env.DB.prepare('UPDATE pending_invites SET accepted_at = ? WHERE id = ?')
         .bind(sqlNow(), inv.id),
     ]);
   }

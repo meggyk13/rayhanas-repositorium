@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
   if (q.length < 2) return json({ users: [] });
 
   const like = `%${q}%`;
-  const { results } = await context.env.DEFTER_DB.prepare(
+  const { results } = await context.env.DB.prepare(
     `SELECT id, name, email FROM users
       WHERE id != ? AND (lower(email) LIKE ? OR lower(name) LIKE ?)
       ORDER BY name LIMIT 10`

@@ -7,7 +7,7 @@ const MAX_AGE_SEC = SESSION_TTL_DAYS * 86400;
 export async function createSession(env, userId) {
   const id = randomToken(32);
   const expiresAt = sqlNow(MAX_AGE_SEC * 1000);
-  await env.DEFTER_DB.prepare(
+  await env.DB.prepare(
     'INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)'
   )
     .bind(id, userId, expiresAt)

@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
   const g = await requireProject(context, id, 'viewer');
   if (g.fail) return g.fail;
 
-  const { results } = await context.env.DEFTER_DB.prepare(
+  const { results } = await context.env.DB.prepare(
     'SELECT * FROM project_supplies WHERE project_id = ? ORDER BY created_at'
   )
     .bind(id)
@@ -25,8 +25,8 @@ export async function onRequestPost(context) {
   if (!body || !isNonEmptyString(body.name)) return error(400, 'Name required');
 
   const supplyId = uuid();
-  await context.env.DEFTER_DB.batch([
-    context.env.DEFTER_DB.prepare(
+  await context.env.DB.batch([
+    context.env.DB.prepare(
       `INSERT INTO project_supplies (id, project_id, name, acquired, cost, source)
        VALUES (?, ?, ?, ?, ?, ?)`
     ).bind(
@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
     touchStmt(context.env, id),
   ]);
 
-  const supply = await context.env.DEFTER_DB.prepare('SELECT * FROM project_supplies WHERE id = ?')
+  const supply = await context.env.DB.prepare('SELECT * FROM project_supplies WHERE id = ?')
     .bind(supplyId)
     .first();
   return json({ supply }, { status: 201 });

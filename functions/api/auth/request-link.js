@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
   if (!ts.ok) return error(400, 'Bot check failed. Reload the page and try again.');
 
   const token = randomToken(32);
-  await env.DEFTER_DB.prepare(
+  await env.DB.prepare(
     'INSERT INTO magic_links (id, email, token_hash, expires_at) VALUES (?, ?, ?, ?)'
   )
     .bind(uuid(), email, await sha256Hex(token), sqlNow(MAGIC_LINK_TTL_MIN * 60 * 1000))

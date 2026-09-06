@@ -1,6 +1,6 @@
--- Defter — D1 schema
--- Run with: wrangler d1 execute defter-db --file=./defter_schema.sql
--- (create the DB first: wrangler d1 create defter-db)
+-- Brambletally — D1 schema
+-- Run with: wrangler d1 execute brambletally-db --file=./brambletally_schema.sql
+-- (create the DB first: wrangler d1 create brambletally-db)
 
 PRAGMA foreign_keys = ON;
 
