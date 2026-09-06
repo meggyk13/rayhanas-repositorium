@@ -851,3 +851,46 @@ textarea{resize:vertical;min-height:60px}
 .bt-auth .back:hover{color:var(--text-muted)}
 .bt-signed{max-width:380px;margin:0 auto;padding:48px 24px;text-align:center}
 .bt-signed .who{font-size:14px;color:var(--text-muted);margin:16px 0 24px}
+
+/* ── Brambletally rebuilt-screen overrides ──────────────────────────────── */
+#bt-app .header .tabs { margin-top: 4px; }
+#bt-app .journal-add-form { display: block; margin-bottom: 18px; }
+#bt-app .journal-add-form textarea,
+#bt-app #bt-inbox-text {
+  width: 100%; padding: 12px 14px; border-radius: 9px;
+  border: 1px solid var(--border-strong); background: var(--input);
+  color: var(--text); font: inherit; font-size: 15px; resize: vertical;
+}
+#bt-app .checkbox {
+  border: 2px solid var(--border-strong); background: transparent;
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+#bt-app .check-row.checked .checkbox { background: var(--sage); border-color: var(--sage); }
+#bt-app .check-row.checked .check-title { text-decoration: line-through; color: var(--text-disabled); }
+#bt-app .checkbox[disabled] { opacity: .5; cursor: default; }
+#bt-app .card-menu-btn {
+  background: none; border: none; color: var(--text-faint);
+  font-size: 16px; cursor: pointer; padding: 4px 6px; flex-shrink: 0; align-self: center;
+}
+#bt-app .status-pill { background: var(--tab-color, var(--sage))22; color: var(--tab-color, var(--sage)); }
+#bt-app .detail-back, #bt-app .detail-export {
+  position: absolute; top: 14px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600;
+  color: var(--text-sub); cursor: pointer;
+}
+#bt-app .detail-back { left: 16px; }
+#bt-app .detail-export { right: 16px; }
+#bt-app .detail-body { padding: 16px; }
+#bt-app .newbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
+.modal-overlay .sp-input, .modal-overlay .sp-select { margin: 0 20px 2px; width: calc(100% - 40px); }
+.modal-overlay .sp-label:first-of-type { padding-top: 2px; }
+.modal-overlay form > div:last-child { padding: 0 20px 4px; }
+
+.bt-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+  background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; opacity: 0;
+  transition: opacity .25s, transform .25s; z-index: 9999; pointer-events: none; max-width: 90vw;
+}
+.bt-toast.show { opacity: 1; transform: translate(-50%, 0); }
