@@ -11,6 +11,7 @@ CREATE TABLE users (
   email         TEXT UNIQUE NOT NULL,
   name          TEXT,
   avatar_url    TEXT,
+  plan          TEXT NOT NULL DEFAULT 'free',  -- tier hook; nothing is gated yet
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

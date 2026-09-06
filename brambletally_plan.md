@@ -33,8 +33,18 @@ fully replaced.)
 - Focus-timer ("noodle") session mode — rename, keep the mechanic
 - Card-based project list UI, dark/light theme support
 
-**Cut entirely:**
-- All premium/free tier logic, paywalls, upgrade prompts, project limits
+**Cut entirely (noodlr's version of it):**
+- noodlr's `IS_PREMIUM` / `FREE_LIMIT` / lock overlays / upgrade prompts /
+  demo-mode toggle — all removed from the port.
+
+**Tiers — door left open (decided 2026-09-06):**
+- `users.plan` column exists (`DEFAULT 'free'`), surfaced in `/api/auth/me`.
+  **Nothing is gated.** No Stripe, no billing UI, no Terms of Service yet.
+- If tiers are ever built, the intended gates are: photo uploads (a future
+  R2-backed feature, not just a flag), active-project count, and
+  collaboration (invite/transfer). Adding payment later is additive — no
+  schema rework.
+- Not needed for cost: Cloudflare Workers + D1 free tier covers this site.
 
 **Add (GTD structure):**
 - `project_type`: Office / Research / A&S — filterable

@@ -19,7 +19,7 @@ export async function loadSession(context) {
 
   const row = await env.DB.prepare(
     `SELECT s.expires_at AS expires_at,
-            u.id, u.email, u.name, u.avatar_url
+            u.id, u.email, u.name, u.avatar_url, u.plan
        FROM sessions s
        JOIN users u ON u.id = s.user_id
       WHERE s.id = ? AND s.expires_at > datetime('now')`
@@ -34,6 +34,7 @@ export async function loadSession(context) {
     email: row.email,
     name: row.name,
     avatar_url: row.avatar_url,
+    plan: row.plan,
   };
   context.data.sessionId = sid;
 
