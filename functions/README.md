@@ -59,10 +59,6 @@ never blocks — endpoints check for themselves.
 Role ranks are `viewer < editor < owner`. A caller with no role on a project or
 gate event gets 404, not 403, so existence doesn't leak.
 
-## Known schema gap
-
-`gate_log_entries` stores `amount / headcount / meal_count / notes` — it does
-**not** have columns for the calculator's per-category split (member vs
-non-member vs under-18), which the CSV export's NMS-remittance math needs. For
-now the frontend can pack that breakdown into `notes` as JSON. If it should be
-first-class, add columns to `brambletally_schema.sql` before the DB is created.
+`gate_log_entries` carries the calculator's per-group split directly:
+`member_count / nonmember_count / under18_count` (plus `headcount`, `meal_count`,
+`amount`), so the CSV export's NMS-remittance math has real columns to read.

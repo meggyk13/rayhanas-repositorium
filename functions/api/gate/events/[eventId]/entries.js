@@ -17,8 +17,9 @@ export async function onRequestGet(context) {
   return json({ entries: results });
 }
 
-// POST — { entry_type?, amount?, headcount?, meal_count?, notes? }
-// entry_type defaults to 'group'. notes can carry a JSON category breakdown.
+// POST — { entry_type?, amount?, headcount?, meal_count?,
+//          member_count?, nonmember_count?, under18_count?, notes? }
+// entry_type defaults to 'group'.
 export async function onRequestPost(context) {
   const { eventId } = context.params;
   const g = await requireGate(context, eventId, 'editor');
@@ -27,11 +28,13 @@ export async function onRequestPost(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
+  const int0 = (v) => (v == null ? 0 : Math.trunc(Number(v)) || 0);
   const id = uuid();
   await context.env.DB.prepare(
     `INSERT INTO gate_log_entries
-       (id, gate_event_id, entry_type, amount, headcount, meal_count, notes, logged_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+       (id, gate_event_id, entry_type, amount, headcount, meal_count,
+        member_count, nonmember_count, under18_count, notes, logged_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       id,
@@ -40,6 +43,9 @@ export async function onRequestPost(context) {
       num(body.amount),
       num(body.headcount),
       num(body.meal_count),
+      int0(body.member_count),
+      int0(body.nonmember_count),
+      int0(body.under18_count),
       body.notes ?? null,
       g.user.id
     )

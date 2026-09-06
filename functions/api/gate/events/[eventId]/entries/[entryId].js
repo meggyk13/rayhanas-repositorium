@@ -10,9 +10,15 @@ export async function onRequestPatch(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  const fields = pick(body, ['entry_type', 'amount', 'headcount', 'meal_count', 'notes']);
+  const fields = pick(body, [
+    'entry_type', 'amount', 'headcount', 'meal_count',
+    'member_count', 'nonmember_count', 'under18_count', 'notes',
+  ]);
   for (const k of ['amount', 'headcount', 'meal_count']) {
     if (k in fields) fields[k] = fields[k] == null ? null : Number(fields[k]);
+  }
+  for (const k of ['member_count', 'nonmember_count', 'under18_count']) {
+    if (k in fields) fields[k] = fields[k] == null ? 0 : Math.trunc(Number(fields[k])) || 0;
   }
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 

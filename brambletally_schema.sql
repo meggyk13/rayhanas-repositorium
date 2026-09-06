@@ -159,14 +159,17 @@ CREATE TABLE gate_event_collaborators (
 );
 
 CREATE TABLE gate_log_entries (
-  id            TEXT PRIMARY KEY,        -- uuid
-  gate_event_id TEXT NOT NULL REFERENCES gate_events(id) ON DELETE CASCADE,
-  entry_type    TEXT NOT NULL,           -- cash, group, short-payment, etc.
-  amount        REAL,
-  headcount     INTEGER,
-  meal_count    INTEGER,
-  notes         TEXT,
-  logged_by     TEXT NOT NULL REFERENCES users(id),
-  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  id               TEXT PRIMARY KEY,     -- uuid
+  gate_event_id    TEXT NOT NULL REFERENCES gate_events(id) ON DELETE CASCADE,
+  entry_type       TEXT NOT NULL,        -- cash, group, short-payment, etc.
+  amount           REAL,
+  headcount        INTEGER,              -- total adults + youth (sum of the three below)
+  meal_count       INTEGER,              -- total meals (lunch + feast)
+  member_count     INTEGER NOT NULL DEFAULT 0,
+  nonmember_count  INTEGER NOT NULL DEFAULT 0,
+  under18_count    INTEGER NOT NULL DEFAULT 0,
+  notes            TEXT,
+  logged_by        TEXT NOT NULL REFERENCES users(id),
+  created_at       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_gate_log_event ON gate_log_entries(gate_event_id);
