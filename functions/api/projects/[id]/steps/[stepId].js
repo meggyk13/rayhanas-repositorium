@@ -10,7 +10,7 @@ export async function onRequestPatch(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  const fields = pick(body, ['title', 'context', 'completed', 'sort_order']);
+  const fields = pick(body, ['title', 'context', 'completed', 'due_date', 'notes', 'sort_order']);
   if ('title' in fields && !isNonEmptyString(fields.title)) return error(400, 'Title cannot be empty');
   if ('title' in fields) fields.title = fields.title.trim();
   if ('context' in fields && fields.context != null && !STEP_CONTEXTS.includes(fields.context)) {

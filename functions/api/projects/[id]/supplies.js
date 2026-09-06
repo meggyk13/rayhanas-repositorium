@@ -27,15 +27,16 @@ export async function onRequestPost(context) {
   const supplyId = uuid();
   await context.env.DB.batch([
     context.env.DB.prepare(
-      `INSERT INTO project_supplies (id, project_id, name, acquired, cost, source)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO project_supplies (id, project_id, name, acquired, cost, source, url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       supplyId,
       id,
       body.name.trim(),
       body.acquired ? 1 : 0,
       body.cost == null ? null : Number(body.cost),
-      body.source ?? null
+      body.source ?? null,
+      body.url ?? null
     ),
     touchStmt(context.env, id),
   ]);

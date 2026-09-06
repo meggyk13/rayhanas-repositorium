@@ -10,7 +10,7 @@ export async function onRequestPatch(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  const fields = pick(body, ['name', 'acquired', 'cost', 'source']);
+  const fields = pick(body, ['name', 'acquired', 'cost', 'source', 'url']);
   if ('name' in fields && !isNonEmptyString(fields.name)) return error(400, 'Name cannot be empty');
   if ('name' in fields) fields.name = fields.name.trim();
   if ('acquired' in fields) fields.acquired = fields.acquired ? 1 : 0;

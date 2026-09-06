@@ -43,6 +43,7 @@ CREATE TABLE projects (
   status        TEXT NOT NULL DEFAULT 'Active'
                   CHECK(status IN ('Active','Waiting For','Someday','Paused','Done')),
   deadline      TEXT,                    -- ISO date, nullable
+  pickup_note   TEXT,                    -- "pick up here": the next concrete action
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -89,6 +90,8 @@ CREATE TABLE project_steps (
   title         TEXT NOT NULL,
   context       TEXT,                    -- @machine, @handsewing, @research, @errand, @email
   completed     INTEGER NOT NULL DEFAULT 0,
+  due_date      TEXT,                    -- ISO date, nullable
+  notes         TEXT,                    -- free-text working notes for this step
   sort_order    INTEGER NOT NULL DEFAULT 0,
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -100,7 +103,8 @@ CREATE TABLE project_supplies (
   name          TEXT NOT NULL,
   acquired      INTEGER NOT NULL DEFAULT 0,
   cost          REAL,
-  source        TEXT,
+  source        TEXT,                    -- where to get it (store name)
+  url           TEXT,                    -- optional link
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_supplies_project ON project_supplies(project_id);

@@ -30,9 +30,17 @@ export async function onRequestPost(context) {
   const stepId = uuid();
   await context.env.DB.batch([
     context.env.DB.prepare(
-      `INSERT INTO project_steps (id, project_id, title, context, sort_order)
-       VALUES (?, ?, ?, ?, ?)`
-    ).bind(stepId, id, body.title.trim(), body.context ?? null, Number(body.sort_order) || 0),
+      `INSERT INTO project_steps (id, project_id, title, context, due_date, notes, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      stepId,
+      id,
+      body.title.trim(),
+      body.context ?? null,
+      body.due_date ?? null,
+      body.notes ?? null,
+      Number(body.sort_order) || 0
+    ),
     touchStmt(context.env, id),
   ]);
 

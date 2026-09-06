@@ -43,8 +43,8 @@ export async function onRequestPost(context) {
   const id = uuid();
   await context.env.DB.batch([
     context.env.DB.prepare(
-      `INSERT INTO projects (id, owner_id, project_type, title, description, status, deadline)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO projects (id, owner_id, project_type, title, description, status, deadline, pickup_note)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       id,
       user.id,
@@ -52,7 +52,8 @@ export async function onRequestPost(context) {
       body.title.trim(),
       body.description ?? null,
       status,
-      body.deadline ?? null
+      body.deadline ?? null,
+      body.pickup_note ?? null
     ),
     context.env.DB.prepare(
       "INSERT INTO project_collaborators (project_id, user_id, role) VALUES (?, ?, 'owner')"

@@ -19,7 +19,7 @@ export async function onRequestGet(context) {
     const ids = projects.map((p) => p.id);
     const placeholders = ids.map(() => '?').join(', ');
     const steps = (await db.prepare(
-      `SELECT id, project_id, title, context
+      `SELECT id, project_id, title, context, due_date
          FROM project_steps
         WHERE completed = 0 AND project_id IN (${placeholders})
         ORDER BY sort_order, created_at`
