@@ -39,3 +39,30 @@ entry (added to `wrangler.jsonc` once the database exists).
 
 `api/_middleware.js` attaches `context.data.user` for every `/api/*` request but
 never blocks — endpoints check for themselves.
+
+## Routes
+
+- `auth/*` — see above.
+- `projects` (GET list, POST create) · `projects/:id` (GET bundle, PATCH, DELETE)
+  · `projects/:id/steps` · `.../steps/:stepId` · `.../supplies` ·
+  `.../supplies/:supplyId` · `.../journal` (viewers read, editors post) ·
+  `.../collaborators` (owner-managed) · `.../transfer` (POST).
+- `review` (GET) — Active + Waiting For projects with their open steps.
+- `inbox` (GET, POST) · `inbox/:itemId` (PATCH, DELETE) — per-user capture.
+- `users/search?q=` — signed-in lookup for the invite picker.
+- `patterns` (GET, POST, `?tool=`) · `patterns/:patternId` (PATCH, DELETE) —
+  saved kaftan/şalvar inputs.
+- `gate/events` (GET, POST) · `gate/events/:eventId` (GET bundle, PATCH, DELETE)
+  · `.../entries` (GET, POST) · `.../entries/:entryId` (PATCH, DELETE) ·
+  `.../collaborators` (owner-managed, existing users only).
+
+Role ranks are `viewer < editor < owner`. A caller with no role on a project or
+gate event gets 404, not 403, so existence doesn't leak.
+
+## Known schema gap
+
+`gate_log_entries` stores `amount / headcount / meal_count / notes` — it does
+**not** have columns for the calculator's per-category split (member vs
+non-member vs under-18), which the CSV export's NMS-remittance math needs. For
+now the frontend can pack that breakdown into `notes` as JSON. If it should be
+first-class, add columns to `brambletally_schema.sql` before the DB is created.
