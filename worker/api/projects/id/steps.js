@@ -1,7 +1,7 @@
 import { json, error, readJson } from '../../lib/http.js';
 import { uuid } from '../../lib/id.js';
 import { requireProject, touchStmt } from '../../lib/projects.js';
-import { STEP_CONTEXTS, isNonEmptyString } from '../../lib/validate.js';
+import { isNonEmptyString } from '../../lib/validate.js';
 
 export async function onRequestGet(context) {
   const { id } = context.params;
@@ -23,20 +23,16 @@ export async function onRequestPost(context) {
 
   const body = await readJson(context.request);
   if (!body || !isNonEmptyString(body.title)) return error(400, 'Title required');
-  if (body.context != null && !STEP_CONTEXTS.includes(body.context)) {
-    return error(400, `context must be one of: ${STEP_CONTEXTS.join(', ')}`);
-  }
 
   const stepId = uuid();
   await context.env.DB.batch([
     context.env.DB.prepare(
-      `INSERT INTO project_steps (id, project_id, title, context, due_date, notes, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO project_steps (id, project_id, title, due_date, notes, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?)`
     ).bind(
       stepId,
       id,
       body.title.trim(),
-      body.context ?? null,
       body.due_date ?? null,
       body.notes ?? null,
       Number(body.sort_order) || 0

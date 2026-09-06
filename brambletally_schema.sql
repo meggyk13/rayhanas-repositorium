@@ -35,10 +35,22 @@ CREATE INDEX idx_magic_links_email ON magic_links(email);
 
 -- ── Projects ─────────────────────────────────────────────────────────────
 
+-- Per-user pick list for the project "category" field. Managed by the owner;
+-- the chosen name is denormalized onto projects.category.
+CREATE TABLE categories (
+  id            TEXT PRIMARY KEY,        -- uuid
+  user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name          TEXT NOT NULL,
+  sort_order    INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (user_id, name)
+);
+CREATE INDEX idx_categories_user ON categories(user_id);
+
 CREATE TABLE projects (
   id            TEXT PRIMARY KEY,        -- uuid
   owner_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  project_type  TEXT NOT NULL CHECK(project_type IN ('office','research','as')),
+  category      TEXT,                    -- free-form name, nullable; picked from the owner's categories
   title         TEXT NOT NULL,
   description   TEXT,
   status        TEXT NOT NULL DEFAULT 'Active'
@@ -89,7 +101,6 @@ CREATE TABLE project_steps (
   id            TEXT PRIMARY KEY,        -- uuid
   project_id    TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   title         TEXT NOT NULL,
-  context       TEXT,                    -- @machine, @handsewing, @research, @errand, @email
   completed     INTEGER NOT NULL DEFAULT 0,
   due_date      TEXT,                    -- ISO date, nullable
   notes         TEXT,                    -- free-text working notes for this step

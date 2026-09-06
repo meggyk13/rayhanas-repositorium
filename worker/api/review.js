@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
 
   const db = context.env.DB;
   const projects = (await db.prepare(
-    `SELECT p.id, p.title, p.project_type, p.status, p.deadline, pc.role
+    `SELECT p.id, p.title, p.category, p.status, p.deadline, pc.role
        FROM projects p
        JOIN project_collaborators pc ON pc.project_id = p.id AND pc.user_id = ?
       WHERE p.status IN ('Active', 'Waiting For')
@@ -19,7 +19,7 @@ export async function onRequestGet(context) {
     const ids = projects.map((p) => p.id);
     const placeholders = ids.map(() => '?').join(', ');
     const steps = (await db.prepare(
-      `SELECT id, project_id, title, context, due_date
+      `SELECT id, project_id, title, due_date
          FROM project_steps
         WHERE completed = 0 AND project_id IN (${placeholders})
         ORDER BY sort_order, created_at`

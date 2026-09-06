@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../lib/http.js';
 import { requireProject } from '../lib/projects.js';
-import { PROJECT_TYPES, STATUSES, pick, isNonEmptyString } from '../lib/validate.js';
+import { STATUSES, pick, isNonEmptyString } from '../lib/validate.js';
 
 // GET /api/projects/:id — full bundle for the detail view.
 export async function onRequestGet(context) {
@@ -39,12 +39,13 @@ export async function onRequestPatch(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  const fields = pick(body, ['title', 'description', 'status', 'deadline', 'project_type', 'pickup_note']);
+  const fields = pick(body, ['title', 'description', 'status', 'deadline', 'category', 'pickup_note']);
   if ('title' in fields && !isNonEmptyString(fields.title)) return error(400, 'Title cannot be empty');
   if ('title' in fields) fields.title = fields.title.trim();
   if ('status' in fields && !STATUSES.includes(fields.status)) return error(400, 'Invalid status');
-  if ('project_type' in fields && !PROJECT_TYPES.includes(fields.project_type)) {
-    return error(400, 'Invalid project_type');
+  if ('category' in fields) {
+    fields.category =
+      typeof fields.category === 'string' && fields.category.trim() ? fields.category.trim() : null;
   }
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 

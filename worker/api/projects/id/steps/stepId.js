@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../../../lib/http.js';
 import { requireProject, touchStmt } from '../../../lib/projects.js';
-import { STEP_CONTEXTS, pick, isNonEmptyString } from '../../../lib/validate.js';
+import { pick, isNonEmptyString } from '../../../lib/validate.js';
 
 export async function onRequestPatch(context) {
   const { id, stepId } = context.params;
@@ -10,12 +10,9 @@ export async function onRequestPatch(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  const fields = pick(body, ['title', 'context', 'completed', 'due_date', 'notes', 'sort_order']);
+  const fields = pick(body, ['title', 'completed', 'due_date', 'notes', 'sort_order']);
   if ('title' in fields && !isNonEmptyString(fields.title)) return error(400, 'Title cannot be empty');
   if ('title' in fields) fields.title = fields.title.trim();
-  if ('context' in fields && fields.context != null && !STEP_CONTEXTS.includes(fields.context)) {
-    return error(400, 'Invalid context');
-  }
   if ('completed' in fields) fields.completed = fields.completed ? 1 : 0;
   if ('sort_order' in fields) fields.sort_order = Number(fields.sort_order) || 0;
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');

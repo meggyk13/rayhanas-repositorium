@@ -16,8 +16,7 @@ const STATUS_COLOR = {
   Paused: '#6b7280',
   Done: '#059669',
 };
-const TYPE_LABEL = { office: 'Office', research: 'Research', as: 'A&S' };
-const CONTEXTS = ['@machine', '@handsewing', '@research', '@errand', '@email'];
+const UNCATEGORIZED = 'Uncategorized';
 
 // ── API ────────────────────────────────────────────────────────────────────
 async function api(path, { method = 'GET', body } = {}) {
@@ -72,6 +71,11 @@ const API = {
   deleteInbox: (id) => api('/api/inbox/' + id, { method: 'DELETE' }),
 
   review: () => api('/api/review'),
+
+  listCategories: () => api('/api/categories'),
+  createCategory: (name) => api('/api/categories', { method: 'POST', body: { name } }),
+  renameCategory: (id, name) => api('/api/categories/' + id, { method: 'PATCH', body: { name } }),
+  deleteCategory: (id) => api('/api/categories/' + id, { method: 'DELETE' }),
 };
 
 // ── DOM helpers ────────────────────────────────────────────────────────────
@@ -149,11 +153,20 @@ const state = {
   user: null,
   view: 'home', // home | project | inbox | review
   projects: [],
+  categories: [], // [{id, name, sort_order}]
   filterStatus: 'Active',
-  filterType: 'all',
+  filterCategory: 'all', // 'all' | 'none' | a category name
   project: null, // full bundle when view === 'project'
   detailTab: 'steps',
 };
+
+async function loadCategories() {
+  try {
+    state.categories = (await API.listCategories()).categories || [];
+  } catch {
+    state.categories = [];
+  }
+}
 
 async function boot() {
   applyTheme();
@@ -299,7 +312,7 @@ async function renderHome(main) {
   main.replaceChildren(h('<div class="empty">Loading…</div>'));
   let projects;
   try {
-    ({ projects } = await guard(() => API.listProjects()));
+    [{ projects }] = await Promise.all([guard(() => API.listProjects()), loadCategories()]);
   } catch {
     return;
   }
@@ -325,34 +338,37 @@ async function renderHome(main) {
   });
   wrap.appendChild(statusTabs);
 
-  const typeRow = h(`<div class="tabs" style="margin-bottom:14px"></div>`);
-  [['all', 'All types'], ['office', 'Office'], ['research', 'Research'], ['as', 'A&S']].forEach(
-    ([v, label]) => {
+  const catFilters = [['all', 'All']];
+  state.categories.forEach((c) => catFilters.push([c.name, c.name]));
+  if (projects.some((p) => !p.category)) catFilters.push(['none', UNCATEGORIZED]);
+
+  if (catFilters.length > 1) {
+    const catRow = h(`<div class="tabs" style="margin-bottom:14px"></div>`);
+    catFilters.forEach(([v, label]) => {
       const b = h(
-        `<button class="tab${state.filterType === v ? ' active' : ''}" style="--tab-color:#9966CC">${label}</button>`
+        `<button class="tab${state.filterCategory === v ? ' active' : ''}" style="--tab-color:#9966CC">${esc(
+          label
+        )}</button>`
       );
       b.addEventListener('click', () => {
-        state.filterType = v;
+        state.filterCategory = v;
         renderApp();
       });
-      typeRow.appendChild(b);
-    }
-  );
-  wrap.appendChild(typeRow);
+      catRow.appendChild(b);
+    });
+    wrap.appendChild(catRow);
+  }
 
   const bar = h(`<div class="newbar"><button class="btn-sm btn-sm-sage" id="bt-new">+ New project</button></div>`);
   on(bar, '#bt-new', 'click', () => openProjectForm(null));
   wrap.appendChild(bar);
 
   let list = projects.filter((p) => p.status === state.filterStatus);
-  if (state.filterType !== 'all') list = list.filter((p) => p.project_type === state.filterType);
+  if (state.filterCategory === 'none') list = list.filter((p) => !p.category);
+  else if (state.filterCategory !== 'all') list = list.filter((p) => p.category === state.filterCategory);
 
   if (!list.length) {
-    wrap.appendChild(
-      h(`<div class="empty">Nothing ${esc(state.filterStatus)}${
-        state.filterType !== 'all' ? ' in ' + esc(TYPE_LABEL[state.filterType]) : ''
-      }.</div>`)
-    );
+    wrap.appendChild(h(`<div class="empty">Nothing ${esc(state.filterStatus)} here.</div>`));
   } else {
     list.forEach((p) => wrap.appendChild(projectCard(p)));
   }
@@ -371,7 +387,7 @@ function projectCard(p) {
         <span class="status-pill" style="--tab-color:${STATUS_COLOR[p.status]}">${esc(p.status)}</span>
       </div>
       <div class="card-meta">
-        ${esc(TYPE_LABEL[p.project_type] || p.project_type)}
+        ${esc(p.category || UNCATEGORIZED)}
         ${total ? ` · ${done}/${total} steps` : ''}
         ${p.deadline ? ` · due ${esc(fmtDate(p.deadline))}` : ''}
         ${p.role !== 'owner' ? ` · ${esc(p.role)}` : ''}
@@ -398,8 +414,12 @@ function projectCard(p) {
 // ── New / edit project form ────────────────────────────────────────────────
 // opts: { prefillTitle, onCreate(project) } — onCreate runs after a successful
 // create, before navigating to the new project.
-function openProjectForm(existing, opts = {}) {
+async function openProjectForm(existing, opts = {}) {
   const p = existing || (opts.prefillTitle ? { title: opts.prefillTitle } : {});
+  await loadCategories();
+  const cats = state.categories.map((c) => c.name);
+  if (p.category && !cats.includes(p.category)) cats.unshift(p.category);
+
   const overlay = h(`
     <div class="modal-overlay open">
       <div class="modal">
@@ -408,13 +428,15 @@ function openProjectForm(existing, opts = {}) {
         <form id="bt-pform">
           <label class="sp-label">Title</label>
           <input class="sp-input" name="title" required value="${esc(p.title || '')}" />
-          <label class="sp-label">Type</label>
-          <select class="sp-select" name="project_type" required>
-            <option value="" ${!p.project_type ? 'selected' : ''} disabled>Choose…</option>
-            <option value="office" ${p.project_type === 'office' ? 'selected' : ''}>Office</option>
-            <option value="research" ${p.project_type === 'research' ? 'selected' : ''}>Research</option>
-            <option value="as" ${p.project_type === 'as' ? 'selected' : ''}>A&amp;S</option>
+          <label class="sp-label">Category</label>
+          <select class="sp-select" name="category">
+            <option value="" ${!p.category ? 'selected' : ''}>(none)</option>
+            ${cats
+              .map((c) => `<option ${p.category === c ? 'selected' : ''}>${esc(c)}</option>`)
+              .join('')}
+            <option value="__new">＋ New category…</option>
           </select>
+          <input class="sp-input" name="newcat" placeholder="New category name" hidden />
           <label class="sp-label">Status</label>
           <select class="sp-select" name="status">
             ${STATUSES.map(
@@ -442,18 +464,36 @@ function openProjectForm(existing, opts = {}) {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
   });
+  const catSel = overlay.querySelector('select[name=category]');
+  const newCat = overlay.querySelector('input[name=newcat]');
+  catSel.addEventListener('change', () => {
+    newCat.hidden = catSel.value !== '__new';
+    if (!newCat.hidden) newCat.focus();
+  });
+
   on(overlay, '#bt-pform', 'submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+
+    let category = f.get('category') || null;
+    if (category === '__new') {
+      const name = (f.get('newcat') || '').trim();
+      if (!name) return toast('Name the new category');
+      try {
+        category = (await guard(() => API.createCategory(name))).category.name;
+      } catch {
+        return;
+      }
+    }
+
     const body = {
       title: f.get('title').trim(),
-      project_type: f.get('project_type'),
+      category,
       status: f.get('status'),
       deadline: f.get('deadline') || null,
       description: f.get('description').trim() || null,
       pickup_note: f.get('pickup_note').trim() || null,
     };
-    if (!body.project_type) return toast('Pick a type');
     try {
       if (existing) {
         await guard(() => API.updateProject(existing.id, body));
@@ -517,7 +557,7 @@ function renderProject(app) {
         <h1 class="detail-title">${esc(p.title)}</h1>
         <div class="detail-meta">
           <span class="status-pill" style="--tab-color:${STATUS_COLOR[p.status]}">${esc(p.status)}</span>
-          <span>${esc(TYPE_LABEL[p.project_type] || p.project_type)}</span>
+          ${p.category ? `<span>${esc(p.category)}</span>` : ''}
           ${p.deadline ? `<span>due ${esc(fmtDate(p.deadline))}</span>` : ''}
           <span>${esc(p.role)}</span>
         </div>
@@ -625,7 +665,7 @@ function stepRow(b, s, canEdit, rerender) {
         s.completed ? '✓' : ''
       }</button>
       <div class="check-content">
-        <div class="check-title">${esc(s.title)} ${s.context ? `<span class="cat-badge">${esc(s.context)}</span>` : ''}</div>
+        <div class="check-title">${esc(s.title)}</div>
         ${
           s.due_date || s.notes
             ? `<div class="check-sub">${s.due_date ? 'due ' + esc(fmtDate(s.due_date)) : ''}${
@@ -657,11 +697,6 @@ function openStepForm(b, existing, done) {
         <form id="bt-sform">
           <label class="sp-label">Step</label>
           <input class="sp-input" name="title" required value="${esc(s.title || '')}" />
-          <label class="sp-label">Context</label>
-          <select class="sp-select" name="context">
-            <option value="">none</option>
-            ${CONTEXTS.map((c) => `<option ${s.context === c ? 'selected' : ''}>${c}</option>`).join('')}
-          </select>
           <label class="sp-label">Due date</label>
           <input class="sp-input" type="date" name="due_date" value="${esc(s.due_date || '')}" />
           <label class="sp-label">Notes</label>
@@ -688,7 +723,6 @@ function openStepForm(b, existing, done) {
     const f = new FormData(e.target);
     const body = {
       title: f.get('title').trim(),
-      context: f.get('context') || null,
       due_date: f.get('due_date') || null,
       notes: f.get('notes').trim() || null,
     };
@@ -940,11 +974,6 @@ async function openAssignStep(text, done) {
               .map((p) => `<option value="${p.id}">${esc(p.title)}</option>`)
               .join('')}
           </select>
-          <label class="sp-label">Context</label>
-          <select class="sp-select" name="context">
-            <option value="">none</option>
-            ${CONTEXTS.map((c) => `<option>${c}</option>`).join('')}
-          </select>
           <div style="display:flex;gap:8px;margin-top:14px">
             <button type="submit" class="btn-sm btn-sm-sage">Add step</button>
             <button type="button" class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
@@ -959,9 +988,7 @@ async function openAssignStep(text, done) {
   on(overlay, '#bt-assign', 'submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    await guard(() =>
-      API.addStep(f.get('project'), { title: text, context: f.get('context') || null })
-    );
+    await guard(() => API.addStep(f.get('project'), { title: text }));
     close();
     toast('Added to the project');
     await done();
@@ -997,7 +1024,7 @@ async function renderReview(main) {
         <div class="card" role="button" tabindex="0" style="cursor:pointer">
           <div class="card-top"><h3 class="card-title">${esc(p.title)}</h3>
             <span class="status-pill" style="--tab-color:${STATUS_COLOR[p.status]}">${esc(p.status)}</span></div>
-          <div class="card-meta">${esc(TYPE_LABEL[p.project_type] || p.project_type)}${
+          <div class="card-meta">${esc(p.category || UNCATEGORIZED)}${
             p.deadline ? ` · due ${esc(fmtDate(p.deadline))}` : ''
           }</div>
           ${
@@ -1006,8 +1033,8 @@ async function renderReview(main) {
                   .map(
                     (st) =>
                       `<div class="check-sub">• ${esc(st.title)}${
-                        st.context ? ` <span class="cat-badge">${esc(st.context)}</span>` : ''
-                      }${st.due_date ? ` — due ${esc(fmtDate(st.due_date))}` : ''}</div>`
+                        st.due_date ? ` — due ${esc(fmtDate(st.due_date))}` : ''
+                      }</div>`
                   )
                   .join('')}</div>`
               : '<div class="check-sub" style="margin-top:8px;color:var(--text-faint)">No open steps</div>'

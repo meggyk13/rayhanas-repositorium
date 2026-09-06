@@ -47,12 +47,17 @@ fully replaced.)
 - Not needed for cost: Cloudflare Workers + D1 free tier covers this site.
 
 **Add (GTD structure):**
-- `project_type`: Office / Research / A&S — filterable
+- Project **category** (revised 2026-09-06 — was a fixed Office/Research/A&S
+  `project_type`): a per-user managed pick list (`categories` table),
+  starter set A&S / Research / Office / Event prep / Household, add-your-own
+  inline, optional per project (`projects.category` denormalized name).
+  Filterable on the home screen.
 - Status set: Active, Waiting For, Someday, Paused, Done (add "Waiting For"
   to noodlr's existing set)
-- Step-level `context` tag: `@machine`, `@handsewing`, `@research`,
-  `@errand`, `@email` — filter "what can I do right now"
-- A capture/inbox: quick-add box for unsorted items, separate from projects
+- ~~Step-level `context` tag~~ — dropped 2026-09-06, didn't fit the work.
+- A capture/inbox: quick-add box for unsorted items, separate from
+  projects. Each item can be processed into a new project or dropped into
+  an existing project as a step.
 - A weekly-review view: filtered screen showing everything Active or
   Waiting For, grouped for a GTD-style review pass
 

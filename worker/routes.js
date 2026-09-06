@@ -17,6 +17,8 @@ import * as journal from './api/projects/id/journal.js';
 import * as collaborators from './api/projects/id/collaborators.js';
 import * as transfer from './api/projects/id/transfer.js';
 import * as review from './api/review.js';
+import * as categories from './api/categories/index.js';
+import * as category from './api/categories/categoryId.js';
 import * as inbox from './api/inbox/index.js';
 import * as inboxItem from './api/inbox/itemId.js';
 import * as usersSearch from './api/users/search.js';
@@ -45,6 +47,8 @@ export const routes = [
   ['/api/projects/:id/transfer', transfer],
 
   ['/api/review', review],
+  ['/api/categories', categories],
+  ['/api/categories/:categoryId', category],
   ['/api/inbox', inbox],
   ['/api/inbox/:itemId', inboxItem],
   ['/api/users/search', usersSearch],

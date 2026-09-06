@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../lib/http.js';
 import { uuid } from '../lib/id.js';
-import { PROJECT_TYPES, STATUSES, isNonEmptyString } from '../lib/validate.js';
+import { STATUSES, isNonEmptyString } from '../lib/validate.js';
 
 // GET /api/projects — every project the signed-in user collaborates on.
 export async function onRequestGet(context) {
@@ -30,25 +30,24 @@ export async function onRequestPost(context) {
   const body = await readJson(context.request);
   if (!body) return error(400, 'Body required');
 
-  if (!PROJECT_TYPES.includes(body.project_type)) {
-    return error(400, `project_type must be one of: ${PROJECT_TYPES.join(', ')}`);
-  }
   if (!isNonEmptyString(body.title)) return error(400, 'Title required');
 
   const status = body.status ?? 'Active';
   if (!STATUSES.includes(status)) {
     return error(400, `status must be one of: ${STATUSES.join(', ')}`);
   }
+  const category =
+    typeof body.category === 'string' && body.category.trim() ? body.category.trim() : null;
 
   const id = uuid();
   await context.env.DB.batch([
     context.env.DB.prepare(
-      `INSERT INTO projects (id, owner_id, project_type, title, description, status, deadline, pickup_note)
+      `INSERT INTO projects (id, owner_id, category, title, description, status, deadline, pickup_note)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       id,
       user.id,
-      body.project_type,
+      category,
       body.title.trim(),
       body.description ?? null,
       status,
@@ -64,5 +63,8 @@ export async function onRequestPost(context) {
     .bind(id)
     .first();
 
-  return json({ project: { ...project, role: 'owner', step_count: 0, step_done: 0 } }, { status: 201 });
+  return json(
+    { project: { ...project, role: 'owner', step_count: 0, step_done: 0 } },
+    { status: 201 }
+  );
 }

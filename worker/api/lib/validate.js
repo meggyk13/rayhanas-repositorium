@@ -1,6 +1,4 @@
-export const PROJECT_TYPES = ['office', 'research', 'as'];
 export const STATUSES = ['Active', 'Waiting For', 'Someday', 'Paused', 'Done'];
-export const STEP_CONTEXTS = ['@machine', '@handsewing', '@research', '@errand', '@email'];
 export const COLLAB_ROLES = ['editor', 'viewer']; // 'owner' is only reachable via transfer
 
 export const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
