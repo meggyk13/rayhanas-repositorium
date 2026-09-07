@@ -100,14 +100,18 @@ CREATE TABLE ownership_transfer_log (
 CREATE TABLE project_steps (
   id            TEXT PRIMARY KEY,        -- uuid
   project_id    TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  parent_step_id TEXT REFERENCES project_steps(id) ON DELETE CASCADE,  -- sub-step ("bash"); one level only
   title         TEXT NOT NULL,
   completed     INTEGER NOT NULL DEFAULT 0,
+  completed_at  TEXT,                    -- ISO datetime; set when completed flips to 1, cleared on 0
   due_date      TEXT,                    -- ISO date, nullable
   notes         TEXT,                    -- free-text working notes for this step
+  estimate_minutes INTEGER,             -- NULL = no estimate; else one of 5/15/30/60/120/240/480
   sort_order    INTEGER NOT NULL DEFAULT 0,
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_steps_project ON project_steps(project_id);
+CREATE INDEX idx_steps_parent ON project_steps(parent_step_id);
 
 CREATE TABLE project_supplies (
   id            TEXT PRIMARY KEY,        -- uuid

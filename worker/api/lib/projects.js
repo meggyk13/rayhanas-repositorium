@@ -29,3 +29,37 @@ export const touchStmt = (env, projectId) =>
   env.DB
     .prepare("UPDATE projects SET updated_at = datetime('now') WHERE id = ?")
     .bind(projectId);
+
+// A container step (one with sub-steps) has no checkbox of its own — its
+// completion follows its children. This statement recomputes that from the
+// children's *current* rows, so add it to the batch AFTER the child write that
+// triggered it. An emptied container reverts to a plain incomplete step.
+// completed_at is preserved while it stays done, set on the transition to done,
+// and cleared when it goes back to open.
+export const parentRollupStmt = (env, parentStepId) =>
+  env.DB
+    .prepare(
+      `UPDATE project_steps
+          SET completed = (
+                SELECT CASE
+                         WHEN COUNT(*) > 0
+                          AND SUM(CASE WHEN c.completed = 0 THEN 1 ELSE 0 END) = 0
+                         THEN 1 ELSE 0 END
+                  FROM project_steps c
+                 WHERE c.parent_step_id = project_steps.id
+              ),
+              completed_at = CASE
+                WHEN (
+                  SELECT CASE
+                           WHEN COUNT(*) > 0
+                            AND SUM(CASE WHEN c.completed = 0 THEN 1 ELSE 0 END) = 0
+                           THEN 1 ELSE 0 END
+                    FROM project_steps c
+                   WHERE c.parent_step_id = project_steps.id
+                ) = 1
+                THEN COALESCE(completed_at, datetime('now'))
+                ELSE NULL
+              END
+        WHERE id = ?`
+    )
+    .bind(parentStepId);

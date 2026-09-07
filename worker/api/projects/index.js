@@ -7,10 +7,18 @@ export async function onRequestGet(context) {
   const user = context.data.user;
   if (!user) return error(401, 'Not signed in');
 
+  // Counts and the time-left sum are leaf-only: a step that has sub-steps is a
+  // container whose state is derived, so it must not be tallied itself.
+  const NOT_CONTAINER =
+    's.id NOT IN (SELECT parent_step_id FROM project_steps WHERE parent_step_id IS NOT NULL)';
   const { results } = await context.env.DB.prepare(
     `SELECT p.*, pc.role,
-            (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id) AS step_count,
-            (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id AND s.completed = 1) AS step_done
+            (SELECT COUNT(*) FROM project_steps s
+              WHERE s.project_id = p.id AND ${NOT_CONTAINER}) AS step_count,
+            (SELECT COUNT(*) FROM project_steps s
+              WHERE s.project_id = p.id AND s.completed = 1 AND ${NOT_CONTAINER}) AS step_done,
+            (SELECT COALESCE(SUM(s.estimate_minutes), 0) FROM project_steps s
+              WHERE s.project_id = p.id AND s.completed = 0 AND ${NOT_CONTAINER}) AS open_estimate_minutes
        FROM projects p
        JOIN project_collaborators pc ON pc.project_id = p.id AND pc.user_id = ?
       ORDER BY p.updated_at DESC`
@@ -64,7 +72,15 @@ export async function onRequestPost(context) {
     .first();
 
   return json(
-    { project: { ...project, role: 'owner', step_count: 0, step_done: 0 } },
+    {
+      project: {
+        ...project,
+        role: 'owner',
+        step_count: 0,
+        step_done: 0,
+        open_estimate_minutes: 0,
+      },
+    },
     { status: 201 }
   );
 }

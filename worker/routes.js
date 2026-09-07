@@ -11,6 +11,7 @@ import * as projects from './api/projects/index.js';
 import * as project from './api/projects/id.js';
 import * as steps from './api/projects/id/steps.js';
 import * as step from './api/projects/id/steps/stepId.js';
+import * as stepBash from './api/projects/id/steps/stepId/bash.js';
 import * as supplies from './api/projects/id/supplies.js';
 import * as supply from './api/projects/id/supplies/supplyId.js';
 import * as journal from './api/projects/id/journal.js';
@@ -41,6 +42,7 @@ export const routes = [
   ['/api/projects/:id', project],
   ['/api/projects/:id/steps', steps],
   ['/api/projects/:id/steps/:stepId', step],
+  ['/api/projects/:id/steps/:stepId/bash', stepBash],
   ['/api/projects/:id/supplies', supplies],
   ['/api/projects/:id/supplies/:supplyId', supply],
   ['/api/projects/:id/journal', journal],
