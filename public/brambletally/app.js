@@ -162,13 +162,14 @@ function applyTheme() {
 // ── State ──────────────────────────────────────────────────────────────────
 const state = {
   user: null,
-  view: 'home', // home | project | inbox | review
+  view: 'home', // home | next | project | inbox | review
   projects: [],
   categories: [], // [{id, name, sort_order}]
   filterStatus: 'Active',
   filterCategory: 'all', // 'all' | 'none' | a category name
   project: null, // full bundle when view === 'project'
   detailTab: 'steps',
+  doneThisSession: 0,
 };
 
 async function loadCategories() {
@@ -265,6 +266,7 @@ async function onRequestLink(e) {
 function header() {
   const nav = [
     ['home', 'Projects'],
+    ['next', 'Next'],
     ['inbox', 'Inbox'],
     ['review', 'Review'],
   ];
@@ -314,6 +316,7 @@ function renderApp() {
   const main = h('<div class="project-list"></div>');
   app.appendChild(main);
   if (state.view === 'home') renderHome(main);
+  else if (state.view === 'next') renderNext(main);
   else if (state.view === 'inbox') renderInbox(main);
   else if (state.view === 'review') renderReview(main);
 }
@@ -1309,6 +1312,185 @@ async function openAssignStep(text, done) {
     await done();
   });
   document.body.appendChild(overlay);
+}
+
+// ── Next actions ──────────────────────────────────────────────────────────
+const NEXT_LINES = [
+  'One thing at a time.',
+  'Pick the smallest one. Start there.',
+  'Momentum beats motivation.',
+  'What’s the next physical action?',
+  'Future you says thanks.',
+  'Two minutes? Do it now.',
+  'Start ugly. Fix it later.',
+  'Progress, not perfection.',
+];
+const NICE_WORDS = ['nice', 'yes', 'done', 'boom', 'one down', 'keep going'];
+
+async function renderNext(main) {
+  main.replaceChildren(h('<div class="empty">Loading…</div>'));
+  let data;
+  try {
+    data = await guard(() => API.review());
+  } catch {
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const wkEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const buckets = { overdue: [], today: [], week: [], later: [], none: [] };
+  (data.active || []).forEach((pr) => {
+    (pr.open_steps || []).forEach((st) => {
+      const s = { ...st, projectTitle: pr.title };
+      if (!s.due_date) buckets.none.push(s);
+      else if (s.due_date < today) buckets.overdue.push(s);
+      else if (s.due_date === today) buckets.today.push(s);
+      else if (s.due_date <= wkEnd) buckets.week.push(s);
+      else buckets.later.push(s);
+    });
+  });
+  Object.values(buckets).forEach((a) =>
+    a.sort((x, y) => ((x.due_date || '9') < (y.due_date || '9') ? -1 : 1))
+  );
+  const remaining = () => Object.values(buckets).reduce((n, a) => n + a.length, 0);
+
+  const wrap = h('<div class="next-wrap"></div>');
+  const line = NEXT_LINES[Math.floor(Math.random() * NEXT_LINES.length)];
+  const head = h(`
+    <div class="next-head">
+      <div class="next-line">${esc(line)}</div>
+      <div class="next-count" id="bt-next-count"></div>
+    </div>
+  `);
+  wrap.appendChild(head);
+
+  const updateCount = () => {
+    const dueN = buckets.overdue.length + buckets.today.length;
+    const parts = [`${remaining()} open`];
+    if (dueN) parts.push(`${dueN} due now`);
+    if (state.doneThisSession) parts.push(`${state.doneThisSession} knocked out`);
+    head.querySelector('#bt-next-count').textContent = parts.join(' · ');
+  };
+
+  const showEmpty = () => {
+    wrap.querySelectorAll('.next-group, .next-surprise, .empty').forEach((n) => n.remove());
+    wrap.appendChild(
+      h(`<div class="empty">${
+        state.doneThisSession
+          ? esc(
+              `${state.doneThisSession} done. The list is clear — go make something.`
+            )
+          : 'No open steps in any active project. Add some, or go make something.'
+      }</div>`)
+    );
+    updateCount();
+  };
+
+  if (!remaining()) {
+    main.replaceChildren(wrap);
+    showEmpty();
+    return;
+  }
+
+  const surprise = h('<button class="next-surprise">Can’t choose? Surprise me →</button>');
+  surprise.addEventListener('click', () => {
+    const all = Object.values(buckets).flat();
+    const pick = all[Math.floor(Math.random() * all.length)];
+    if (!pick) return;
+    const grp = wrap.querySelector(`.next-group[data-key="${bucketOf(pick)}"]`);
+    if (grp) grp.classList.remove('collapsed');
+    const el = wrap.querySelector(`.next-row[data-step="${pick.id}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1400);
+    }
+  });
+  wrap.appendChild(surprise);
+
+  function bucketOf(s) {
+    if (!s.due_date) return 'none';
+    if (s.due_date < today) return 'overdue';
+    if (s.due_date === today) return 'today';
+    if (s.due_date <= wkEnd) return 'week';
+    return 'later';
+  }
+
+  [
+    ['overdue', 'Overdue', false],
+    ['today', 'Today', false],
+    ['week', 'This week', false],
+    ['later', 'Later', true],
+    ['none', 'No date', true],
+  ].forEach(([key, label, collapsed]) => {
+    const arr = buckets[key];
+    if (!arr.length) return;
+    const grp = h(`<div class="next-group${collapsed ? ' collapsed' : ''}" data-key="${key}"></div>`);
+    const hd = h(`<button class="next-group-head">${label} <span>${arr.length}</span></button>`);
+    hd.addEventListener('click', () => grp.classList.toggle('collapsed'));
+    const gbody = h('<div class="next-group-body"></div>');
+    arr.forEach((s) => gbody.appendChild(nextRow(s, key)));
+    grp.append(hd, gbody);
+    wrap.appendChild(grp);
+  });
+
+  main.replaceChildren(wrap);
+  updateCount();
+
+  function nextRow(s, key) {
+    const sub =
+      key === 'overdue' && s.due_date
+        ? 'was due ' + fmtDate(s.due_date)
+        : key === 'week' && s.due_date
+          ? fmtDate(s.due_date)
+          : key === 'later' && s.due_date
+            ? fmtDate(s.due_date)
+            : '';
+    const row = h(`
+      <div class="next-row" data-step="${s.id}">
+        <button class="checkbox" aria-label="Mark done"></button>
+        <div class="next-row-main">
+          <div class="next-row-title">${esc(s.title)}</div>
+          <div class="next-row-sub">${esc(s.projectTitle)}${sub ? ' · ' + esc(sub) : ''}</div>
+        </div>
+      </div>
+    `);
+    row.querySelector('.next-row-main').addEventListener('click', () => openProject(s.project_id));
+    row.querySelector('.checkbox').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      row.classList.add('done');
+      try {
+        await API.updateStep(s.project_id, s.id, { completed: true });
+      } catch {
+        row.classList.remove('done');
+        toast('Could not update');
+        return;
+      }
+      state.doneThisSession++;
+      const arr = buckets[key];
+      const i = arr.findIndex((x) => x.id === s.id);
+      if (i > -1) arr.splice(i, 1);
+      flashNice();
+      updateCount();
+      setTimeout(() => {
+        row.remove();
+        const grp = wrap.querySelector(`.next-group[data-key="${key}"]`);
+        if (grp && !grp.querySelector('.next-row')) grp.remove();
+        if (!remaining()) showEmpty();
+      }, 320);
+    });
+    return row;
+  }
+}
+
+function flashNice() {
+  const el = h(`<div class="next-nice">${NICE_WORDS[Math.floor(Math.random() * NICE_WORDS.length)]}</div>`);
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, 850);
 }
 
 // ── Weekly review ──────────────────────────────────────────────────────────

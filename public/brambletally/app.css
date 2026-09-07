@@ -992,3 +992,43 @@ textarea{resize:vertical;min-height:60px}
 .modal-overlay .person-add { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px; }
 .modal-overlay .person-add .sp-input,
 .modal-overlay .person-add .sp-label { margin-left: 0; margin-right: 0; width: 100%; padding-left: 0; }
+
+/* ── Next actions ────────────────────────────────────────────────────────── */
+#bt-app .next-head { margin-bottom: 16px; }
+#bt-app .next-line { font-size: 19px; font-weight: 800; color: var(--text); line-height: 1.3; }
+#bt-app .next-count { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+#bt-app .next-surprise {
+  background: var(--amethyst)1a; color: var(--amethyst); border: none; border-radius: 10px;
+  padding: 11px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  width: 100%; margin-bottom: 18px;
+}
+#bt-app .next-surprise:hover { background: var(--amethyst)2a; }
+#bt-app .next-group { margin-bottom: 16px; }
+#bt-app .next-group-head {
+  background: none; border: none; cursor: pointer; font: inherit;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-faint); padding: 4px 0; display: flex; gap: 6px; align-items: center;
+}
+#bt-app .next-group-head::before { content: '▾'; font-size: 9px; }
+#bt-app .next-group.collapsed .next-group-head::before { content: '▸'; }
+#bt-app .next-group-head span { background: var(--elevated); border-radius: 99px; padding: 1px 7px; font-size: 10px; letter-spacing: 0; }
+#bt-app .next-group.collapsed .next-group-body { display: none; }
+#bt-app .next-row {
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 4px;
+  border-bottom: 1px solid var(--border);
+  max-height: 90px; overflow: hidden;
+  transition: opacity .3s ease, max-height .3s ease, padding .3s ease, background .2s;
+}
+#bt-app .next-row.done { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
+#bt-app .next-row.flash { background: var(--amethyst)14; border-radius: 8px; }
+#bt-app .next-row-main { flex: 1; cursor: pointer; min-width: 0; }
+#bt-app .next-row-title { font-size: 15px; color: var(--text); line-height: 1.35; }
+#bt-app .next-row-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+#bt-app .next-group[data-key="overdue"] .next-row-sub { color: #ef4444; }
+.next-nice {
+  position: fixed; left: 50%; top: 38%; transform: translate(-50%, 0) scale(.7);
+  font-size: 30px; font-weight: 800; color: var(--sage);
+  opacity: 0; pointer-events: none; z-index: 9999;
+  transition: opacity .2s ease, transform .25s ease;
+}
+.next-nice.show { opacity: 1; transform: translate(-50%, -22px) scale(1); }
