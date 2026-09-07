@@ -1251,6 +1251,82 @@ textarea{resize:vertical;min-height:60px}
   #bt-app .btn-icon { width: 34px; height: 34px; }
 }
 
+/* ── Sub-steps ("bash") ─────────────────────────────────────────────────── */
+#bt-app .step-block { border-bottom: 1px solid var(--border); }
+#bt-app .step-block:last-of-type { border-bottom: none; }
+#bt-app .step-block .check-row { border-bottom: none; }
+#bt-app .substeps {
+  margin-left: 36px; padding-left: 12px; margin-bottom: 4px;
+  border-left: 2px solid var(--border);
+}
+#bt-app .substeps .check-row { padding: 9px 0; }
+#bt-app .substeps .check-title { font-size: 15px; }
+#bt-app .check-row.is-container > .checkbox {
+  border-style: dashed; opacity: .55; cursor: default; background: transparent;
+}
+#bt-app .check-row.is-container.checked > .checkbox {
+  background: var(--sage); border-style: solid; opacity: 1;
+}
+#bt-app .step-bash {
+  background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1;
+  padding: 2px 4px; margin-left: 4px; align-self: center; flex-shrink: 0; opacity: .4;
+}
+#bt-app .step-bash:hover { opacity: 1; }
+
+/* Sub-step breadcrumb in the cross-project lists (search / Next / Review / Due) */
+#bt-app .bt-crumb { color: var(--text-faint); font-weight: 400; }
+
+/* Inline quick-add at the foot of the step list */
+#bt-app .bt-quickadd { margin: 8px 0 4px; }
+#bt-app .bt-quickadd-input {
+  width: 100%; padding: 10px 12px; border-radius: 8px; box-sizing: border-box;
+  border: 1px dashed var(--border-strong); background: transparent; color: var(--text);
+  font: inherit; font-size: 15px; resize: none; line-height: 1.4;
+}
+#bt-app .bt-quickadd-input:focus { border-style: solid; outline: none; }
+
+/* Step form — due-date chips + time-needed slider */
+.modal-overlay .bt-date-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 20px 4px; }
+.modal-overlay .bt-chip {
+  background: var(--elevated); color: var(--text-sub); border: 1px solid transparent;
+  border-radius: 99px; padding: 5px 11px; font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+}
+.modal-overlay .bt-chip:hover { border-color: var(--border-strong); }
+.modal-overlay .bt-chip-clear { color: var(--text-faint); }
+.modal-overlay .bt-est { display: flex; align-items: center; gap: 12px; margin: 2px 20px 4px; }
+.modal-overlay .bt-est-slider { flex: 1; accent-color: var(--sage); }
+.modal-overlay .bt-est-label {
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  min-width: 96px; text-align: right;
+}
+.modal-overlay .bt-bash-parent {
+  margin: 0 20px 4px; font-size: 15px; font-weight: 700; color: var(--text);
+}
+
+/* Home: Projects / Quick tasks toggle + the quick list */
+#bt-app .bt-home-modes { display: flex; gap: 6px; margin-bottom: 12px; }
+#bt-app .bt-home-mode {
+  background: var(--elevated); border: 1px solid transparent; border-radius: 7px;
+  padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700;
+  color: var(--text-faint); cursor: pointer;
+}
+#bt-app .bt-home-mode.active {
+  color: var(--sage); border-color: var(--sage)4d; background: var(--sage)18;
+}
+#bt-app .bt-quick-caps { display: flex; gap: 6px; margin-bottom: 12px; }
+#bt-app .bt-quick-cap {
+  background: none; border: 1px solid var(--border-strong); border-radius: 99px;
+  padding: 4px 12px; font: inherit; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer;
+}
+#bt-app .bt-quick-cap.active {
+  background: var(--amethyst); color: #fff; border-color: var(--amethyst);
+}
+#bt-app .bt-review-stat {
+  color: var(--sage); font-size: 13px; font-weight: 600; margin: -8px 0 16px;
+}
+
 /* In-app confirm / prompt */
 .modal-overlay.bt-ask { align-items: center; justify-content: center; padding: 24px; }
 .modal-overlay.bt-ask .modal {

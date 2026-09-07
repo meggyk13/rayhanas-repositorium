@@ -11,10 +11,16 @@ export async function onRequestGet(context) {
   const db = context.env.DB;
 
   // ?1 = user id, ?2 = LIKE pattern
+  // Leaf-only, matching the home list: a step with sub-steps is a derived
+  // container and isn't counted itself.
+  const notContainer =
+    's.id NOT IN (SELECT parent_step_id FROM project_steps WHERE parent_step_id IS NOT NULL)';
   const projects = (await db.prepare(
     `SELECT p.id, p.title, p.category, p.status, p.deadline, pc.role,
-            (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id) AS step_count,
-            (SELECT COUNT(*) FROM project_steps s WHERE s.project_id = p.id AND s.completed = 1) AS step_done
+            (SELECT COUNT(*) FROM project_steps s
+              WHERE s.project_id = p.id AND ${notContainer}) AS step_count,
+            (SELECT COUNT(*) FROM project_steps s
+              WHERE s.project_id = p.id AND s.completed = 1 AND ${notContainer}) AS step_done
        FROM projects p
        JOIN project_collaborators pc ON pc.project_id = p.id AND pc.user_id = ?1
       WHERE lower(p.title) LIKE ?2
@@ -28,9 +34,11 @@ export async function onRequestGet(context) {
     .all()).results;
 
   const steps = (await db.prepare(
-    `SELECT s.id, s.title, s.completed, s.due_date, s.project_id, p.title AS project_title
+    `SELECT s.id, s.title, s.completed, s.due_date, s.project_id, s.parent_step_id,
+            s.estimate_minutes, p.title AS project_title, parent.title AS parent_title
        FROM project_steps s
        JOIN projects p ON p.id = s.project_id
+       LEFT JOIN project_steps parent ON parent.id = s.parent_step_id
        JOIN project_collaborators pc ON pc.project_id = p.id AND pc.user_id = ?1
       WHERE lower(s.title) LIKE ?2 OR lower(COALESCE(s.notes, '')) LIKE ?2
       ORDER BY s.completed, s.created_at DESC

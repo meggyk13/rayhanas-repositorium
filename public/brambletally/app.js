@@ -19,6 +19,59 @@ const STATUS_COLOR = {
 const CAT_COLOR = '#3a5fb0'; // cobalt for category chips
 const UNCATEGORIZED = 'Uncategorized';
 
+// Stepped "time needed" slider. Index 0 = no estimate; 1..7 map to these
+// minute values. Must match STEP_ESTIMATES in worker/api/lib/validate.js.
+const STEP_ESTIMATES = [5, 15, 30, 60, 120, 240, 480];
+const STEP_ESTIMATE_LABELS = [
+  'No estimate', '5 min', '15 min', '30 min', '1 hour', '2 hours', '4 hours', 'A day or more',
+];
+
+function fmtDuration(mins) {
+  if (!mins || mins <= 0) return '';
+  if (mins === 480) return 'day+';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (!h) return `${m}m`;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+// Sub-step title with its parent prepended: "sew a caftan › cut out pieces".
+// Returns the escaped title alone when there's no parent. `parentTitle` may be
+// a string or undefined.
+function crumb(title, parentTitle) {
+  return parentTitle
+    ? `<span class="bt-crumb">${esc(parentTitle)} ›</span> ${esc(title)}`
+    : esc(title);
+}
+
+// Split a project's flat step list into top-level steps and their sub-steps.
+// A step with sub-steps is a "container": its checkbox is derived server-side.
+function stepTree(steps) {
+  const byParent = new Map();
+  const top = [];
+  for (const s of steps) {
+    if (s.parent_step_id) {
+      if (!byParent.has(s.parent_step_id)) byParent.set(s.parent_step_id, []);
+      byParent.get(s.parent_step_id).push(s);
+    } else {
+      top.push(s);
+    }
+  }
+  const cmp = (a, b) =>
+    (a.sort_order - b.sort_order) || (String(a.created_at) < String(b.created_at) ? -1 : 1);
+  top.sort(cmp);
+  for (const arr of byParent.values()) arr.sort(cmp);
+  return { top, kidsOf: (id) => byParent.get(id) || [] };
+}
+
+// Drop container rows from a flat "open steps" list (used by the cross-project
+// views, which only get incomplete rows). A row is a container if some other
+// row in the same list names it as parent.
+function withoutContainers(steps) {
+  const parentIds = new Set(steps.filter((s) => s.parent_step_id).map((s) => s.parent_step_id));
+  return steps.filter((s) => !parentIds.has(s.id));
+}
+
 // ── API ────────────────────────────────────────────────────────────────────
 async function api(path, { method = 'GET', body } = {}) {
   const res = await fetch(path, {
@@ -57,6 +110,8 @@ const API = {
   updateStep: (pid, sid, b) =>
     api(`/api/projects/${pid}/steps/${sid}`, { method: 'PATCH', body: b }),
   deleteStep: (pid, sid) => api(`/api/projects/${pid}/steps/${sid}`, { method: 'DELETE' }),
+  bashStep: (pid, sid, titles) =>
+    api(`/api/projects/${pid}/steps/${sid}/bash`, { method: 'POST', body: { titles } }),
 
   addSupply: (pid, b) => api(`/api/projects/${pid}/supplies`, { method: 'POST', body: b }),
   updateSupply: (pid, sid, b) =>
@@ -253,6 +308,8 @@ const state = {
   categories: [], // [{id, name, sort_order}]
   filterStatus: 'Active',
   filterCategory: 'all', // 'all' | 'none' | a category name
+  homeMode: 'projects', // 'projects' | 'quick'
+  quickCap: 30, // minutes ceiling for the Quick tasks list; Infinity = all
   project: null, // full bundle when view === 'project'
   detailTab: 'steps',
   doneThisSession: 0,
@@ -448,9 +505,16 @@ async function renderHome(main) {
   const today = new Date().toISOString().slice(0, 10);
   const dueItems = [];
   [...(review.active || []), ...(review.waiting || [])].forEach((pr) => {
-    (pr.open_steps || []).forEach((st) => {
+    const titleById = new Map((pr.open_steps || []).map((st) => [st.id, st.title]));
+    withoutContainers(pr.open_steps || []).forEach((st) => {
       if (st.due_date && st.due_date <= today) {
-        dueItems.push({ ...st, projectId: pr.id, projectTitle: pr.title, overdue: st.due_date < today });
+        dueItems.push({
+          ...st,
+          projectId: pr.id,
+          projectTitle: pr.title,
+          parentTitle: st.parent_step_id ? titleById.get(st.parent_step_id) : undefined,
+          overdue: st.due_date < today,
+        });
       }
     });
   });
@@ -460,7 +524,7 @@ async function renderHome(main) {
     dueItems.slice(0, 6).forEach((it) => {
       const row = h(`
         <button class="due-band-row">
-          <span class="due-band-title">${esc(it.title)}</span>
+          <span class="due-band-title">${crumb(it.title, it.parentTitle)}</span>
           <span class="due-band-sub">${esc(it.projectTitle)} · <span class="${
             it.overdue ? 'due-over' : 'due-today'
           }">${it.overdue ? 'overdue' : 'today'}</span></span>
@@ -470,6 +534,24 @@ async function renderHome(main) {
       band.appendChild(row);
     });
     wrap.appendChild(band);
+  }
+
+  const modes = h(`
+    <div class="bt-home-modes">
+      <button class="bt-home-mode${state.homeMode !== 'quick' ? ' active' : ''}" data-mode="projects">Projects</button>
+      <button class="bt-home-mode${state.homeMode === 'quick' ? ' active' : ''}" data-mode="quick">Quick tasks</button>
+    </div>
+  `);
+  on(modes, '.bt-home-mode', 'click', (e) => {
+    state.homeMode = e.currentTarget.dataset.mode;
+    renderApp();
+  });
+  wrap.appendChild(modes);
+
+  if (state.homeMode === 'quick') {
+    renderQuickTasks(wrap, review);
+    main.replaceChildren(wrap);
+    return;
   }
 
   const statusTabs = h(`<div class="tabs" style="margin-bottom:8px"></div>`);
@@ -540,9 +622,90 @@ async function renderHome(main) {
   main.replaceChildren(wrap);
 }
 
+// "I've got 15 minutes" — open leaf steps that carry a time estimate, across
+// Active + Waiting For, shortest first. Steps with no estimate don't appear.
+function renderQuickTasks(wrap, review) {
+  const caps = [
+    [15, '≤ 15m'],
+    [30, '≤ 30m'],
+    [60, '≤ 1h'],
+    [Infinity, 'All'],
+  ];
+  const capRow = h('<div class="bt-quick-caps"></div>');
+  caps.forEach(([v, label]) => {
+    const b = h(
+      `<button class="bt-quick-cap${state.quickCap === v ? ' active' : ''}">${label}</button>`
+    );
+    b.addEventListener('click', () => {
+      state.quickCap = v;
+      renderApp();
+    });
+    capRow.appendChild(b);
+  });
+  wrap.appendChild(capRow);
+
+  const rows = [];
+  [...(review.active || []), ...(review.waiting || [])].forEach((pr) => {
+    withoutContainers(pr.open_steps || []).forEach((st) => {
+      if (!st.estimate_minutes) return;
+      if (st.estimate_minutes > state.quickCap) return;
+      rows.push({ ...st, projectId: pr.id, projectTitle: pr.title });
+    });
+  });
+  rows.sort(
+    (a, b) =>
+      a.estimate_minutes - b.estimate_minutes ||
+      ((a.due_date || '9') < (b.due_date || '9') ? -1 : 1)
+  );
+
+  if (!rows.length) {
+    wrap.appendChild(
+      h(
+        `<div class="empty">No estimated steps${
+          state.quickCap === Infinity ? '' : ' under that length'
+        }. Add a "time needed" to a step and it shows up here.</div>`
+      )
+    );
+    return;
+  }
+
+  const list = h('<div class="next-wrap"></div>');
+  rows.forEach((r) => {
+    const row = h(`
+      <div class="next-row" data-step="${r.id}">
+        <button class="checkbox" aria-label="Mark done"></button>
+        <div class="next-row-main">
+          <div class="next-row-title">${esc(r.title)}</div>
+          <div class="next-row-sub">${esc(r.projectTitle)} · ~${esc(fmtDuration(r.estimate_minutes))}</div>
+        </div>
+      </div>
+    `);
+    row.querySelector('.next-row-main').addEventListener('click', () => openProject(r.projectId));
+    row.querySelector('.checkbox').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      row.classList.add('done');
+      try {
+        await API.updateStep(r.projectId, r.id, { completed: true });
+      } catch {
+        row.classList.remove('done');
+        toast('Could not update');
+        return;
+      }
+      state.doneThisSession++;
+      setTimeout(() => {
+        row.remove();
+        if (!list.querySelector('.next-row')) renderApp();
+      }, 320);
+    });
+    list.appendChild(row);
+  });
+  wrap.appendChild(list);
+}
+
 function projectCard(p) {
   const total = p.step_count || 0;
   const done = p.step_done || 0;
+  const estLeft = p.open_estimate_minutes || 0;
   const pct = total ? Math.round((done / total) * 100) : 0;
   const card = h(`
     <div class="card" role="button" tabindex="0">
@@ -553,6 +716,7 @@ function projectCard(p) {
       <div class="card-meta">
         ${esc(p.category || UNCATEGORIZED)}
         ${total ? ` · ${done}/${total} steps` : ''}
+        ${estLeft ? ` · ~${esc(fmtDuration(estLeft))} left` : ''}
         ${p.deadline ? ` · due ${esc(fmtDate(p.deadline))}` : ''}
         ${p.role !== 'owner' ? ` · ${esc(p.role)}` : ''}
       </div>
@@ -995,8 +1159,10 @@ function renderProject(app) {
   }
   const p = b.project;
   const canEdit = p.role === 'owner' || p.role === 'editor';
-  const done = b.steps.filter((s) => s.completed).length;
-  const pct = b.steps.length ? Math.round((done / b.steps.length) * 100) : 0;
+  // Progress counts leaf steps only — a container's state is derived from them.
+  const leaves = b.steps.filter((s) => !b.steps.some((o) => o.parent_step_id === s.id));
+  const done = leaves.filter((s) => s.completed).length;
+  const pct = leaves.length ? Math.round((done / leaves.length) * 100) : 0;
 
   const view = h(`
     <div>
@@ -1018,7 +1184,7 @@ function renderProject(app) {
         ${p.description ? `<p style="color:var(--text-muted);font-size:15px;line-height:1.55;margin-bottom:14px">${esc(p.description)}</p>` : ''}
         <div class="pickup-box" id="bt-pickup-box"></div>
         ${
-          b.steps.length
+          leaves.length
             ? `<div class="progress-bar-wrap" style="margin:14px 0"><div class="progress-bar-fill" style="width:${pct}%;background:${STATUS_COLOR[p.status]}"></div></div>`
             : ''
         }
@@ -1143,8 +1309,9 @@ function sectionHeader(label, count, onAdd) {
 function stepsPanel(b, canEdit) {
   const wrap = h('<div class="detail-panel"></div>');
   const rerender = refreshDetail;
-  const open = b.steps.filter((s) => !s.completed);
-  const done = b.steps.filter((s) => s.completed);
+  const tree = stepTree(b.steps);
+  const open = tree.top.filter((s) => !s.completed);
+  const done = tree.top.filter((s) => s.completed);
 
   wrap.appendChild(
     sectionHeader('Steps', open.length, canEdit ? () => openStepForm(b, null, rerender) : null)
@@ -1156,13 +1323,15 @@ function stepsPanel(b, canEdit) {
       h(`<div class="empty-section">${canEdit ? 'No steps yet — add the first one.' : 'No steps yet.'}</div>`)
     );
   }
-  open.forEach((s) => listEl.appendChild(stepRow(b, s, canEdit, rerender)));
+  open.forEach((s) => listEl.appendChild(stepBlock(b, s, tree, canEdit, rerender)));
   wrap.appendChild(listEl);
+
+  if (canEdit) wrap.appendChild(quickAddRow(b, rerender));
 
   if (done.length) {
     const toggle = h(`<button class="done-toggle">Completed (${done.length})</button>`);
     const doneList = h('<div hidden></div>');
-    done.forEach((s) => doneList.appendChild(stepRow(b, s, canEdit, rerender)));
+    done.forEach((s) => doneList.appendChild(stepBlock(b, s, tree, canEdit, rerender)));
     toggle.addEventListener('click', () => {
       doneList.hidden = !doneList.hidden;
       toggle.classList.toggle('open', !doneList.hidden);
@@ -1173,36 +1342,124 @@ function stepsPanel(b, canEdit) {
   return wrap;
 }
 
-function stepRow(b, s, canEdit, rerender) {
+// A top-level step plus, if it's a container, its sub-steps indented beneath.
+function stepBlock(b, s, tree, canEdit, rerender) {
+  const kids = tree.kidsOf(s.id);
+  const block = h('<div class="step-block"></div>');
+  block.appendChild(stepRow(b, s, canEdit, rerender, { kids }));
+  if (kids.length) {
+    const sub = h('<div class="substeps"></div>');
+    kids.forEach((k) => sub.appendChild(stepRow(b, k, canEdit, rerender, { isChild: true })));
+    block.appendChild(sub);
+  }
+  return block;
+}
+
+function stepRow(b, s, canEdit, rerender, opts = {}) {
+  const { kids = [], isChild = false } = opts;
+  const isContainer = kids.length > 0;
+  const shownEst = isContainer
+    ? kids.reduce((n, k) => n + (k.estimate_minutes || 0), 0)
+    : s.estimate_minutes || 0;
+
+  const bits = [];
+  if (s.due_date) bits.push('due ' + esc(fmtDate(s.due_date)));
+  if (isContainer) bits.push(`${kids.filter((k) => k.completed).length}/${kids.length} done`);
+  if (shownEst) bits.push((isContainer ? '≈ ' : '~') + esc(fmtDuration(shownEst)));
+  if (!isContainer && s.notes) bits.push(esc(s.notes));
+
+  const boxDisabled = !canEdit || isContainer;
+  const showBash = canEdit && !isChild;
   const row = h(`
-    <div class="check-row${s.completed ? ' checked' : ''}">
-      <button class="checkbox" ${s.completed ? 'aria-checked="true"' : ''} ${canEdit ? '' : 'disabled'}>${
-        s.completed ? '✓' : ''
-      }</button>
+    <div class="check-row${s.completed ? ' checked' : ''}${isChild ? ' is-child' : ''}${
+      isContainer ? ' is-container' : ''
+    }">
+      <button class="checkbox" ${s.completed ? 'aria-checked="true"' : ''} ${
+        boxDisabled ? 'disabled' : ''
+      }>${s.completed ? '✓' : ''}</button>
       <div class="check-content${canEdit ? ' tappable' : ''}">
         <div class="check-title">${esc(s.title)}</div>
-        ${
-          s.due_date || s.notes
-            ? `<div class="check-sub">${s.due_date ? 'due ' + esc(fmtDate(s.due_date)) : ''}${
-                s.due_date && s.notes ? ' · ' : ''
-              }${s.notes ? esc(s.notes) : ''}</div>`
-            : ''
-        }
+        ${bits.length ? `<div class="check-sub">${bits.join(' · ')}</div>` : ''}
       </div>
+      ${
+        showBash
+          ? `<button class="step-bash" title="${
+              isContainer ? 'Add sub-steps' : 'Break into steps'
+            }" aria-label="Break into steps">🔨</button>`
+          : ''
+      }
     </div>
   `);
   if (canEdit) {
-    on(row, '.checkbox', 'click', async () => {
-      await guard(() => API.updateStep(b.project.id, s.id, { completed: !s.completed }));
-      rerender();
-    });
-    on(row, '.check-content', 'click', () => openStepForm(b, s, rerender));
+    if (!isContainer) {
+      on(row, '.checkbox', 'click', async (e) => {
+        e.stopPropagation();
+        await guard(() => API.updateStep(b.project.id, s.id, { completed: !s.completed }));
+        rerender();
+      });
+    }
+    on(row, '.check-content', 'click', () => openStepForm(b, s, rerender, { isContainer }));
+    if (showBash) {
+      on(row, '.step-bash', 'click', (e) => {
+        e.stopPropagation();
+        openBashForm(b, s, rerender, { existing: isContainer });
+      });
+    }
   }
   return row;
 }
 
-function openStepForm(b, existing, done) {
+// Persistent inline add at the foot of the step list. Enter adds a step and
+// keeps focus; a pasted multi-line value adds one step per line.
+function quickAddRow(b, done) {
+  const form = h(`
+    <form class="bt-quickadd">
+      <textarea class="bt-quickadd-input" rows="1" placeholder="+ add a step" aria-label="Add a step"></textarea>
+    </form>
+  `);
+  const input = form.querySelector('textarea');
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const lines = input.value.split('\n').map((t) => t.trim()).filter(Boolean);
+    if (!lines.length) return;
+    input.disabled = true;
+    try {
+      for (const line of lines) await guard(() => API.addStep(b.project.id, { title: line }));
+    } catch {
+      input.disabled = false;
+      return;
+    }
+    input.value = '';
+    input.disabled = false;
+    await done();
+    const next = document.querySelector('.bt-quickadd-input');
+    if (next) next.focus();
+  });
+  return form;
+}
+
+// ISO date N days from today; weekend = the coming Saturday (today if Saturday).
+function isoInDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+function isoWeekend() {
+  const d = new Date();
+  d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+function openStepForm(b, existing, done, opts = {}) {
   const s = existing || {};
+  const isContainer = !!opts.isContainer;
+  const estIdx = s.estimate_minutes ? STEP_ESTIMATES.indexOf(s.estimate_minutes) + 1 : 0;
   const overlay = h(`
     <div class="modal-overlay open">
       <div class="modal">
@@ -1212,9 +1469,25 @@ function openStepForm(b, existing, done) {
           <label class="sp-label">Step</label>
           <input class="sp-input" name="title" required value="${esc(s.title || '')}" />
           <label class="sp-label">Due date</label>
+          <div class="bt-date-chips">
+            <button type="button" class="bt-chip" data-days="0">Today</button>
+            <button type="button" class="bt-chip" data-days="1">Tomorrow</button>
+            <button type="button" class="bt-chip" data-weekend>This weekend</button>
+            <button type="button" class="bt-chip" data-days="7">Next week</button>
+            <button type="button" class="bt-chip bt-chip-clear" data-clear>Clear</button>
+          </div>
           <input class="sp-input" type="date" name="due_date" value="${esc(s.due_date || '')}" />
           <label class="sp-label">Notes</label>
           <textarea class="sp-input" name="notes" rows="2">${esc(s.notes || '')}</textarea>
+          ${
+            isContainer
+              ? ''
+              : `<label class="sp-label">Time needed</label>
+          <div class="bt-est">
+            <input type="range" class="bt-est-slider" min="0" max="7" step="1" value="${estIdx}" />
+            <span class="bt-est-label"></span>
+          </div>`
+          }
           <div style="display:flex;gap:8px;margin-top:14px">
             <button type="submit" class="btn-sm btn-sm-sage">${existing ? 'Save' : 'Add'}</button>
             ${existing ? '<button type="button" class="btn-sm btn-sm-ghost" data-del>Delete</button>' : ''}
@@ -1225,9 +1498,32 @@ function openStepForm(b, existing, done) {
     </div>
   `);
   const close = () => overlay.remove();
+  const dateInput = overlay.querySelector('input[name=due_date]');
+  on(overlay, '.bt-chip[data-days]', 'click', (e) => {
+    dateInput.value = isoInDays(Number(e.currentTarget.dataset.days));
+  });
+  on(overlay, '.bt-chip[data-weekend]', 'click', () => {
+    dateInput.value = isoWeekend();
+  });
+  on(overlay, '.bt-chip[data-clear]', 'click', () => {
+    dateInput.value = '';
+  });
+
+  const slider = overlay.querySelector('.bt-est-slider');
+  if (slider) {
+    const label = overlay.querySelector('.bt-est-label');
+    const sync = () => (label.textContent = STEP_ESTIMATE_LABELS[Number(slider.value)]);
+    slider.addEventListener('input', sync);
+    sync();
+  }
+
   on(overlay, '.modal-close, [data-cancel]', 'click', close);
   overlay.addEventListener('click', (e) => e.target === overlay && close());
   on(overlay, '[data-del]', 'click', async () => {
+    const msg = isContainer
+      ? `Delete “${s.title}” and all its sub-steps?`
+      : `Delete “${s.title}”?`;
+    if (!(await btConfirm(msg, { danger: true, ok: 'Delete' }))) return;
     await guard(() => API.deleteStep(b.project.id, existing.id));
     close();
     done();
@@ -1240,6 +1536,10 @@ function openStepForm(b, existing, done) {
       due_date: f.get('due_date') || null,
       notes: f.get('notes').trim() || null,
     };
+    if (!isContainer) {
+      const idx = slider ? Number(slider.value) : 0;
+      body.estimate_minutes = idx > 0 ? STEP_ESTIMATES[idx - 1] : null;
+    }
     if (existing) await guard(() => API.updateStep(b.project.id, existing.id, body));
     else await guard(() => API.addStep(b.project.id, body));
     close();
@@ -1247,6 +1547,50 @@ function openStepForm(b, existing, done) {
   });
   document.body.appendChild(overlay);
   overlay.querySelector('input[name=title]').focus();
+}
+
+// Break a step into sub-steps (or add more to an existing container).
+function openBashForm(b, step, done, opts = {}) {
+  const adding = !!opts.existing;
+  const overlay = h(`
+    <div class="modal-overlay open">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">${adding ? 'Add sub-steps' : 'Break into steps'}</span>
+          <button class="modal-close">×</button>
+        </div>
+        <form id="bt-bashform">
+          <p class="bt-bash-parent">${esc(step.title)}</p>
+          <label class="sp-label">One sub-step per line</label>
+          <textarea class="sp-input" name="titles" rows="5" placeholder="cut out pieces&#10;decide on pattern&#10;sew the seams"></textarea>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button type="submit" class="btn-sm btn-sm-sage">${adding ? 'Add' : 'Break it up'}</button>
+            <button type="button" class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `);
+  const close = () => overlay.remove();
+  on(overlay, '.modal-close, [data-cancel]', 'click', close);
+  overlay.addEventListener('click', (e) => e.target === overlay && close());
+  on(overlay, '#bt-bashform', 'submit', async (e) => {
+    e.preventDefault();
+    const titles = new FormData(e.target)
+      .get('titles')
+      .split('\n')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (!titles.length) {
+      toast('Add at least one line');
+      return;
+    }
+    await guard(() => API.bashStep(b.project.id, step.id, titles));
+    close();
+    done();
+  });
+  document.body.appendChild(overlay);
+  overlay.querySelector('textarea').focus();
 }
 
 // supplies
@@ -1587,10 +1931,10 @@ async function runSearch(main, q) {
     r.steps.forEach((s) => {
       const row = h(`
         <button class="s-result">
-          <div class="s-result-title${s.completed ? ' s-done' : ''}">${esc(s.title)}</div>
+          <div class="s-result-title${s.completed ? ' s-done' : ''}">${crumb(s.title, s.parent_title)}</div>
           <div class="s-result-sub">${esc(s.project_title)}${
             s.due_date ? ' · due ' + esc(fmtDate(s.due_date)) : ''
-          }</div>
+          }${s.estimate_minutes ? ' · ~' + esc(fmtDuration(s.estimate_minutes)) : ''}</div>
         </button>
       `);
       row.addEventListener('click', () => openProject(s.project_id));
@@ -1634,8 +1978,13 @@ async function renderNext(main) {
   const wkEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
   const buckets = { overdue: [], today: [], week: [], later: [], none: [] };
   (data.active || []).forEach((pr) => {
-    (pr.open_steps || []).forEach((st) => {
-      const s = { ...st, projectTitle: pr.title };
+    const titleById = new Map((pr.open_steps || []).map((st) => [st.id, st.title]));
+    withoutContainers(pr.open_steps || []).forEach((st) => {
+      const s = {
+        ...st,
+        projectTitle: pr.title,
+        parentTitle: st.parent_step_id ? titleById.get(st.parent_step_id) : undefined,
+      };
       if (!s.due_date) buckets.none.push(s);
       else if (s.due_date < today) buckets.overdue.push(s);
       else if (s.due_date === today) buckets.today.push(s);
@@ -1663,6 +2012,7 @@ async function renderNext(main) {
     const parts = [`${remaining()} open`];
     if (dueN) parts.push(`${dueN} due now`);
     if (state.doneThisSession) parts.push(`${state.doneThisSession} knocked out`);
+    else if (data.done_this_week) parts.push(`${data.done_this_week} done this week`);
     head.querySelector('#bt-next-count').textContent = parts.join(' · ');
   };
 
@@ -1740,12 +2090,15 @@ async function renderNext(main) {
           : key === 'later' && s.due_date
             ? fmtDate(s.due_date)
             : '';
+    const tail = [sub, s.estimate_minutes ? '~' + fmtDuration(s.estimate_minutes) : '']
+      .filter(Boolean)
+      .join(' · ');
     const row = h(`
       <div class="next-row" data-step="${s.id}">
         <button class="checkbox" aria-label="Mark done"></button>
         <div class="next-row-main">
-          <div class="next-row-title">${esc(s.title)}</div>
-          <div class="next-row-sub">${esc(s.projectTitle)}${sub ? ' · ' + esc(sub) : ''}</div>
+          <div class="next-row-title">${crumb(s.title, s.parentTitle)}</div>
+          <div class="next-row-sub">${esc(s.projectTitle)}${tail ? ' · ' + esc(tail) : ''}</div>
         </div>
       </div>
     `);
@@ -1803,6 +2156,15 @@ async function renderReview(main) {
       '<p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Everything Active or Waiting For, with its open steps. A pass for your weekly review.</p>'
     )
   );
+  if (data.done_this_week) {
+    wrap.appendChild(
+      h(
+        `<p class="bt-review-stat">${data.done_this_week} step${
+          data.done_this_week === 1 ? '' : 's'
+        } completed in the last 7 days.</p>`
+      )
+    );
+  }
 
   const section = (title, projects) => {
     const s = h(`<div style="margin-bottom:22px"><div class="section-header"><span class="section-label">${title} <span class="section-count">${projects.length}</span></span></div></div>`);
@@ -1811,6 +2173,19 @@ async function renderReview(main) {
       return s;
     }
     projects.forEach((p) => {
+      const allOpen = p.open_steps || [];
+      const titleById = new Map(allOpen.map((st) => [st.id, st.title]));
+      const leaves = withoutContainers(allOpen);
+      const stepsHtml = leaves.length
+        ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${leaves
+            .map((st) => {
+              const parentTitle = st.parent_step_id ? titleById.get(st.parent_step_id) : undefined;
+              return `<div class="check-sub">• ${crumb(st.title, parentTitle)}${
+                st.due_date ? ` — due ${esc(fmtDate(st.due_date))}` : ''
+              }${st.estimate_minutes ? ` · ~${esc(fmtDuration(st.estimate_minutes))}` : ''}</div>`;
+            })
+            .join('')}</div>`
+        : '<div class="check-sub" style="margin-top:8px;color:var(--text-faint)">No open steps</div>';
       const card = h(`
         <div class="card" role="button" tabindex="0" style="cursor:pointer">
           <div class="card-top"><h3 class="card-title">${esc(p.title)}</h3>
@@ -1818,18 +2193,7 @@ async function renderReview(main) {
           <div class="card-meta">${esc(p.category || UNCATEGORIZED)}${
             p.deadline ? ` · due ${esc(fmtDate(p.deadline))}` : ''
           }</div>
-          ${
-            (p.open_steps || []).length
-              ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${p.open_steps
-                  .map(
-                    (st) =>
-                      `<div class="check-sub">• ${esc(st.title)}${
-                        st.due_date ? ` — due ${esc(fmtDate(st.due_date))}` : ''
-                      }</div>`
-                  )
-                  .join('')}</div>`
-              : '<div class="check-sub" style="margin-top:8px;color:var(--text-faint)">No open steps</div>'
-          }
+          ${stepsHtml}
         </div>
       `);
       card.addEventListener('click', () => openProject(p.id));
@@ -1855,7 +2219,10 @@ function mmss(ms) {
 }
 
 function openFocusSession(bundle) {
-  const open = bundle.steps.filter((s) => !s.completed);
+  // Leaf steps only — a container isn't something you "work on" directly.
+  const open = bundle.steps.filter(
+    (s) => !s.completed && !bundle.steps.some((o) => o.parent_step_id === s.id)
+  );
   const sess = { projectId: bundle.project.id, projectTitle: bundle.project.title, stepId: null, minutes: 25 };
 
   const screen = h('<div id="noodle-screen" class="open"></div>');

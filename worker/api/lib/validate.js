@@ -1,6 +1,10 @@
 export const STATUSES = ['Active', 'Waiting For', 'Someday', 'Paused', 'Done'];
 export const COLLAB_ROLES = ['editor', 'viewer']; // 'owner' is only reachable via transfer
 
+// Allowed values for project_steps.estimate_minutes — the stepped "time needed"
+// slider on the client. NULL/absent means "no estimate".
+export const STEP_ESTIMATES = [5, 15, 30, 60, 120, 240, 480]; // 480 = "day+"
+
 export const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
 
 // Numeric coercion for optional columns. Non-numeric / non-finite input becomes
