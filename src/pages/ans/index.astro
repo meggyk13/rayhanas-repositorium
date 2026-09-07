@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { coverImage } from '../../lib/cover';
 
 const all = (await getCollection('ans')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -71,16 +72,22 @@ const fmt = (d: Date) =>
         <h2>{g.heading}</h2>
         <p class="group-note">{g.note}</p>
         <ul class="card-grid">
-          {g.entries.map((e) => (
-            <li class="card" data-tags={e.data.tags.join(',')}>
-              <p class="meta">{fmt(e.data.date)}</p>
-              <h3><a href={`/ans/${e.id}/`}>{e.data.title}</a></h3>
-              <p>{e.data.summary}</p>
-              {e.data.tags.length > 0 && (
-                <p class="card-tags">{e.data.tags.join(' · ')}</p>
-              )}
-            </li>
-          ))}
+          {g.entries.map((e) => {
+            const cover = coverImage(e.data, e.body);
+            return (
+              <li class:list={['card', cover && 'has-thumb']} data-tags={e.data.tags.join(',')}>
+                {cover && (
+                  <img class="card-thumb" src={cover} alt="" loading="lazy" decoding="async" />
+                )}
+                <p class="meta">{fmt(e.data.date)}</p>
+                <h3><a href={`/ans/${e.id}/`}>{e.data.title}</a></h3>
+                <p>{e.data.summary}</p>
+                {e.data.tags.length > 0 && (
+                  <p class="card-tags">{e.data.tags.join(' · ')}</p>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
     ))}

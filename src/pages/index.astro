@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { tools, featuredTools } from '../data/tools';
+import { coverImage } from '../lib/cover';
 
 const [ans, scaLife] = await Promise.all([
   getCollection('ans'),
@@ -16,7 +17,9 @@ const heroImage: string | null = null;
 const heroAlt = '';
 // ----------------------------------------------------------------------
 
-// Signposts are derived from real counts, so an empty section hides itself.
+// Three doorways into the site. Count-backed sections hide themselves when
+// empty; Brambletally has no collection, so it carries a null count and always
+// shows.
 const sections = [
   {
     href: '/ans/',
@@ -26,20 +29,20 @@ const sections = [
     unit: 'entries',
   },
   {
-    href: '/sca-life/',
-    label: 'SCA Life',
-    note: 'Getting started, helping other people get started, and notes on how the Society works.',
-    count: scaLife.length,
-    unit: 'entries',
-  },
-  {
     href: '/tools/',
     label: 'Tools',
     note: 'Pattern generators and event calculators. Everything runs in your browser.',
     count: tools.length,
     unit: 'tools',
   },
-].filter((s) => s.count > 0);
+  {
+    href: '/tools/brambletally/',
+    label: 'Brambletally',
+    note: 'A project tracker for A&S, research, and office work — steps, supplies, a timeline, a focus timer, and shared projects. Sign in with an email link.',
+    count: null,
+    unit: '',
+  },
+].filter((s) => s.count === null || s.count > 0);
 
 const kindLabel = {
   project: 'A&S Project',
@@ -68,9 +71,9 @@ const recent = [
       <p class="hero-intro">
         Rayhana bint Estafanos al-Abbas is a 16th-century Ottoman persona in the
         Kingdom of Caid. This site holds her Arts &amp; Sciences documentation,
-        handouts from the classes she teaches, and research on Ottoman dress,
-        cooking, and performance. It also has browser tools for drafting
-        patterns and running events. The focus is pre-1600.
+        class handouts, and research on Ottoman dress, cooking, and performance,
+        along with browser tools for drafting patterns and running events. The
+        focus is pre-1600.
       </p>
 
       {heroImage && (
@@ -88,7 +91,7 @@ const recent = [
         <li class="signpost">
           <h3><a href={s.href}>{s.label}</a></h3>
           <p>{s.note}</p>
-          <span class="count">{s.count} {s.unit}</span>
+          {s.count !== null && <span class="count">{s.count} {s.unit}</span>}
         </li>
       ))}
     </ul>
@@ -118,13 +121,19 @@ const recent = [
   <div class="wrap">
     <h2 class="section-lead">Recently added</h2>
     <ul class="card-grid">
-      {recent.map((e) => (
-        <li class="card">
-          <p class="meta">{e.section}</p>
-          <h3><a href={`${e.base}${e.id}/`}>{e.data.title}</a></h3>
-          <p>{e.data.summary}</p>
-        </li>
-      ))}
+      {recent.map((e) => {
+        const cover = coverImage(e.data, e.body);
+        return (
+          <li class:list={['card', cover && 'has-thumb']}>
+            {cover && (
+              <img class="card-thumb" src={cover} alt="" loading="lazy" decoding="async" />
+            )}
+            <p class="meta">{e.section}</p>
+            <h3><a href={`${e.base}${e.id}/`}>{e.data.title}</a></h3>
+            <p>{e.data.summary}</p>
+          </li>
+        );
+      })}
     </ul>
   </div>
 </Base>

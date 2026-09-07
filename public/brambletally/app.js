@@ -292,6 +292,7 @@ function renderAuth() {
     <div class="bt-auth">
       <div class="wordmark">brambletally<span>.</span></div>
       <div class="tagline">project tracker</div>
+      <p class="sub">A place to track A&amp;S projects, personal research, and Chatelaine office work &mdash; steps, supplies, a timeline, a focus timer, and projects you share with others.</p>
       <h1>Sign in</h1>
       <p class="sub">Enter your email and we'll send a one-time link. No password.</p>
       ${invalid ? '<div class="msg err">That link was invalid or expired. Request a new one.</div>' : ''}

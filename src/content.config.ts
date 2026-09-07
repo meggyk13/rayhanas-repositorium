@@ -15,6 +15,9 @@ const base = z.object({
   tags: z.array(z.string()).default([]),
   // Optional link to the PDF "as judged" or "as taught"
   pdf: z.string().optional(),
+  // Optional cover image (path under /public) for index thumbnails.
+  // When omitted, the first image in the body is used.
+  cover: z.string().optional(),
 });
 
 // Arts & Sciences: the work itself, in three flavours.

@@ -21,7 +21,7 @@
   --font-utility: 'IBM Plex Mono', monospace;
 
   --measure: 42rem;
-  --arch: 999px 999px 8px 8px; /* the arched frame radius */
+  --arch: 170px 170px 8px 8px; /* the arched frame radius */
 }
 
 * { box-sizing: border-box; }
@@ -202,7 +202,7 @@ body.menu-locked { overflow: hidden; }
 
 .hero {
   background: var(--cobalt-deep);
-  padding: 4rem 1.25rem;
+  padding: 2.75rem 1.25rem;
 }
 .hero-panel {
   max-width: 46rem;
@@ -210,7 +210,7 @@ body.menu-locked { overflow: hidden; }
   background: var(--parchment);
   border: 1px solid var(--gold);
   border-radius: var(--arch);
-  padding: 3rem 2.5rem 2.5rem;
+  padding: 3.5rem 2.5rem 2.5rem;
   text-align: center;
   position: relative;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
@@ -279,6 +279,19 @@ body.menu-locked { overflow: hidden; }
 .card h3 { margin: 0 0 0.4rem; font-size: 1.25rem; }
 .card h3 a { text-decoration: none; }
 .card p { margin: 0 0 0.6rem; font-size: 0.95rem; color: var(--ink-soft); }
+
+/* Index thumbnail: pulled to the card edges, replacing the keystone diamond. */
+.card.has-thumb::before { display: none; }
+.card-thumb {
+  display: block;
+  width: calc(100% + 2.5rem);
+  margin: -1.5rem -1.25rem 1rem;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 23px 23px 0 0;
+  border-bottom: 1px solid var(--gold);
+  background: var(--parchment-deep);
+}
 .card .meta {
   font-family: var(--font-utility);
   font-size: 0.75rem;
@@ -361,8 +374,8 @@ body.menu-locked { overflow: hidden; }
 
 @media (max-width: 40rem) {
   h1 { font-size: 2.2rem; }
-  .hero { padding: 2.5rem 1rem; }
-  .hero-panel { padding: 2rem 1.25rem 1.5rem; }
+  .hero { padding: 2rem 1rem; }
+  .hero-panel { padding: 2.5rem 1.25rem 1.5rem; }
 }
 
 /* ---------- Grouped index pages ---------- */
@@ -450,7 +463,7 @@ body.menu-locked { overflow: hidden; }
 
 .section-lead {
   font-size: 1.5rem;
-  margin: 3.5rem 0 0;
+  margin: 2.25rem 0 0;
   padding-bottom: 0.6rem;
   border-bottom: 2px solid var(--gold);
 }

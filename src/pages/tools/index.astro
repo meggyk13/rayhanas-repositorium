@@ -10,9 +10,10 @@ const generalTools = tools.filter((t) => t.group === 'general');
     <header class="entry-header">
       <h1>Tools</h1>
       <p class="prose">
-        Working calculators and generators. Everything runs in your browser.
-        Nothing you enter is saved or sent anywhere unless you sign in to a
-        Brambletally account and save it yourself.
+        Working calculators and generators. Everything runs in your browser and
+        nothing you enter leaves it. A few can save your inputs to a
+        <a href="/tools/brambletally/">Brambletally</a> account so you don&rsquo;t
+        have to re-enter them next time &mdash; but none of them need one.
       </p>
     </header>
 
@@ -24,6 +25,7 @@ const generalTools = tools.filter((t) => t.group === 'general');
           <li class="card">
             <h3><a href={t.href}>{t.title}</a></h3>
             <p>{t.summary}</p>
+            {t.saves && <p class="card-tags">Can save to Brambletally</p>}
           </li>
         ))}
       </ul>
@@ -37,6 +39,7 @@ const generalTools = tools.filter((t) => t.group === 'general');
           <li class="card">
             <h3><a href={t.href}>{t.title}</a></h3>
             <p>{t.summary}</p>
+            {t.saves && <p class="card-tags">Can save to Brambletally</p>}
           </li>
         ))}
       </ul>
