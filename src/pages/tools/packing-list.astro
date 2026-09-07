@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 ---
 <Base title="Event Packing List" description="Build a printable SCA event packing list for your whole household, by person and activity.">
   <div class="wrap">
+    <div id="bt-account" class="no-print"></div>
     <header class="entry-header prose no-print">
       <p class="meta">Tool</p>
       <h1>Event Packing List</h1>
@@ -186,5 +187,21 @@ import Base from '../../layouts/Base.astro';
     $('trip-type').addEventListener('change', renderList);
     $('print-btn').addEventListener('click', () => window.print());
     $('clear-btn').addEventListener('click', () => { people = []; renderRoster(); renderList(); });
+
+    // Brambletally preset save/load
+    window.btCollect = () => ({
+      tripType: $('trip-type').value,
+      people: people.map((p) => ({ name: p.name, minor: !!p.minor, activities: [...p.activities] })),
+    });
+    window.btApply = (data) => {
+      if (data && data.tripType) $('trip-type').value = data.tripType;
+      people = ((data && data.people) || []).map((p) => ({
+        name: p.name, minor: !!p.minor, activities: new Set(p.activities || []),
+      }));
+      renderRoster();
+      renderList();
+    };
   </script>
+  <script is:inline>window.BT_TOOL='packing-list';</script>
+  <script is:inline src="/brambletally/tools-account.js"></script>
 </Base>

@@ -23,8 +23,8 @@ import * as category from './api/categories/categoryId.js';
 import * as inbox from './api/inbox/index.js';
 import * as inboxItem from './api/inbox/itemId.js';
 import * as usersSearch from './api/users/search.js';
-import * as patterns from './api/patterns/index.js';
-import * as pattern from './api/patterns/patternId.js';
+import * as toolState from './api/tool-state/index.js';
+import * as toolStateId from './api/tool-state/stateId.js';
 import * as gateEvents from './api/gate/events.js';
 import * as gateEvent from './api/gate/events/eventId.js';
 import * as gateEntries from './api/gate/events/eventId/entries.js';
@@ -54,8 +54,8 @@ export const routes = [
   ['/api/inbox', inbox],
   ['/api/inbox/:itemId', inboxItem],
   ['/api/users/search', usersSearch],
-  ['/api/patterns', patterns],
-  ['/api/patterns/:patternId', pattern],
+  ['/api/tool-state', toolState],
+  ['/api/tool-state/:stateId', toolStateId],
 
   ['/api/gate/events', gateEvents],
   ['/api/gate/events/:eventId', gateEvent],

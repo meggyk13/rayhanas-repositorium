@@ -88,6 +88,7 @@ const RECS_URL = 'http://royals.sca-caid.org/awards/recs.php';
   description="Look someone up in Caid's Order of Precedence and wiki, then write and stage every field of the Caidan Awards recommendation form."
 >
   <div class="wrap">
+    <div id="bt-account" class="no-print"></div>
     <header class="entry-header prose">
       <p class="meta">Tool</p>
       <h1>Award Recommendation Helper</h1>
@@ -900,4 +901,6 @@ const RECS_URL = 'http://royals.sca-caid.org/awards/recs.php';
     updateLookups();
     assemble();
   </script>
+  <script is:inline>window.BT_TOOL='award-rec';</script>
+  <script is:inline src="/brambletally/tools-account.js"></script>
 </Base>

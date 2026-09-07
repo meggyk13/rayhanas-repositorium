@@ -141,16 +141,19 @@ CREATE TABLE inbox_items (
 CREATE INDEX idx_inbox_user ON inbox_items(user_id);
 
 -- ── Saved tool state ─────────────────────────────────────────────────────
+-- Named presets for the form tools: salvar, caftan, war-food, award-rec,
+-- packing-list. data_json is the tool's serialized inputs.
 
-CREATE TABLE saved_patterns (
+CREATE TABLE saved_tool_state (
   id            TEXT PRIMARY KEY,        -- uuid
   user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  tool          TEXT NOT NULL CHECK(tool IN ('kaftan','salvar')),
+  tool          TEXT NOT NULL,
   name          TEXT NOT NULL,
-  input_json    TEXT NOT NULL,           -- serialized form inputs
-  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  data_json     TEXT NOT NULL,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
-CREATE INDEX idx_patterns_user ON saved_patterns(user_id);
+CREATE INDEX idx_tool_state_user ON saved_tool_state(user_id, tool);
 
 -- ── Gate calculator ──────────────────────────────────────────────────────
 
