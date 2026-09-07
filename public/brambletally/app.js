@@ -775,8 +775,8 @@ async function openProjectForm(existing, opts = {}) {
           <input class="sp-input" type="date" name="deadline" value="${esc(p.deadline || '')}" />
           <label class="sp-label">Description</label>
           <textarea class="sp-input" name="description" rows="2">${esc(p.description || '')}</textarea>
-          <label class="sp-label">Pick up here</label>
-          <textarea class="sp-input" name="pickup_note" rows="2" placeholder="The next concrete action">${esc(
+          <label class="sp-label">Project notes</label>
+          <textarea class="sp-input" name="pickup_note" rows="3" placeholder="Where you left off, links, reminders…">${esc(
             p.pickup_note || ''
           )}</textarea>
           <div style="display:flex;gap:8px;margin-top:14px">
@@ -1247,16 +1247,17 @@ async function refreshDetail() {
   if (panel) renderPanel(panel);
 }
 
-// "Pick up here" — the project's next concrete action, editable inline.
+// "Project notes" — a freeform scratch area for the project, editable inline.
+// Stored in projects.pickup_note (column kept; only the label changed).
 function renderPickup(box, canEdit) {
   const p = state.project.project;
   const show = () => {
     box.replaceChildren(
       h(`
       <div>
-        <div class="pickup-label">Pick up here${canEdit ? ' <span class="pickup-edit-hint">edit</span>' : ''}</div>
+        <div class="pickup-label">Project notes${canEdit ? ' <span class="pickup-edit-hint">edit</span>' : ''}</div>
         <div class="pickup-text">${
-          p.pickup_note ? esc(p.pickup_note) : '<span style="color:var(--text-faint)">Nothing noted — tap to set the next action</span>'
+          p.pickup_note ? esc(p.pickup_note) : '<span style="color:var(--text-faint)">No notes yet — tap to add</span>'
         }</div>
       </div>
     `)
@@ -1268,8 +1269,8 @@ function renderPickup(box, canEdit) {
     box.replaceChildren(
       h(`
       <div>
-        <div class="pickup-label">Pick up here</div>
-        <textarea class="pickup-input" rows="2">${esc(p.pickup_note || '')}</textarea>
+        <div class="pickup-label">Project notes</div>
+        <textarea class="pickup-input" rows="4">${esc(p.pickup_note || '')}</textarea>
         <div class="pickup-edit-actions">
           <button class="btn-sm btn-sm-sage" data-save>Save</button>
           <button class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
@@ -1992,6 +1993,9 @@ async function renderNext(main) {
       else buckets.later.push(s);
     });
   });
+  // Undated steps fold into "Later" — one collapsed card, not two.
+  buckets.later = buckets.later.concat(buckets.none);
+  buckets.none = [];
   Object.values(buckets).forEach((a) =>
     a.sort((x, y) => ((x.due_date || '9') < (y.due_date || '9') ? -1 : 1))
   );
@@ -2053,7 +2057,7 @@ async function renderNext(main) {
   wrap.appendChild(surprise);
 
   function bucketOf(s) {
-    if (!s.due_date) return 'none';
+    if (!s.due_date) return 'later';
     if (s.due_date < today) return 'overdue';
     if (s.due_date === today) return 'today';
     if (s.due_date <= wkEnd) return 'week';
@@ -2065,7 +2069,6 @@ async function renderNext(main) {
     ['today', 'Today', false],
     ['week', 'This week', false],
     ['later', 'Later', true],
-    ['none', 'No date', true],
   ].forEach(([key, label, collapsed]) => {
     const arr = buckets[key];
     if (!arr.length) return;
@@ -2119,6 +2122,8 @@ async function renderNext(main) {
       if (i > -1) arr.splice(i, 1);
       flashNice();
       updateCount();
+      const badge = wrap.querySelector(`.next-group[data-key="${key}"] .next-group-head span`);
+      if (badge) badge.textContent = arr.length;
       setTimeout(() => {
         row.remove();
         const grp = wrap.querySelector(`.next-group[data-key="${key}"]`);

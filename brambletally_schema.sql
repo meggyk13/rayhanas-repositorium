@@ -56,7 +56,7 @@ CREATE TABLE projects (
   status        TEXT NOT NULL DEFAULT 'Active'
                   CHECK(status IN ('Active','Waiting For','Someday','Paused','Done')),
   deadline      TEXT,                    -- ISO date, nullable
-  pickup_note   TEXT,                    -- "pick up here": the next concrete action
+  pickup_note   TEXT,                    -- freeform "Project notes" box (legacy column name)
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
