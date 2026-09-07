@@ -1019,22 +1019,40 @@ textarea{resize:vertical;min-height:60px}
   width: 100%; margin-bottom: 18px;
 }
 #bt-app .next-surprise:hover { background: var(--amethyst)2a; }
-#bt-app .next-group { margin-bottom: 16px; }
-#bt-app .next-group-head {
-  background: none; border: none; cursor: pointer; font: inherit;
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
-  color: var(--text-faint); padding: 4px 0; display: flex; gap: 6px; align-items: center;
+
+/* Each due-bucket is a card, matching the Home surfaces */
+#bt-app .next-group {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); padding: 2px 14px 6px; margin-bottom: 12px;
 }
+#bt-app .next-group[data-key="overdue"] {
+  background: var(--warn-bg); border-color: var(--warn-border);
+}
+#bt-app .next-group-head {
+  background: none; border: none; cursor: pointer; font: inherit; width: 100%;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-faint); padding: 11px 0; display: flex; gap: 6px; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+#bt-app .next-group[data-key="overdue"] .next-group-head { color: var(--warn-text); border-bottom-color: var(--warn-border); }
+#bt-app .next-group.collapsed .next-group-head { border-bottom: none; }
 #bt-app .next-group-head::before { content: '▾'; font-size: 9px; }
 #bt-app .next-group.collapsed .next-group-head::before { content: '▸'; }
-#bt-app .next-group-head span { background: var(--elevated); border-radius: 99px; padding: 1px 7px; font-size: 10px; letter-spacing: 0; }
+#bt-app .next-group-head span {
+  margin-left: auto; background: var(--elevated); border-radius: 99px;
+  padding: 1px 7px; font-size: 10px; letter-spacing: 0;
+}
+#bt-app .next-group[data-key="overdue"] .next-group-head span { background: var(--warn-border); }
 #bt-app .next-group.collapsed .next-group-body { display: none; }
+#bt-app .next-group-body { padding-top: 2px; }
 #bt-app .next-row {
-  display: flex; gap: 12px; align-items: flex-start; padding: 12px 4px;
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 0;
   border-bottom: 1px solid var(--border);
   max-height: 90px; overflow: hidden;
   transition: opacity .3s ease, max-height .3s ease, padding .3s ease, background .2s;
 }
+#bt-app .next-group[data-key="overdue"] .next-row { border-bottom-color: var(--warn-border); }
+#bt-app .next-group-body .next-row:last-child { border-bottom: none; }
 #bt-app .next-row.done { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
 #bt-app .next-row.flash { background: var(--amethyst)14; border-radius: 8px; }
 #bt-app .next-row-main { flex: 1; cursor: pointer; min-width: 0; }
