@@ -161,6 +161,7 @@ import Base from '../../layouts/Base.astro';
       </div>
     </div>
   </div>
+  <script is:inline src="/brambletally/tools-account.js"></script>
 </Base>
 
 <style>
@@ -1713,8 +1714,17 @@ import Base from '../../layouts/Base.astro';
 
       function saveDay() {
         if (!history.length) { alert('Nothing logged yet.'); return; }
-        var name = (eventName || '').trim() || prompt('Name this event', new Date().toLocaleDateString());
-        if (!name) return;
+        var pre = (eventName || '').trim();
+        var namePromise = pre
+          ? Promise.resolve(pre)
+          : window.BTUI.ask('Name this event', new Date().toLocaleDateString());
+        namePromise.then(function (name) {
+          if (!name) return;
+          doSave(name);
+        });
+      }
+
+      function doSave(name) {
         var btn = document.getElementById('bt-gsave');
         btn.disabled = true;
         btn.textContent = 'Saving…';
@@ -1747,15 +1757,20 @@ import Base from '../../layouts/Base.astro';
       }
 
       function loadDay(id) {
-        jx('/api/gate/events/' + id).then(function (res) {
-          if (history.length && !confirm('Replace the current day’s log with the saved one?')) return;
-          eventName = res.event.event_name || '';
-          if (res.event.float_amount != null) { prices.float = res.event.float_amount; save(K_PRICES, prices); }
-          history = (res.entries || []).map(historyFromEntry);
-          save(K_HISTORY, history);
-          save(K_EVENT, eventName);
-          renderHistory();
-        }).catch(function (e) { alert('Load failed: ' + (e.message || e)); });
+        var proceed = history.length
+          ? window.BTUI.confirm('Replace the current day’s log with the saved one?')
+          : Promise.resolve(true);
+        proceed.then(function (ok) {
+          if (!ok) return;
+          jx('/api/gate/events/' + id).then(function (res) {
+            eventName = res.event.event_name || '';
+            if (res.event.float_amount != null) { prices.float = res.event.float_amount; save(K_PRICES, prices); }
+            history = (res.entries || []).map(historyFromEntry);
+            save(K_HISTORY, history);
+            save(K_EVENT, eventName);
+            renderHistory();
+          }).catch(function (e) { alert('Load failed: ' + (e.message || e)); });
+        });
       }
 
       render();

@@ -6,8 +6,6 @@
 
 (function () {
   'use strict';
-  var TOOL = window.BT_TOOL;
-  if (!TOOL) return;
 
   var style = document.createElement('style');
   style.textContent =
@@ -18,10 +16,91 @@
     '.bt-acct button,.bt-acct select{font:inherit;padding:6px 10px;border-radius:7px;' +
     'border:1px solid #cfc8ba;background:#fff;color:#3a352c;cursor:pointer}' +
     '.bt-acct button.primary{background:#6B8E23;border-color:#6B8E23;color:#fff}' +
+    '.bt-ui-back{position:fixed;inset:0;background:rgba(20,22,28,.5);display:flex;align-items:center;' +
+    'justify-content:center;padding:24px;z-index:9998;font:500 14px/1.5 system-ui,-apple-system,sans-serif}' +
+    '.bt-ui-box{background:#fdf9ef;border:1px solid #cdbc93;border-radius:14px;padding:22px;width:360px;max-width:100%;' +
+    'box-shadow:0 20px 60px rgba(38,48,74,.3);color:#26304a}' +
+    '.bt-ui-box p{margin:0 0 14px}' +
+    '.bt-ui-box input{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #cdbc93;background:#fbf6e9;' +
+    'font:inherit;margin-bottom:14px;color:#26304a}' +
+    '.bt-ui-row{display:flex;gap:8px}.bt-ui-row button{flex:1;padding:9px;border-radius:8px;border:none;' +
+    'font:inherit;font-weight:600;cursor:pointer}' +
+    '.bt-ui-ok{background:#2e8c8a;color:#fff}.bt-ui-ok.danger{background:#a93b2a}.bt-ui-no{background:#ece0c4;color:#3d476a}' +
     '@media (prefers-color-scheme:dark){.bt-acct{background:#24262b;border-color:#33363d;color:#a7a196}' +
-    '.bt-acct button,.bt-acct select{background:#2e3138;border-color:#444c5c;color:#e0ddd5}}' +
+    '.bt-acct button,.bt-acct select{background:#2e3138;border-color:#444c5c;color:#e0ddd5}' +
+    '.bt-ui-box{background:#262834;border-color:#4c5066;color:#e9e3d3}' +
+    '.bt-ui-box input{background:#2b2d3a;border-color:#4c5066;color:#e9e3d3}.bt-ui-no{background:#313343;color:#c3bdad}}' +
     '@media print{#bt-account{display:none}}';
   document.head.appendChild(style);
+
+  // Shared in-page dialogs (available even when this tool has no account bar).
+  window.BTUI = {
+    ask: function (msg, def) {
+      return new Promise(function (res) {
+        var b = document.createElement('div');
+        b.className = 'bt-ui-back';
+        b.innerHTML =
+          '<div class="bt-ui-box"><p></p><input><div class="bt-ui-row">' +
+          '<button class="bt-ui-ok">OK</button><button class="bt-ui-no">Cancel</button></div></div>';
+        b.querySelector('p').textContent = msg;
+        var inp = b.querySelector('input');
+        inp.value = def || '';
+        function done(v) {
+          b.remove();
+          res(v);
+        }
+        b.querySelector('.bt-ui-ok').onclick = function () {
+          done(inp.value.trim() || null);
+        };
+        b.querySelector('.bt-ui-no').onclick = function () {
+          done(null);
+        };
+        inp.onkeydown = function (e) {
+          if (e.key === 'Enter') done(inp.value.trim() || null);
+          if (e.key === 'Escape') done(null);
+        };
+        b.onclick = function (e) {
+          if (e.target === b) done(null);
+        };
+        document.body.appendChild(b);
+        inp.focus();
+        inp.select();
+      });
+    },
+    confirm: function (msg, opts) {
+      opts = opts || {};
+      return new Promise(function (res) {
+        var b = document.createElement('div');
+        b.className = 'bt-ui-back';
+        b.innerHTML =
+          '<div class="bt-ui-box"><p></p><div class="bt-ui-row">' +
+          '<button class="bt-ui-ok' +
+          (opts.danger ? ' danger' : '') +
+          '">' +
+          (opts.ok || 'Confirm') +
+          '</button><button class="bt-ui-no">Cancel</button></div></div>';
+        b.querySelector('p').textContent = msg;
+        function done(v) {
+          b.remove();
+          res(v);
+        }
+        b.querySelector('.bt-ui-ok').onclick = function () {
+          done(true);
+        };
+        b.querySelector('.bt-ui-no').onclick = function () {
+          done(false);
+        };
+        b.onclick = function (e) {
+          if (e.target === b) done(false);
+        };
+        document.body.appendChild(b);
+        b.querySelector('.bt-ui-ok').focus();
+      });
+    },
+  };
+
+  var TOOL = window.BT_TOOL;
+  if (!TOOL) return;
 
   var mount = document.getElementById('bt-account');
   if (!mount) {
@@ -171,21 +250,26 @@
             };
             delBtn.onclick = function () {
               if (!loaded) return;
-              if (!confirm('Delete preset “' + loaded.name + '”?')) return;
-              API.del(loaded.id).then(render);
+              window.BTUI.confirm('Delete preset “' + loaded.name + '”?', { danger: true, ok: 'Delete' }).then(
+                function (ok) {
+                  if (ok) API.del(loaded.id).then(render);
+                }
+              );
             };
           }
           document.getElementById('bt-save').onclick = function () {
-            var name = prompt('Name this preset');
-            if (!name || !name.trim()) return;
-            API.save(name.trim(), collect()).then(render);
+            window.BTUI.ask('Name this preset').then(function (name) {
+              if (name) API.save(name, collect()).then(render);
+            });
           };
 
           try {
             var stash = localStorage.getItem('bt-stash-' + TOOL);
             if (stash) {
               localStorage.removeItem('bt-stash-' + TOOL);
-              if (confirm('Restore the inputs you had before signing in?')) apply(JSON.parse(stash));
+              window.BTUI.confirm('Restore the inputs you had before signing in?').then(function (ok) {
+                if (ok) apply(JSON.parse(stash));
+              });
             }
           } catch (e) {
             /* ignore */

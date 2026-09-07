@@ -1250,3 +1250,14 @@ textarea{resize:vertical;min-height:60px}
   #bt-app .header-row > div:last-child { gap: 6px; }
   #bt-app .btn-icon { width: 34px; height: 34px; }
 }
+
+/* In-app confirm / prompt */
+.modal-overlay.bt-ask { align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.bt-ask .modal {
+  width: 380px; max-width: 100%; border-radius: 16px; padding: 22px;
+  transform: none; box-shadow: 0 20px 60px rgba(38,48,74,.3);
+}
+.bt-ask-msg { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 16px; }
+.bt-ask .sp-input { margin-bottom: 16px; }
+.bt-ask-actions { display: flex; gap: 8px; }
+.bt-ask-actions .btn-sm { flex: 1; }

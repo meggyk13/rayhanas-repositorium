@@ -56,6 +56,13 @@ export const tools: Tool[] = [
       "Track attendance and tally fees at gate. Calculates change, logs each group's details, and summarizes your day.",
     group: 'general',
   },
+  {
+    href: '/tools/brambletally/',
+    title: 'Brambletally',
+    summary:
+      'A project tracker for A&S, research, and office work — steps, supplies, a timeline, a focus timer, and shared projects. Sign in with an email link; other tools can save their inputs to the same account.',
+    group: 'general',
+  },
 ];
 
 export const featuredTools = tools.filter((t) => t.featured);

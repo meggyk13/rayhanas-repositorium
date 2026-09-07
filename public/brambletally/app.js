@@ -138,6 +138,64 @@ function toast(msg) {
   }, 2600);
 }
 
+// In-app confirm / prompt (replace the browser dialogs).
+function btConfirm(message, { danger = false, ok = 'Confirm' } = {}) {
+  return new Promise((resolve) => {
+    const overlay = h(`
+      <div class="modal-overlay open bt-ask">
+        <div class="modal">
+          <p class="bt-ask-msg">${esc(message)}</p>
+          <div class="bt-ask-actions">
+            <button class="btn-sm ${danger ? 'btn-danger' : 'btn-sm-sage'}" data-yes>${esc(ok)}</button>
+            <button class="btn-sm btn-sm-ghost" data-no>Cancel</button>
+          </div>
+        </div>
+      </div>
+    `);
+    const done = (v) => {
+      overlay.remove();
+      resolve(v);
+    };
+    on(overlay, '[data-yes]', 'click', () => done(true));
+    on(overlay, '[data-no]', 'click', () => done(false));
+    overlay.addEventListener('click', (e) => e.target === overlay && done(false));
+    document.body.appendChild(overlay);
+    overlay.querySelector('[data-yes]').focus();
+  });
+}
+
+function btPrompt(message, value = '') {
+  return new Promise((resolve) => {
+    const overlay = h(`
+      <div class="modal-overlay open bt-ask">
+        <div class="modal">
+          <p class="bt-ask-msg">${esc(message)}</p>
+          <input class="sp-input" id="bt-ask-in" value="${esc(value)}" />
+          <div class="bt-ask-actions">
+            <button class="btn-sm btn-sm-sage" data-ok>OK</button>
+            <button class="btn-sm btn-sm-ghost" data-no>Cancel</button>
+          </div>
+        </div>
+      </div>
+    `);
+    const input = overlay.querySelector('#bt-ask-in');
+    const done = (v) => {
+      overlay.remove();
+      resolve(v);
+    };
+    on(overlay, '[data-ok]', 'click', () => done(input.value.trim() || null));
+    on(overlay, '[data-no]', 'click', () => done(null));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') done(input.value.trim() || null);
+      if (e.key === 'Escape') done(null);
+    });
+    overlay.addEventListener('click', (e) => e.target === overlay && done(null));
+    document.body.appendChild(overlay);
+    input.focus();
+    input.select();
+  });
+}
+
 async function guard(fn) {
   try {
     return await fn();
@@ -571,9 +629,11 @@ async function openProjectForm(existing, opts = {}) {
   `);
   const close = () => overlay.remove();
   on(overlay, '[data-delete]', 'click', async () => {
-    if (!confirm(`Delete "${existing.title}"? This removes its steps, supplies and timeline. It can't be undone.`)) {
-      return;
-    }
+    const ok = await btConfirm(
+      `Delete “${existing.title}”? This removes its steps, supplies and timeline. It can't be undone.`,
+      { danger: true, ok: 'Delete' }
+    );
+    if (!ok) return;
     try {
       await guard(() => API.deleteProject(existing.id));
     } catch {
@@ -694,20 +754,22 @@ function openManageCategories(onDone) {
           </span>
         </div>
       `);
-      on(row, '[data-rename]', 'click', () => {
-        const name = prompt('Rename category', c.name);
-        if (!name || name.trim() === c.name) return;
-        guard(() => API.renameCategory(c.id, name.trim())).then(async () => {
-          await loadCategories();
-          paint();
-        });
+      on(row, '[data-rename]', 'click', async () => {
+        const name = await btPrompt('Rename category', c.name);
+        if (!name || name === c.name) return;
+        await guard(() => API.renameCategory(c.id, name));
+        await loadCategories();
+        paint();
       });
-      on(row, '[data-del]', 'click', () => {
-        if (!confirm(`Delete "${c.name}"? Projects using it become uncategorized.`)) return;
-        guard(() => API.deleteCategory(c.id)).then(async () => {
-          await loadCategories();
-          paint();
+      on(row, '[data-del]', 'click', async () => {
+        const ok = await btConfirm(`Delete “${c.name}”? Projects using it become uncategorized.`, {
+          danger: true,
+          ok: 'Delete',
         });
+        if (!ok) return;
+        await guard(() => API.deleteCategory(c.id));
+        await loadCategories();
+        paint();
       });
       listEl.appendChild(row);
     });
@@ -846,7 +908,8 @@ async function openPeople(bundle) {
       });
       on(row, '[data-makeowner]', 'click', async () => {
         const name = row.querySelector('.person-name').textContent;
-        if (!confirm(`Make ${name} the owner? You'll become an editor.`)) return;
+        if (!(await btConfirm(`Make ${name} the owner? You'll become an editor.`, { ok: 'Transfer' })))
+          return;
         await guard(() => API.transferProject(projectId, uid));
         close();
         openProject(projectId); // reload — my role changed
