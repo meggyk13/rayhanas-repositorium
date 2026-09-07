@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../lib/http.js';
 import { uuid } from '../lib/id.js';
-import { isNonEmptyString } from '../lib/validate.js';
+import { isNonEmptyString, numOrNull } from '../lib/validate.js';
 
 // GET /api/gate/events — saved gate events the signed-in user can see.
 export async function onRequestGet(context) {
@@ -39,7 +39,7 @@ export async function onRequestPost(context) {
       user.id,
       body.event_name.trim(),
       body.event_date ?? null,
-      body.float_amount == null ? null : Number(body.float_amount)
+      numOrNull(body.float_amount)
     ),
     context.env.DB.prepare(
       "INSERT INTO gate_event_collaborators (gate_event_id, user_id, role) VALUES (?, ?, 'owner')"

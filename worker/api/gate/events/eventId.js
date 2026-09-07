@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../../lib/http.js';
 import { requireGate } from '../../lib/gate.js';
-import { pick, isNonEmptyString } from '../../lib/validate.js';
+import { pick, isNonEmptyString, numOrNull } from '../../lib/validate.js';
 
 // GET — event bundle: event + role + entries + collaborators.
 export async function onRequestGet(context) {
@@ -37,7 +37,7 @@ export async function onRequestPatch(context) {
   }
   if ('event_name' in fields) fields.event_name = fields.event_name.trim();
   if ('float_amount' in fields) {
-    fields.float_amount = fields.float_amount == null ? null : Number(fields.float_amount);
+    fields.float_amount = numOrNull(fields.float_amount);
   }
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 

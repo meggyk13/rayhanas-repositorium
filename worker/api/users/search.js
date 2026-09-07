@@ -1,7 +1,9 @@
 import { json, error } from '../lib/http.js';
 
 // GET /api/users/search?q=…  — for the "invite an existing user" picker.
-// Signed-in only. Matches name or email prefix/substring, capped at 10.
+// Signed-in only. Matches on name only and never returns email: an email you
+// already know is invited through the exact-match path in collaborators.js, so
+// there's no reason to let a signed-in user resolve or enumerate addresses here.
 export async function onRequestGet(context) {
   const user = context.data.user;
   if (!user) return error(401, 'Not signed in');
@@ -11,11 +13,11 @@ export async function onRequestGet(context) {
 
   const like = `%${q}%`;
   const { results } = await context.env.DB.prepare(
-    `SELECT id, name, email FROM users
-      WHERE id != ? AND (lower(email) LIKE ? OR lower(name) LIKE ?)
+    `SELECT id, name FROM users
+      WHERE id != ? AND name IS NOT NULL AND lower(name) LIKE ?
       ORDER BY name LIMIT 10`
   )
-    .bind(user.id, like, like)
+    .bind(user.id, like)
     .all();
 
   return json({ users: results });

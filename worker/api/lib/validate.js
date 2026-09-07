@@ -3,6 +3,19 @@ export const COLLAB_ROLES = ['editor', 'viewer']; // 'owner' is only reachable v
 
 export const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
 
+// Numeric coercion for optional columns. Non-numeric / non-finite input becomes
+// null (or 0 for the count columns) instead of NaN — D1's .bind() throws on NaN,
+// which would turn a bad field into a 500 instead of a stored no-op.
+export const numOrNull = (v) => {
+  if (v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+export const intOrZero = (v) => {
+  const n = Math.trunc(Number(v));
+  return Number.isFinite(n) ? n : 0;
+};
+
 // Copy only the listed keys that are actually present on the source.
 export function pick(obj, keys) {
   const out = {};

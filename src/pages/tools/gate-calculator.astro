@@ -981,6 +981,14 @@ import Base from '../../layouts/Base.astro';
       return (n < 0 ? '\u2212' : '') + '$' + Math.abs(n).toFixed(2);
     }
 
+    // HTML-escape anything that reaches innerHTML. Entries loaded from a shared
+    // event carry fields a co-editor typed, so treat them as untrusted.
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+    }
+
     // $20, or $7.50 — for prices on the tally rows
     function price(n) {
       return n % 1 === 0 ? '$' + n : money(n);
@@ -1174,11 +1182,11 @@ import Base from '../../layouts/Base.astro';
         const row = document.createElement('div');
         row.className = 'hrow';
         row.innerHTML =
-          '<span class="hdesc">' + (h.t ? describeTally(h.t) : h.desc || '') +
-          '<span class="htime">' + h.time + '</span></span>' +
+          '<span class="hdesc">' + (h.t ? describeTally(h.t) : esc(h.desc || '')) +
+          '<span class="htime">' + esc(h.time) + '</span></span>' +
           '<span class="hamt">' + money(h.total) + '</span>' +
           '<button type="button" class="hdel" data-idx="' + i +
-          '" aria-label="Delete the group logged at ' + h.time + '">\u00d7</button>';
+          '" aria-label="Delete the group logged at ' + esc(h.time) + '">\u00d7</button>';
         historyList.appendChild(row);
       }
 
@@ -1474,7 +1482,12 @@ import Base from '../../layouts/Base.astro';
     }
 
     function csvCell(v) {
-      const s = v === null || v === undefined ? '' : String(v);
+      let s = v === null || v === undefined ? '' : String(v);
+      // Guard against spreadsheet formula injection: a non-numeric cell a
+      // co-editor supplied (event name, entry time) that starts with =, +, -, @
+      // is prefixed with a quote so it opens as text, not a formula. Plain
+      // numbers (including negative totals) are left alone so they still sum.
+      if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
       return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     }
 
@@ -1677,13 +1690,16 @@ import Base from '../../layouts/Base.astro';
       function historyFromEntry(e) {
         var x = {};
         try { x = JSON.parse(e.notes || '{}'); } catch (err) {}
+        // notes is written by any co-editor of the event; time is only ever a
+        // short clock label, so keep it to characters that can appear in one.
+        var time = String(x.time == null ? '' : x.time).replace(/[^0-9A-Za-z :.\/-]/g, '').slice(0, 32);
         return {
           t: {
             memberAdult: e.member_count || 0, nonMemberAdult: e.nonmember_count || 0,
             under18: e.under18_count || 0, lunch: x.lunch || 0, feast: x.feast || 0,
           },
           total: e.amount || 0,
-          time: x.time || '',
+          time: time,
         };
       }
 

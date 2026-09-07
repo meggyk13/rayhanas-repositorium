@@ -57,9 +57,12 @@ export async function onRequestPost(context) {
     .first();
   if (!user) return error(404, 'User not found');
 
+  // The WHERE guard matches PATCH/DELETE: an existing 'owner' row is never
+  // rewritten here (ownership only moves through /transfer).
   await db.prepare(
     `INSERT INTO project_collaborators (project_id, user_id, role) VALUES (?, ?, ?)
-     ON CONFLICT(project_id, user_id) DO UPDATE SET role = excluded.role`
+     ON CONFLICT(project_id, user_id) DO UPDATE SET role = excluded.role
+       WHERE project_collaborators.role != 'owner'`
   ).bind(id, targetUserId, body.role).run();
 
   return json({ collaborator: { user_id: user.id, name: user.name, email: user.email, role: body.role } });

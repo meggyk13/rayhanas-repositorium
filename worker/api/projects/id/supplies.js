@@ -1,7 +1,7 @@
 import { json, error, readJson } from '../../lib/http.js';
 import { uuid } from '../../lib/id.js';
 import { requireProject, touchStmt } from '../../lib/projects.js';
-import { isNonEmptyString } from '../../lib/validate.js';
+import { isNonEmptyString, numOrNull } from '../../lib/validate.js';
 
 export async function onRequestGet(context) {
   const { id } = context.params;
@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
       id,
       body.name.trim(),
       body.acquired ? 1 : 0,
-      body.cost == null ? null : Number(body.cost),
+      numOrNull(body.cost),
       body.source ?? null,
       body.url ?? null
     ),

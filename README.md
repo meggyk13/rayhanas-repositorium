@@ -39,11 +39,12 @@ Then open http://localhost:4321
 browser), navigate to the right folder, edit or create a `.md` file, commit.
 The site rebuilds in a minute or two.
 
-| To add a... | Create a `.md` file in... |
-| --- | --- |
-| A&S project or Karagöz play | `src/content/ans/` |
-| Class handout | `src/content/handouts/` |
-| Article | `src/content/articles/` |
+| To add a... | Create a `.md` file in... | And set |
+| --- | --- | --- |
+| A&S project or Karagöz play | `src/content/ans/` | `kind: project` (the default) |
+| Class handout | `src/content/ans/` | `kind: handout` |
+| Research / how-to article | `src/content/ans/` | `kind: research` |
+| Newcomer guide or SCA commentary | `src/content/sca-life/` | — |
 
 Every file starts with this header:
 
@@ -53,7 +54,9 @@ title: "The Title"
 summary: "One line shown on index pages"
 date: 2026-07-15
 tags: [chatelaine, cooking]
+kind: project            # ans entries only: project (default) | handout | research
 pdf: /files/optional-original.pdf   # optional
+cover: /images/optional-thumbnail.jpg   # optional; else the first image in the body
 ---
 ```
 
@@ -72,19 +75,20 @@ mobile app can work on the repo directly and push.
 ## Structure
 
 ```
-src/content/       ← everything you write (markdown)
-src/pages/         ← page templates and the tools
-src/pages/tools/   ← şalvar calculator, packing list
-src/styles/        ← design tokens and all CSS
-src/layouts/       ← the shared page shell (header/nav/footer)
-public/images/     ← photos and figures
+src/content/ans/       ← A&S projects, handouts, research (markdown)
+src/content/sca-life/   ← newcomer guides and commentary (markdown)
+src/pages/              ← page templates
+src/pages/tools/        ← the browser tools (pattern generators, planners)
+src/styles/             ← design tokens and all CSS
+src/layouts/            ← the shared page shell (header/nav/footer)
+public/images/          ← photos and figures
+worker/                 ← Brambletally API (Cloudflare Worker + D1)
 ```
 
 ## To-do
 
-- [ ] Replace the two `example-*.md` placeholder files with real content
 - [ ] Write the About page (your voice) with a contact method
 - [ ] Add handout figure images (the pattern diagram especially)
 - [ ] Add launch articles after review (five-article slate)
 - [ ] Update the şalvar handout once the revised proportions are fabric-tested
-- [ ] Build the caftan generator and period measure converter
+- [ ] Build the period measure converter
