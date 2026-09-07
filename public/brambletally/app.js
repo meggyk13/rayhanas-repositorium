@@ -82,6 +82,7 @@ const API = {
   deleteInbox: (id) => api('/api/inbox/' + id, { method: 'DELETE' }),
 
   review: () => api('/api/review'),
+  search: (q) => api('/api/search?q=' + encodeURIComponent(q)),
 
   listCategories: () => api('/api/categories'),
   createCategory: (name) => api('/api/categories', { method: 'POST', body: { name } }),
@@ -277,7 +278,10 @@ function header() {
           <div class="wordmark">brambletally<span>.</span></div>
           <div class="tagline">project tracker</div>
         </div>
-        <button class="btn-sm btn-sm-ghost" id="bt-signout">Sign out</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-icon" id="bt-search" title="Search" aria-label="Search">🔍</button>
+          <button class="btn-sm btn-sm-ghost" id="bt-signout">Sign out</button>
+        </div>
       </div>
       <nav class="topnav" id="bt-nav">
         ${nav
@@ -297,6 +301,11 @@ function header() {
     }
     location.href = APP_PATH;
   });
+  on(el, '#bt-search', 'click', () => {
+    state.viewBeforeSearch = state.view;
+    state.view = 'search';
+    render();
+  });
   on(el, '[data-view]', 'click', (e) => {
     state.view = e.currentTarget.dataset.view;
     state.project = null;
@@ -310,6 +319,10 @@ function renderApp() {
   app.replaceChildren();
   if (state.view === 'project') {
     renderProject(app);
+    return;
+  }
+  if (state.view === 'search') {
+    renderSearch(app);
     return;
   }
   app.appendChild(header());
@@ -487,7 +500,7 @@ async function openProjectForm(existing, opts = {}) {
         <form id="bt-pform">
           <label class="sp-label">Title</label>
           <input class="sp-input" name="title" required value="${esc(p.title || '')}" />
-          <label class="sp-label">Category</label>
+          <label class="sp-label">Category <button type="button" class="sp-inline-link" id="bt-managecats">manage</button></label>
           <select class="sp-select" name="category">
             <option value="" ${!p.category ? 'selected' : ''}>(none)</option>
             ${cats
@@ -548,6 +561,16 @@ async function openProjectForm(existing, opts = {}) {
     newCat.hidden = catSel.value !== '__new';
     if (!newCat.hidden) newCat.focus();
   });
+  on(overlay, '#bt-managecats', 'click', () =>
+    openManageCategories(() => {
+      const keep = catSel.value;
+      catSel.innerHTML =
+        `<option value="">(none)</option>` +
+        state.categories.map((c) => `<option>${esc(c.name)}</option>`).join('') +
+        `<option value="__new">＋ New category…</option>`;
+      catSel.value = state.categories.some((c) => c.name === keep) ? keep : '';
+    })
+  );
 
   on(overlay, '#bt-pform', 'submit', async (e) => {
     e.preventDefault();
@@ -595,6 +618,84 @@ async function openProjectForm(existing, opts = {}) {
   });
   document.body.appendChild(overlay);
   overlay.querySelector('input[name=title]').focus();
+}
+
+// ── Manage categories ─────────────────────────────────────────────────────
+function openManageCategories(onDone) {
+  const overlay = h(`
+    <div class="modal-overlay open">
+      <div class="modal">
+        <div class="modal-header"><span class="modal-title">Categories</span>
+          <button class="modal-close">×</button></div>
+        <div id="bt-cat-list"></div>
+        <div class="person-add">
+          <label class="sp-label">Add a category</label>
+          <div style="display:flex;gap:8px">
+            <input class="sp-input" id="bt-cat-new" placeholder="Name" style="flex:1" />
+            <button class="btn-sm btn-sm-sage" id="bt-cat-add">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+  const close = () => {
+    overlay.remove();
+    if (onDone) onDone();
+  };
+  on(overlay, '.modal-close', 'click', close);
+  overlay.addEventListener('click', (e) => e.target === overlay && close());
+
+  const listEl = overlay.querySelector('#bt-cat-list');
+  const paint = () => {
+    listEl.replaceChildren();
+    if (!state.categories.length) {
+      listEl.appendChild(h('<div class="empty-section">No categories yet.</div>'));
+    }
+    state.categories.forEach((c) => {
+      const row = h(`
+        <div class="cat-row">
+          <span class="cat-row-name">${esc(c.name)}</span>
+          <span class="cat-row-actions">
+            <button class="btn-sm btn-sm-ghost" data-rename>Rename</button>
+            <button class="btn-sm btn-sm-ghost" data-del>Delete</button>
+          </span>
+        </div>
+      `);
+      on(row, '[data-rename]', 'click', () => {
+        const name = prompt('Rename category', c.name);
+        if (!name || name.trim() === c.name) return;
+        guard(() => API.renameCategory(c.id, name.trim())).then(async () => {
+          await loadCategories();
+          paint();
+        });
+      });
+      on(row, '[data-del]', 'click', () => {
+        if (!confirm(`Delete "${c.name}"? Projects using it become uncategorized.`)) return;
+        guard(() => API.deleteCategory(c.id)).then(async () => {
+          await loadCategories();
+          paint();
+        });
+      });
+      listEl.appendChild(row);
+    });
+  };
+
+  on(overlay, '#bt-cat-add', 'click', async () => {
+    const inp = overlay.querySelector('#bt-cat-new');
+    const name = inp.value.trim();
+    if (!name) return;
+    try {
+      await guard(() => API.createCategory(name));
+    } catch {
+      return;
+    }
+    inp.value = '';
+    await loadCategories();
+    paint();
+  });
+
+  document.body.appendChild(overlay);
+  paint();
 }
 
 // ── People / sharing ──────────────────────────────────────────────────────
@@ -1312,6 +1413,102 @@ async function openAssignStep(text, done) {
     await done();
   });
   document.body.appendChild(overlay);
+}
+
+// ── Search ────────────────────────────────────────────────────────────────
+function renderSearch(app) {
+  app.replaceChildren();
+  const bar = h(`
+    <div class="header">
+      <div class="search-row">
+        <button class="search-back" id="bt-s-back" aria-label="Back">←</button>
+        <input class="search-field" id="bt-s-input" type="search"
+          placeholder="Search projects, steps, inbox" autocomplete="off" />
+        <button class="search-clear" id="bt-s-clear" aria-label="Clear" hidden>✕</button>
+      </div>
+    </div>
+  `);
+  const main = h('<div class="project-list"></div>');
+  app.append(bar, main);
+
+  const input = bar.querySelector('#bt-s-input');
+  const clearBtn = bar.querySelector('#bt-s-clear');
+  input.value = state.searchQuery || '';
+  clearBtn.hidden = !input.value;
+  input.focus();
+
+  let timer;
+  input.addEventListener('input', () => {
+    state.searchQuery = input.value;
+    clearBtn.hidden = !input.value;
+    clearTimeout(timer);
+    timer = setTimeout(() => runSearch(main, input.value.trim()), 220);
+  });
+  on(bar, '#bt-s-back', 'click', () => {
+    state.view = state.viewBeforeSearch || 'home';
+    state.searchQuery = '';
+    render();
+  });
+  on(bar, '#bt-s-clear', 'click', () => {
+    input.value = '';
+    state.searchQuery = '';
+    clearBtn.hidden = true;
+    input.focus();
+    runSearch(main, '');
+  });
+
+  runSearch(main, (state.searchQuery || '').trim());
+}
+
+async function runSearch(main, q) {
+  if (q.length < 2) {
+    main.replaceChildren(h('<div class="empty">Type at least two characters.</div>'));
+    return;
+  }
+  main.replaceChildren(h('<div class="empty">Searching…</div>'));
+  let r;
+  try {
+    r = await guard(() => API.search(q));
+  } catch {
+    return;
+  }
+  const total = (r.projects?.length || 0) + (r.steps?.length || 0) + (r.inbox?.length || 0);
+  if (!total) {
+    main.replaceChildren(h(`<div class="empty">No matches for “${esc(q)}”.</div>`));
+    return;
+  }
+
+  const wrap = h('<div></div>');
+  const head = (label, n) => h(`<div class="s-head">${label} <span>${n}</span></div>`);
+
+  if (r.projects?.length) {
+    wrap.appendChild(head('Projects', r.projects.length));
+    r.projects.forEach((p) => wrap.appendChild(projectCard(p)));
+  }
+  if (r.steps?.length) {
+    wrap.appendChild(head('Steps', r.steps.length));
+    r.steps.forEach((s) => {
+      const row = h(`
+        <button class="s-result">
+          <div class="s-result-title${s.completed ? ' s-done' : ''}">${esc(s.title)}</div>
+          <div class="s-result-sub">${esc(s.project_title)}${
+            s.due_date ? ' · due ' + esc(fmtDate(s.due_date)) : ''
+          }</div>
+        </button>
+      `);
+      row.addEventListener('click', () => openProject(s.project_id));
+      wrap.appendChild(row);
+    });
+  }
+  if (r.inbox?.length) {
+    wrap.appendChild(head('Inbox', r.inbox.length));
+    r.inbox.forEach((it) => {
+      const row = h('<div class="s-result"></div>');
+      row.appendChild(h(`<div class="s-result-title">${esc(it.text)}</div>`));
+      wrap.appendChild(row);
+    });
+  }
+  main.replaceChildren(wrap);
 }
 
 // ── Next actions ──────────────────────────────────────────────────────────

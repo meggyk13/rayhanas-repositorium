@@ -1032,3 +1032,47 @@ textarea{resize:vertical;min-height:60px}
   transition: opacity .2s ease, transform .25s ease;
 }
 .next-nice.show { opacity: 1; transform: translate(-50%, -22px) scale(1); }
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+#bt-app .search-row { display: flex; gap: 8px; align-items: center; padding-bottom: 14px; }
+#bt-app .search-back {
+  background: none; border: none; font-size: 20px; color: var(--text-muted);
+  cursor: pointer; padding: 4px 4px; line-height: 1; flex-shrink: 0;
+}
+#bt-app .search-field {
+  flex: 1; min-width: 0; padding: 10px 12px; border-radius: 9px;
+  border: 1px solid var(--border-strong); background: var(--input);
+  color: var(--text); font: inherit; font-size: 15px;
+}
+#bt-app .search-clear {
+  background: none; border: none; font-size: 15px; color: var(--text-faint);
+  cursor: pointer; padding: 4px 6px; flex-shrink: 0;
+}
+#bt-app .s-head {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-faint); margin: 18px 0 8px; display: flex; gap: 6px; align-items: center;
+}
+#bt-app .s-head:first-child { margin-top: 4px; }
+#bt-app .s-head span { background: var(--elevated); border-radius: 99px; padding: 1px 7px; font-size: 10px; letter-spacing: 0; }
+#bt-app .s-result {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  border-bottom: 1px solid var(--border); padding: 11px 2px; cursor: pointer;
+}
+#bt-app .s-result-title { font-size: 15px; color: var(--text); line-height: 1.35; }
+#bt-app .s-result-title.s-done { text-decoration: line-through; color: var(--text-disabled); }
+#bt-app .s-result-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Manage categories ──────────────────────────────────────────────────── */
+.modal-overlay .sp-inline-link {
+  background: none; border: none; color: var(--amethyst); font: inherit;
+  font-size: 11px; font-weight: 600; cursor: pointer; padding: 0; margin-left: 8px;
+  text-transform: none; letter-spacing: 0;
+}
+.modal-overlay .cat-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.modal-overlay .cat-row:last-child { border-bottom: none; }
+.modal-overlay .cat-row-name { font-size: 15px; color: var(--text); }
+.modal-overlay .cat-row-actions { display: flex; gap: 6px; }
+.modal-overlay .cat-row-actions .btn-sm { padding: 5px 10px; font-size: 12px; }
