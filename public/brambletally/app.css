@@ -45,7 +45,7 @@ body{font-family:Inter,sans-serif;transition:background .2s,color .2s;font-size:
 body{background:var(--bg);color:var(--text)}
 
 /* ── Layout ───────────────────────────────────────────────────────────────── */
-#bt-app{max-width:430px;margin:0 auto;min-height:100vh;position:relative}
+#bt-app{max-width:560px;margin:0 auto;min-height:100vh;position:relative}
 
 /* ── Header ───────────────────────────────────────────────────────────────── */
 .header{
@@ -1076,3 +1076,32 @@ textarea{resize:vertical;min-height:60px}
 .modal-overlay .cat-row-name { font-size: 15px; color: var(--text); }
 .modal-overlay .cat-row-actions { display: flex; gap: 6px; }
 .modal-overlay .cat-row-actions .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ── Desktop / wide layout ──────────────────────────────────────────────── */
+@media (min-width: 720px) {
+  /* modals: bottom sheet on phones, centred dialog on wider screens */
+  .modal-overlay { align-items: center; justify-content: center; padding: 24px; }
+  .modal { width: 540px; max-width: 100%; border-radius: 16px; padding: 24px 24px 28px; max-height: 85vh; }
+  .modal-overlay.open .modal { transform: none; }
+  #noodle-screen > div { max-width: 520px; }
+
+  /* reading views stay a comfortable column */
+  #bt-app .detail-body { max-width: 620px; margin: 0 auto; }
+}
+
+@media (min-width: 900px) {
+  #bt-app { max-width: 1060px; }
+  /* the non-home views keep a readable column */
+  #bt-app .project-list:not(.is-home) { max-width: 620px; margin: 0 auto; }
+  /* the project list becomes a responsive card grid */
+  #bt-app .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+  #bt-app .cards-grid .card { margin-bottom: 0; }
+  /* on the home grid the "New project" button sits at the top-left */
+  #bt-app .is-home .newbar { justify-content: flex-start; }
+  #bt-app .is-home .due-band { max-width: 560px; }
+}

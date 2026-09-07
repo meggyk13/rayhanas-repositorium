@@ -326,7 +326,7 @@ function renderApp() {
     return;
   }
   app.appendChild(header());
-  const main = h('<div class="project-list"></div>');
+  const main = h(`<div class="project-list${state.view === 'home' ? ' is-home' : ''}"></div>`);
   app.appendChild(main);
   if (state.view === 'home') renderHome(main);
   else if (state.view === 'next') renderNext(main);
@@ -442,7 +442,9 @@ async function renderHome(main) {
     }
     wrap.appendChild(empty);
   } else {
-    list.forEach((p) => wrap.appendChild(projectCard(p)));
+    const grid = h('<div class="cards-grid"></div>');
+    list.forEach((p) => grid.appendChild(projectCard(p)));
+    wrap.appendChild(grid);
   }
 
   main.replaceChildren(wrap);
