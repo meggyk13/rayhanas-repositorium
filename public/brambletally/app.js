@@ -277,14 +277,14 @@ function header() {
         </div>
         <button class="btn-sm btn-sm-ghost" id="bt-signout">Sign out</button>
       </div>
-      <div class="tabs" id="bt-nav">
+      <nav class="topnav" id="bt-nav">
         ${nav
           .map(
             ([v, label]) =>
-              `<button class="tab${state.view === v ? ' active' : ''}" data-view="${v}">${label}</button>`
+              `<button class="topnav-item${state.view === v ? ' active' : ''}" data-view="${v}">${label}</button>`
           )
           .join('')}
-      </div>
+      </nav>
     </div>
   `);
   on(el, '#bt-signout', 'click', async () => {
@@ -321,9 +321,13 @@ function renderApp() {
 // ── Home / project list ────────────────────────────────────────────────────
 async function renderHome(main) {
   main.replaceChildren(h('<div class="empty">Loading…</div>'));
-  let projects;
+  let projects, review;
   try {
-    [{ projects }] = await Promise.all([guard(() => API.listProjects()), loadCategories()]);
+    [{ projects }, , review] = await Promise.all([
+      guard(() => API.listProjects()),
+      loadCategories(),
+      API.review().catch(() => ({ active: [], waiting: [] })),
+    ]);
   } catch {
     return;
   }
@@ -333,6 +337,34 @@ async function renderHome(main) {
   STATUSES.forEach((s) => (counts[s] = projects.filter((p) => p.status === s).length));
 
   const wrap = h('<div></div>');
+
+  // Overdue / due-today steps across Active + Waiting For projects.
+  const today = new Date().toISOString().slice(0, 10);
+  const dueItems = [];
+  [...(review.active || []), ...(review.waiting || [])].forEach((pr) => {
+    (pr.open_steps || []).forEach((st) => {
+      if (st.due_date && st.due_date <= today) {
+        dueItems.push({ ...st, projectId: pr.id, projectTitle: pr.title, overdue: st.due_date < today });
+      }
+    });
+  });
+  dueItems.sort((a, b) => (a.due_date < b.due_date ? -1 : 1));
+  if (dueItems.length) {
+    const band = h(`<div class="due-band"><div class="due-band-head">Due now &middot; ${dueItems.length}</div></div>`);
+    dueItems.slice(0, 6).forEach((it) => {
+      const row = h(`
+        <button class="due-band-row">
+          <span class="due-band-title">${esc(it.title)}</span>
+          <span class="due-band-sub">${esc(it.projectTitle)} · <span class="${
+            it.overdue ? 'due-over' : 'due-today'
+          }">${it.overdue ? 'overdue' : 'today'}</span></span>
+        </button>
+      `);
+      row.addEventListener('click', () => openProject(it.projectId));
+      band.appendChild(row);
+    });
+    wrap.appendChild(band);
+  }
 
   const statusTabs = h(`<div class="tabs" style="margin-bottom:8px"></div>`);
   STATUSES.forEach((s) => {
@@ -379,7 +411,20 @@ async function renderHome(main) {
   else if (state.filterCategory !== 'all') list = list.filter((p) => p.category === state.filterCategory);
 
   if (!list.length) {
-    wrap.appendChild(h(`<div class="empty">Nothing ${esc(state.filterStatus)} here.</div>`));
+    const msg = !projects.length
+      ? 'No projects yet. Start one, or capture a thought in the Inbox first.'
+      : `Nothing ${esc(state.filterStatus)}${
+          state.filterCategory !== 'all' && state.filterCategory !== 'none'
+            ? ' in ' + esc(state.filterCategory)
+            : ''
+        }.`;
+    const empty = h(`<div class="empty">${msg}</div>`);
+    if (!projects.length) {
+      const b = h('<button class="btn-empty">+ New project</button>');
+      b.addEventListener('click', () => openProjectForm(null));
+      empty.appendChild(h('<div style="margin-top:12px"></div>')).appendChild(b);
+    }
+    wrap.appendChild(empty);
   } else {
     list.forEach((p) => wrap.appendChild(projectCard(p)));
   }
@@ -466,11 +511,30 @@ async function openProjectForm(existing, opts = {}) {
             <button type="submit" class="btn-sm btn-sm-sage">${existing ? 'Save' : 'Create'}</button>
             <button type="button" class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
           </div>
+          ${
+            existing && existing.role === 'owner'
+              ? '<button type="button" class="btn-sm btn-danger" data-delete style="margin-top:18px">Delete project</button>'
+              : ''
+          }
         </form>
       </div>
     </div>
   `);
   const close = () => overlay.remove();
+  on(overlay, '[data-delete]', 'click', async () => {
+    if (!confirm(`Delete "${existing.title}"? This removes its steps, supplies and timeline. It can't be undone.`)) {
+      return;
+    }
+    try {
+      await guard(() => API.deleteProject(existing.id));
+    } catch {
+      return;
+    }
+    close();
+    state.view = 'home';
+    state.project = null;
+    renderApp();
+  });
   on(overlay, '.modal-close, [data-cancel]', 'click', close);
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
@@ -735,24 +799,28 @@ function renderProject(app) {
 
   const view = h(`
     <div>
-      <div class="detail-cover" style="background:${STATUS_COLOR[p.status]}22">
-        <button class="detail-back" id="bt-back">← Back</button>
-        ${canEdit ? '<button class="detail-export" id="bt-editproj">Edit</button>' : ''}
-      </div>
+      <div class="detail-strip" style="background:${STATUS_COLOR[p.status]}"></div>
       <div class="detail-body">
+        <div class="detail-topbar">
+          <button class="detail-back" id="bt-back">← Back</button>
+          ${canEdit ? '<button class="detail-back" id="bt-editproj">Edit</button>' : ''}
+        </div>
         <h1 class="detail-title">${esc(p.title)}</h1>
         <div class="detail-meta">
           <span class="status-pill" style="--tab-color:${STATUS_COLOR[p.status]}">${esc(p.status)}</span>
           ${p.category ? `<span>${esc(p.category)}</span>` : ''}
           ${p.deadline ? `<span>due ${esc(fmtDate(p.deadline))}</span>` : ''}
-          <button class="meta-people" id="bt-people">👥 ${b.collaborators.length} &middot; you're ${esc(p.role)}</button>
+          <button class="meta-people" id="bt-people">👥 ${b.collaborators.length}${
+            p.role !== 'owner' ? ` &middot; ${esc(p.role)}` : ''
+          }</button>
         </div>
         ${p.description ? `<p style="color:var(--text-muted);font-size:15px;line-height:1.55;margin-bottom:14px">${esc(p.description)}</p>` : ''}
-        <div class="pickup-box">
-          <div class="pickup-label">Pick up here</div>
-          <div class="pickup-text" id="bt-pickup">${p.pickup_note ? esc(p.pickup_note) : '<span style="color:var(--text-faint)">—</span>'}</div>
-        </div>
-        ${b.steps.length ? `<div class="progress-bar-wrap" style="margin:14px 0"><div class="progress-bar-fill" style="width:${pct}%;background:${STATUS_COLOR[p.status]}"></div></div>` : ''}
+        <div class="pickup-box" id="bt-pickup-box"></div>
+        ${
+          b.steps.length
+            ? `<div class="progress-bar-wrap" style="margin:14px 0"><div class="progress-bar-fill" style="width:${pct}%;background:${STATUS_COLOR[p.status]}"></div></div>`
+            : ''
+        }
         <button class="noodle-detail-btn" id="bt-focus">▶ Start a focus session</button>
         <div class="detail-tabs">
           ${['steps', 'supplies', 'timeline']
@@ -777,6 +845,7 @@ function renderProject(app) {
   on(view, '#bt-focus', 'click', () => openFocusSession(state.project));
   on(view, '#bt-people', 'click', () => openPeople(state.project));
   if (canEdit) on(view, '#bt-editproj', 'click', () => openProjectForm(p));
+  renderPickup(view.querySelector('#bt-pickup-box'), canEdit);
   on(view, '[data-tab]', 'click', (e) => {
     state.detailTab = e.currentTarget.dataset.tab;
     view
@@ -811,6 +880,53 @@ async function refreshDetail() {
   if (panel) renderPanel(panel);
 }
 
+// "Pick up here" — the project's next concrete action, editable inline.
+function renderPickup(box, canEdit) {
+  const p = state.project.project;
+  const show = () => {
+    box.replaceChildren(
+      h(`
+      <div>
+        <div class="pickup-label">Pick up here${canEdit ? ' <span class="pickup-edit-hint">edit</span>' : ''}</div>
+        <div class="pickup-text">${
+          p.pickup_note ? esc(p.pickup_note) : '<span style="color:var(--text-faint)">Nothing noted — tap to set the next action</span>'
+        }</div>
+      </div>
+    `)
+    );
+    if (canEdit) box.querySelector('.pickup-text').addEventListener('click', edit);
+    if (canEdit) box.querySelector('.pickup-edit-hint').addEventListener('click', edit);
+  };
+  const edit = () => {
+    box.replaceChildren(
+      h(`
+      <div>
+        <div class="pickup-label">Pick up here</div>
+        <textarea class="pickup-input" rows="2">${esc(p.pickup_note || '')}</textarea>
+        <div class="pickup-edit-actions">
+          <button class="btn-sm btn-sm-sage" data-save>Save</button>
+          <button class="btn-sm btn-sm-ghost" data-cancel>Cancel</button>
+        </div>
+      </div>
+    `)
+    );
+    const ta = box.querySelector('.pickup-input');
+    ta.focus();
+    on(box, '[data-cancel]', 'click', show);
+    on(box, '[data-save]', 'click', async () => {
+      const note = ta.value.trim() || null;
+      try {
+        await guard(() => API.updateProject(p.id, { pickup_note: note }));
+      } catch {
+        return;
+      }
+      p.pickup_note = note;
+      show();
+    });
+  };
+  show();
+}
+
 function sectionHeader(label, count, onAdd) {
   const el = h(`
     <div class="section-header">
@@ -825,23 +941,34 @@ function sectionHeader(label, count, onAdd) {
 // steps
 function stepsPanel(b, canEdit) {
   const wrap = h('<div class="detail-panel"></div>');
-  const listEl = h('<div></div>');
   const rerender = refreshDetail;
-  const fill = () => {
-    listEl.replaceChildren();
-    if (!b.steps.length) listEl.appendChild(h('<div class="empty-section">No steps yet.</div>'));
-    b.steps.forEach((s) => listEl.appendChild(stepRow(b, s, canEdit, rerender)));
-  };
+  const open = b.steps.filter((s) => !s.completed);
+  const done = b.steps.filter((s) => s.completed);
 
   wrap.appendChild(
-    sectionHeader(
-      'Steps',
-      b.steps.length,
-      canEdit ? () => openStepForm(b, null, rerender) : null
-    )
+    sectionHeader('Steps', open.length, canEdit ? () => openStepForm(b, null, rerender) : null)
   );
+
+  const listEl = h('<div></div>');
+  if (!b.steps.length) {
+    listEl.appendChild(
+      h(`<div class="empty-section">${canEdit ? 'No steps yet — add the first one.' : 'No steps yet.'}</div>`)
+    );
+  }
+  open.forEach((s) => listEl.appendChild(stepRow(b, s, canEdit, rerender)));
   wrap.appendChild(listEl);
-  fill();
+
+  if (done.length) {
+    const toggle = h(`<button class="done-toggle">Completed (${done.length})</button>`);
+    const doneList = h('<div hidden></div>');
+    done.forEach((s) => doneList.appendChild(stepRow(b, s, canEdit, rerender)));
+    toggle.addEventListener('click', () => {
+      doneList.hidden = !doneList.hidden;
+      toggle.classList.toggle('open', !doneList.hidden);
+    });
+    wrap.appendChild(toggle);
+    wrap.appendChild(doneList);
+  }
   return wrap;
 }
 
@@ -851,7 +978,7 @@ function stepRow(b, s, canEdit, rerender) {
       <button class="checkbox" ${s.completed ? 'aria-checked="true"' : ''} ${canEdit ? '' : 'disabled'}>${
         s.completed ? '✓' : ''
       }</button>
-      <div class="check-content">
+      <div class="check-content${canEdit ? ' tappable' : ''}">
         <div class="check-title">${esc(s.title)}</div>
         ${
           s.due_date || s.notes
@@ -861,7 +988,6 @@ function stepRow(b, s, canEdit, rerender) {
             : ''
         }
       </div>
-      ${canEdit ? '<button class="card-menu-btn" data-edit>⋯</button>' : ''}
     </div>
   `);
   if (canEdit) {
@@ -869,7 +995,7 @@ function stepRow(b, s, canEdit, rerender) {
       await guard(() => API.updateStep(b.project.id, s.id, { completed: !s.completed }));
       rerender();
     });
-    on(row, '[data-edit]', 'click', () => openStepForm(b, s, rerender));
+    on(row, '.check-content', 'click', () => openStepForm(b, s, rerender));
   }
   return row;
 }
@@ -953,13 +1079,12 @@ function supplyRow(b, s, canEdit, rerender) {
       <button class="checkbox" ${s.acquired ? 'aria-checked="true"' : ''} ${canEdit ? '' : 'disabled'}>${
         s.acquired ? '✓' : ''
       }</button>
-      <div class="check-content">
+      <div class="check-content${canEdit ? ' tappable' : ''}">
         <div class="check-title">${esc(s.name)}</div>
         ${bits.length || s.url ? `<div class="check-sub">${bits.join(' · ')}${
           s.url ? ` · <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : ''
         }</div>` : ''}
       </div>
-      ${canEdit ? '<button class="card-menu-btn" data-edit>⋯</button>' : ''}
     </div>
   `);
   if (canEdit) {
@@ -967,7 +1092,10 @@ function supplyRow(b, s, canEdit, rerender) {
       await guard(() => API.updateSupply(b.project.id, s.id, { acquired: !s.acquired }));
       rerender();
     });
-    on(row, '[data-edit]', 'click', () => openSupplyForm(b, s, rerender));
+    on(row, '.check-content', 'click', (e) => {
+      if (e.target.tagName === 'A') return; // let the link work
+      openSupplyForm(b, s, rerender);
+    });
   }
   return row;
 }

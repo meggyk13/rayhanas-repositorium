@@ -873,15 +873,68 @@ textarea{resize:vertical;min-height:60px}
   font-size: 16px; cursor: pointer; padding: 4px 6px; flex-shrink: 0; align-self: center;
 }
 #bt-app .status-pill { background: var(--tab-color, var(--sage))22; color: var(--tab-color, var(--sage)); }
-#bt-app .detail-back, #bt-app .detail-export {
-  position: absolute; top: 14px; background: var(--card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600;
-  color: var(--text-sub); cursor: pointer;
+#bt-app .detail-body { padding: 12px 16px 120px; }
+#bt-app .detail-strip { height: 5px; }
+#bt-app .detail-topbar { display: flex; justify-content: space-between; margin-bottom: 12px; }
+#bt-app .detail-topbar .detail-back {
+  position: static; background: none; border: none; padding: 4px 0;
+  font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer;
 }
-#bt-app .detail-back { left: 16px; }
-#bt-app .detail-export { right: 16px; }
-#bt-app .detail-body { padding: 16px; }
 #bt-app .newbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
+/* Top nav — distinct from the filter chips below it */
+#bt-app .topnav { display: flex; gap: 20px; padding-bottom: 0; margin-bottom: 12px; }
+#bt-app .topnav-item {
+  background: none; border: none; padding: 6px 0 10px; cursor: pointer;
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--text-faint);
+  border-bottom: 2px solid transparent;
+}
+#bt-app .topnav-item.active { color: var(--text); border-bottom-color: var(--sage); }
+
+/* Pick-up-here inline edit */
+#bt-app .pickup-edit-hint { float: right; font-size: 10px; color: var(--text-faint); cursor: pointer; }
+#bt-app .pickup-text { cursor: pointer; }
+#bt-app .pickup-input {
+  width: 100%; margin-top: 6px; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border-strong); background: var(--card); color: var(--text);
+  font: inherit; font-size: 15px; resize: vertical;
+}
+#bt-app .pickup-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* Completed-steps toggle */
+#bt-app .done-toggle {
+  background: none; border: none; cursor: pointer; font: inherit; font-size: 13px;
+  font-weight: 600; color: var(--text-muted); padding: 12px 0 4px;
+}
+#bt-app .done-toggle::before { content: '▸ '; }
+#bt-app .done-toggle.open::before { content: '▾ '; }
+#bt-app .check-content.tappable { cursor: pointer; }
+
+/* Danger button */
+#bt-app .btn-danger, .modal-overlay .btn-danger {
+  background: #ef444418; color: #ef4444; border: none;
+  padding: 10px 16px; border-radius: 7px; font: inherit; font-size: 14px;
+  font-weight: 600; cursor: pointer;
+}
+
+/* Home "due now" band */
+#bt-app .due-band {
+  background: var(--warn-bg); border: 1px solid var(--warn-border);
+  border-radius: 12px; padding: 10px 12px; margin-bottom: 16px;
+}
+#bt-app .due-band-head {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--warn-text); margin-bottom: 6px;
+}
+#bt-app .due-band-row {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  cursor: pointer; font: inherit; padding: 6px 0; border-top: 1px solid var(--warn-border);
+}
+#bt-app .due-band-row:first-of-type { border-top: none; }
+#bt-app .due-band-title { display: block; font-size: 14px; color: var(--text); }
+#bt-app .due-band-sub { display: block; font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+#bt-app .due-over { color: #ef4444; font-weight: 600; }
+#bt-app .due-today { color: var(--warn-text); font-weight: 600; }
 
 .modal-overlay .sp-input, .modal-overlay .sp-select { margin: 0 20px 2px; width: calc(100% - 40px); }
 .modal-overlay .sp-label:first-of-type { padding-top: 2px; }
