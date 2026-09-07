@@ -10,12 +10,13 @@ const APP_PATH = '/tools/brambletally/';
 
 const STATUSES = ['Active', 'Waiting For', 'Someday', 'Paused', 'Done'];
 const STATUS_COLOR = {
-  Active: '#6B8E23',
-  'Waiting For': '#d97706',
-  Someday: '#8b5cf6',
-  Paused: '#6b7280',
-  Done: '#059669',
+  Active: '#2f9491', // turquoise
+  'Waiting For': '#bd8a34', // gold
+  Someday: '#5566a8', // cobalt-violet
+  Paused: '#8a8578', // warm grey
+  Done: '#5a8a5f', // settled green
 };
+const CAT_COLOR = '#3a5fb0'; // cobalt for category chips
 const UNCATEGORIZED = 'Uncategorized';
 
 // ── API ────────────────────────────────────────────────────────────────────
@@ -152,13 +153,39 @@ async function guard(fn) {
 }
 
 // ── Theme ──────────────────────────────────────────────────────────────────
-function applyTheme() {
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const set = () =>
-    document.documentElement.setAttribute('data-theme', mq.matches ? 'dark' : 'light');
-  set();
-  mq.addEventListener('change', set);
+function effectiveTheme() {
+  let t;
+  try {
+    t = localStorage.getItem('bt-theme');
+  } catch {
+    /* private mode */
+  }
+  if (t === 'light' || t === 'dark') return t;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', effectiveTheme());
+}
+function toggleTheme() {
+  const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+  try {
+    localStorage.setItem('bt-theme', next);
+  } catch {
+    /* ignore */
+  }
+  applyTheme();
+  render();
+}
+// react to system changes only while the user hasn't set an explicit choice
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  let stored;
+  try {
+    stored = localStorage.getItem('bt-theme');
+  } catch {
+    /* ignore */
+  }
+  if (stored !== 'light' && stored !== 'dark') applyTheme();
+});
 
 // ── State ──────────────────────────────────────────────────────────────────
 const state = {
@@ -279,6 +306,9 @@ function header() {
           <div class="tagline">project tracker</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-icon" id="bt-theme" title="Switch theme" aria-label="Switch theme">${
+            effectiveTheme() === 'dark' ? '☀' : '☾'
+          }</button>
           <button class="btn-icon" id="bt-search" title="Search" aria-label="Search">🔍</button>
           <button class="btn-sm btn-sm-ghost" id="bt-signout">Sign out</button>
         </div>
@@ -301,6 +331,7 @@ function header() {
     }
     location.href = APP_PATH;
   });
+  on(el, '#bt-theme', 'click', toggleTheme);
   on(el, '#bt-search', 'click', () => {
     state.viewBeforeSearch = state.view;
     state.view = 'search';
@@ -405,7 +436,7 @@ async function renderHome(main) {
     const catRow = h(`<div class="tabs" style="margin-bottom:14px"></div>`);
     catFilters.forEach(([v, label]) => {
       const b = h(
-        `<button class="tab${state.filterCategory === v ? ' active' : ''}" style="--tab-color:#9966CC">${esc(
+        `<button class="tab${state.filterCategory === v ? ' active' : ''}" style="--tab-color:${CAT_COLOR}">${esc(
           label
         )}</button>`
       );

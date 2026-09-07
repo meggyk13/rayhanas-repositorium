@@ -1,46 +1,62 @@
 /* ── Reset & base ─────────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;-webkit-tap-highlight-color:transparent}
-body{font-family:Inter,sans-serif;transition:background .2s,color .2s;font-size:17px;line-height:1.5}
-
-/* ── CSS variables ────────────────────────────────────────────────────────── */
-:root{
-  --bg:#F8F9FA;
-  --card:#FFFFFF;
-  --elevated:#eef0f2;
-  --input:#eef0f2;
-  --border:#dde1e6;
-  --border-strong:#c4cad2;
-  --text:#2D3436;
-  --text-sub:#4a5568;
-  --text-muted:#6b7280;
-  --text-faint:#9ca3af;
-  --text-disabled:#9ca3af;
-  --sage:#6B8E23;
-  --amethyst:#9966CC;
-  --warn-bg:#fffbeb;
-  --warn-border:#fcd34d;
-  --warn-text:#92400e;
-  --header-bg:#F8F9FA;
+body{
+  font-family:var(--font-ui);
+  transition:background .25s,color .25s;
+  font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
 }
-[data-theme="dark"]{
-  --bg:#1A1D23;
-  --card:#252A32;
-  --elevated:#2E3440;
-  --input:#2E3440;
-  --border:#333948;
-  --border-strong:#444c5c;
-  --text:#E0E0E0;
-  --text-sub:#A8B2C0;
-  --text-muted:#7a8694;
-  --text-faint:#4a5260;
-  --text-disabled:#5a6474;
-  --sage:#9EB384;
-  --amethyst:#D1C4E9;
-  --warn-bg:#2a1f0e;
-  --warn-border:#7a4f10;
-  --warn-text:#e8b84b;
-  --header-bg:#1A1D23;
+
+/* ── Design tokens — İznik ware: cobalt, turquoise, bole red, gold, on
+      parchment. Matches Rayhana's Repositorium. ─────────────────────────── */
+:root{
+  --font-ui:'Inter',system-ui,-apple-system,sans-serif;
+  --font-head:'EB Garamond',Georgia,'Times New Roman',serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+
+  --bg:#f4ecd8;
+  --card:#fdf9ef;
+  --elevated:#ece0c4;
+  --input:#fbf6e9;
+  --border:#e2d6b8;
+  --border-strong:#cdbc93;
+  --text:#26304a;
+  --text-sub:#3d476a;
+  --text-muted:#6a7194;
+  --text-faint:#9aa0b6;
+  --text-disabled:#a9adbf;
+  --sage:#2e8c8a;      /* turquoise — primary accent */
+  --amethyst:#1f4396;  /* cobalt — secondary accent */
+  --gold:#be9540;
+  --danger:#a93b2a;    /* İznik red */
+  --warn-bg:#f5ead0;
+  --warn-border:#dcc189;
+  --warn-text:#7c5a15;
+  --header-bg:#efe6cd;
+  --shadow:0 1px 3px rgba(38,48,74,.09),0 1px 2px rgba(38,48,74,.05);
+}
+:root[data-theme="dark"]{
+  --bg:#1b1d27;
+  --card:#262834;
+  --elevated:#313343;
+  --input:#2b2d3a;
+  --border:#383b4c;
+  --border-strong:#4c5066;
+  --text:#e9e3d3;
+  --text-sub:#c3bdad;
+  --text-muted:#8f8b7f;
+  --text-faint:#6a6675;
+  --text-disabled:#5b5967;
+  --sage:#4cb6b0;
+  --amethyst:#82a4e4;
+  --gold:#d9b968;
+  --danger:#dd7c6a;
+  --warn-bg:#2b2517;
+  --warn-border:#5c4c22;
+  --warn-text:#d9b968;
+  --header-bg:#1b1d27;
+  --shadow:0 1px 3px rgba(0,0,0,.35);
 }
 body{background:var(--bg);color:var(--text)}
 
@@ -1104,4 +1120,133 @@ textarea{resize:vertical;min-height:60px}
   /* on the home grid the "New project" button sits at the top-left */
   #bt-app .is-home .newbar { justify-content: flex-start; }
   #bt-app .is-home .due-band { max-width: 560px; }
+}
+
+/* ══ Visual polish — İznik palette, EB Garamond display, refined spacing ══ */
+
+#bt-app { color: var(--text); }
+
+/* Wordmark & display type */
+#bt-app .wordmark {
+  font-family: var(--font-head); font-weight: 600; font-size: 30px;
+  letter-spacing: 0; color: var(--amethyst);
+}
+#bt-app .wordmark span { color: var(--gold); }
+#bt-app .detail-title { font-family: var(--font-head); font-weight: 600; font-size: 28px; color: var(--amethyst); letter-spacing: .01em; line-height: 1.2; }
+#bt-app .card-title { font-family: var(--font-head); font-weight: 600; font-size: 19px; color: var(--amethyst); line-height: 1.25; }
+#bt-app .next-line { font-family: var(--font-head); font-weight: 600; font-size: 21px; color: var(--text); }
+#bt-app .bt-auth h1, #bt-app .modal-title, #bt-app .bt-signed .wordmark { font-family: var(--font-head); }
+#bt-app .bt-auth .wordmark { font-size: 34px; }
+
+/* Small tracked labels in mono */
+#bt-app .tagline, #bt-app .section-label, #bt-app .sp-label, #bt-app .pickup-label,
+#bt-app .s-head, #bt-app .next-group-head, #bt-app .due-band-head,
+#bt-app .person-group, #bt-app .bt-auth label {
+  font-family: var(--font-mono); letter-spacing: .1em;
+}
+
+/* Header */
+#bt-app .header { border-bottom: 1px solid var(--border); backdrop-filter: saturate(1.1); }
+#bt-app .tagline { color: var(--text-faint); }
+
+/* Nav — cobalt underline */
+#bt-app .topnav-item.active { color: var(--amethyst); border-bottom-color: var(--gold); }
+
+/* Cards */
+#bt-app .card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); padding: 15px 16px;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+@media (hover: hover) {
+  #bt-app .card:hover { border-color: var(--border-strong); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(38,48,74,.12); }
+  :root[data-theme="dark"] #bt-app .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+}
+#bt-app .card-meta { color: var(--text-muted); font-size: 12.5px; }
+#bt-app .card-footer { color: var(--text-sub); font-size: 13px; margin-top: 8px; line-height: 1.5; }
+
+/* Status pill & chips */
+#bt-app .status-pill { border-radius: 6px; letter-spacing: .03em; padding: 3px 9px; }
+#bt-app .tab { border-radius: 7px; }
+#bt-app .cat-badge { background: var(--elevated); color: var(--text-sub); }
+
+/* Buttons */
+#bt-app .btn-sm, #bt-app .btn-primary { border-radius: 8px; font-family: var(--font-ui); }
+#bt-app .btn-sm-ghost { background: var(--elevated); color: var(--text-sub); border: 1px solid transparent; }
+#bt-app .btn-sm-amethyst { background: var(--amethyst); }
+#bt-app .btn-section-add { color: var(--sage); }
+#bt-app .noodle-detail-btn {
+  background: linear-gradient(var(--amethyst), color-mix(in srgb, var(--amethyst) 88%, #000));
+  border-radius: 10px; font-weight: 700; letter-spacing: .02em;
+}
+
+/* Progress bar */
+#bt-app .progress-bar-wrap { height: 5px; background: var(--elevated); }
+
+/* Inputs */
+#bt-app .sp-input, #bt-app .sp-select, #bt-app .pickup-input,
+#bt-app .search-field, #bt-app .journal-add-form textarea, #bt-app #bt-inbox-text {
+  background: var(--input); border-color: var(--border-strong); border-radius: 8px;
+}
+
+/* Pickup-here box — cobalt edge */
+#bt-app .pickup-box { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--amethyst); border-radius: 10px; padding: 12px 14px; }
+#bt-app .pickup-label { color: var(--amethyst); }
+
+/* Detail top accent already coloured per status; make it a touch bolder */
+#bt-app .detail-strip { height: 6px; }
+
+/* Focus-visible — turquoise, matches the site */
+#bt-app :focus-visible, .modal-overlay :focus-visible, #noodle-screen :focus-visible {
+  outline: 2px solid var(--sage); outline-offset: 2px;
+}
+
+/* Empty states — a hair warmer */
+#bt-app .empty { color: var(--text-muted); }
+
+/* Modals */
+.modal { box-shadow: 0 -8px 40px rgba(38,48,74,.22); }
+@media (min-width: 720px) { .modal { box-shadow: 0 20px 60px rgba(38,48,74,.3); } }
+.modal-title { font-family: var(--font-head); font-weight: 600; font-size: 20px; color: var(--amethyst); }
+
+/* Focus session */
+#noodle-screen { background: var(--bg); }
+#noodle-screen .noodle-wordmark { font-family: var(--font-head); color: var(--amethyst); }
+.noodle-ring-fill { stroke: var(--sage); }
+.noodle-time-btn.selected { border-color: var(--sage); background: color-mix(in srgb, var(--sage) 14%, transparent); color: var(--sage); }
+.noodle-go-btn { background: var(--sage); border-radius: 12px; }
+.next-nice { color: var(--sage); font-family: var(--font-head); }
+
+/* Due-band — gold on parchment */
+#bt-app .due-band { border-radius: 12px; }
+#bt-app .due-over { color: var(--danger); }
+
+/* Account bars on the tool pages already ship their own colours; nudge them
+   toward the palette when they render inside a themed context is not needed. */
+
+/* Tint chips & pills via color-mix so any --tab-color works on both grounds */
+#bt-app .status-pill {
+  background: color-mix(in srgb, var(--tab-color, var(--sage)) 16%, transparent);
+  color: var(--tab-color, var(--sage));
+}
+#bt-app .tab.active {
+  background: color-mix(in srgb, var(--tab-color, var(--sage)) 14%, transparent);
+  border-color: color-mix(in srgb, var(--tab-color, var(--sage)) 38%, transparent);
+  color: var(--tab-color, var(--sage));
+}
+#bt-app .tab.active .tab-count {
+  background: color-mix(in srgb, var(--tab-color, var(--sage)) 24%, transparent);
+  color: var(--tab-color, var(--sage));
+}
+#bt-app .tab { color: var(--text-faint); }
+
+/* Theme toggle icon button */
+#bt-app #bt-theme { font-size: 15px; }
+
+/* Header fits on narrow screens */
+#bt-app .header-row .btn-sm { white-space: nowrap; }
+@media (max-width: 430px) {
+  #bt-app .wordmark { font-size: 24px; }
+  #bt-app .header-row > div:last-child { gap: 6px; }
+  #bt-app .btn-icon { width: 34px; height: 34px; }
 }
