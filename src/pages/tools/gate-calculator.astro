@@ -1625,5 +1625,140 @@ import Base from '../../layouts/Base.astro';
 
     renderRows();
     renderHistory();
+
+    // ── Brambletally: save the day's gate to your account ─────────────────
+    (function () {
+      var style = document.createElement('style');
+      style.textContent =
+        '#bt-account{margin:14px 0;font:500 13px/1.4 system-ui,-apple-system,sans-serif}' +
+        '.bt-acct{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:flex-end;' +
+        'background:#f4f2ee;border:1px solid #e4e0d8;border-radius:10px;padding:8px 12px;color:#5c564c}' +
+        '.bt-acct .bt-grow{flex:1;min-width:150px}' +
+        '.bt-acct button,.bt-acct select{font:inherit;padding:6px 10px;border-radius:7px;border:1px solid #cfc8ba;background:#fff;color:#3a352c;cursor:pointer}' +
+        '.bt-acct button.primary{background:#6B8E23;border-color:#6B8E23;color:#fff}' +
+        '@media(prefers-color-scheme:dark){.bt-acct{background:#24262b;border-color:#33363d;color:#a7a196}' +
+        '.bt-acct button,.bt-acct select{background:#2e3138;border-color:#444c5c;color:#e0ddd5}}' +
+        '@media print{#bt-account{display:none}}';
+      document.head.appendChild(style);
+      var mount = document.createElement('div');
+      mount.id = 'bt-account';
+      var host = document.querySelector('.wrap.gate') || document.body;
+      var head = host.querySelector('.gate-head');
+      if (head && head.after) head.after(mount);
+      else host.insertBefore(mount, host.firstChild);
+
+      function jx(url, opts) {
+        return fetch(url, Object.assign({ credentials: 'same-origin' }, opts || {})).then(function (r) {
+          return r.json().catch(function () { return null; }).then(function (d) {
+            if (!r.ok) { var e = new Error((d && d.error) || 'HTTP ' + r.status); e.status = r.status; throw e; }
+            return d;
+          });
+        });
+      }
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function entryFromHistory(e) {
+        var t = e.t || {};
+        return {
+          entry_type: 'group',
+          amount: e.total || 0,
+          headcount: (t.memberAdult || 0) + (t.nonMemberAdult || 0) + (t.under18 || 0),
+          meal_count: (t.lunch || 0) + (t.feast || 0),
+          member_count: t.memberAdult || 0,
+          nonmember_count: t.nonMemberAdult || 0,
+          under18_count: t.under18 || 0,
+          notes: JSON.stringify({ time: e.time || '', lunch: t.lunch || 0, feast: t.feast || 0 }),
+        };
+      }
+      function historyFromEntry(e) {
+        var x = {};
+        try { x = JSON.parse(e.notes || '{}'); } catch (err) {}
+        return {
+          t: {
+            memberAdult: e.member_count || 0, nonMemberAdult: e.nonmember_count || 0,
+            under18: e.under18_count || 0, lunch: x.lunch || 0, feast: x.feast || 0,
+          },
+          total: e.amount || 0,
+          time: x.time || '',
+        };
+      }
+
+      function render() {
+        jx('/api/auth/me').catch(function () { return null; }).then(function (me) {
+          if (!me || !me.user) {
+            mount.innerHTML =
+              '<div class="bt-acct"><span class="bt-grow">Sign in to save this day’s gate to your Brambletally account.</span>' +
+              '<button id="bt-in">Sign in</button></div>';
+            document.getElementById('bt-in').onclick = function () { location.href = '/tools/brambletally/'; };
+            return;
+          }
+          jx('/api/gate/events').then(function (res) {
+            var events = (res && res.events) || [];
+            var opts = '<option value="">Load a saved day…</option>' + events.map(function (ev) {
+              return '<option value="' + ev.id + '">' + esc(ev.event_name) + ' · ' + (ev.entry_count || 0) + ' groups</option>';
+            }).join('');
+            mount.innerHTML =
+              '<div class="bt-acct"><span class="bt-grow">Signed in as ' + esc(me.user.name || me.user.email) + '</span>' +
+              (events.length ? '<select id="bt-gload">' + opts + '</select>' : '') +
+              '<button id="bt-gsave" class="primary">Save day to account</button></div>';
+            document.getElementById('bt-gsave').onclick = saveDay;
+            var sel = document.getElementById('bt-gload');
+            if (sel) sel.onchange = function () { if (sel.value) loadDay(sel.value); };
+          }).catch(function () {});
+        });
+      }
+
+      function saveDay() {
+        if (!history.length) { alert('Nothing logged yet.'); return; }
+        var name = (eventName || '').trim() || prompt('Name this event', new Date().toLocaleDateString());
+        if (!name) return;
+        var btn = document.getElementById('bt-gsave');
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+        var items = history.map(entryFromHistory);
+        jx('/api/gate/events', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_name: name, float_amount: prices.float || 0 }),
+        })
+          .then(function (res) {
+            var id = res.event.id;
+            function post(i) {
+              if (i >= items.length) return Promise.resolve();
+              return jx('/api/gate/events/' + id + '/entries', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(items[i]),
+              }).then(function () { return post(i + 1); });
+            }
+            return post(0);
+          })
+          .then(function () {
+            btn.disabled = false;
+            btn.textContent = 'Save day to account';
+            alert('Saved ' + history.length + ' groups to “' + name + '”.');
+            render();
+          })
+          .catch(function (e) {
+            btn.disabled = false;
+            btn.textContent = 'Save day to account';
+            alert('Save failed: ' + (e.message || e));
+          });
+      }
+
+      function loadDay(id) {
+        jx('/api/gate/events/' + id).then(function (res) {
+          if (history.length && !confirm('Replace the current day’s log with the saved one?')) return;
+          eventName = res.event.event_name || '';
+          if (res.event.float_amount != null) { prices.float = res.event.float_amount; save(K_PRICES, prices); }
+          history = (res.entries || []).map(historyFromEntry);
+          save(K_HISTORY, history);
+          save(K_EVENT, eventName);
+          renderHistory();
+        }).catch(function (e) { alert('Load failed: ' + (e.message || e)); });
+      }
+
+      render();
+    })();
   })();
 </script>
