@@ -66,6 +66,17 @@ const API = {
   addJournal: (pid, text) =>
     api(`/api/projects/${pid}/journal`, { method: 'POST', body: { text } }),
 
+  collaborators: (pid) => api(`/api/projects/${pid}/collaborators`),
+  addCollaborator: (pid, body) =>
+    api(`/api/projects/${pid}/collaborators`, { method: 'POST', body }),
+  setCollaboratorRole: (pid, userId, role) =>
+    api(`/api/projects/${pid}/collaborators`, { method: 'PATCH', body: { userId, role } }),
+  removeCollaborator: (pid, userId) =>
+    api(`/api/projects/${pid}/collaborators`, { method: 'DELETE', body: { userId } }),
+  transferProject: (pid, toUserId) =>
+    api(`/api/projects/${pid}/transfer`, { method: 'POST', body: { toUserId } }),
+  searchUsers: (q) => api('/api/users/search?q=' + encodeURIComponent(q)),
+
   listInbox: () => api('/api/inbox'),
   addInbox: (text) => api('/api/inbox', { method: 'POST', body: { text } }),
   deleteInbox: (id) => api('/api/inbox/' + id, { method: 'DELETE' }),
@@ -519,6 +530,181 @@ async function openProjectForm(existing, opts = {}) {
   overlay.querySelector('input[name=title]').focus();
 }
 
+// ── People / sharing ──────────────────────────────────────────────────────
+const ROLE_RANK = { viewer: 1, editor: 2, owner: 3 };
+
+async function openPeople(bundle) {
+  const projectId = bundle.project.id;
+  const myRole = bundle.project.role;
+  const isOwner = myRole === 'owner';
+
+  const overlay = h(`
+    <div class="modal-overlay open">
+      <div class="modal">
+        <div class="modal-header"><span class="modal-title">People</span>
+          <button class="modal-close">×</button></div>
+        <div id="bt-people-body"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+  `);
+  const close = () => overlay.remove();
+  on(overlay, '.modal-close', 'click', close);
+  overlay.addEventListener('click', (e) => e.target === overlay && close());
+  document.body.appendChild(overlay);
+
+  const body = overlay.querySelector('#bt-people-body');
+
+  async function refresh() {
+    let data;
+    try {
+      data = await guard(() => API.collaborators(projectId));
+    } catch {
+      close();
+      return;
+    }
+    paint(data.collaborators || [], data.invites || []);
+  }
+
+  function paint(collabs, invites) {
+    collabs.sort((a, b) => ROLE_RANK[b.role] - ROLE_RANK[a.role]);
+    const meId = state.user.id;
+
+    const rows = collabs
+      .map((c) => {
+        const me = c.user_id === meId;
+        const name = esc(c.name || c.email);
+        if (c.role === 'owner') {
+          return `<div class="person"><div><div class="person-name">${name}${me ? ' (you)' : ''}</div>
+            <div class="person-sub">${esc(c.email)} · owner</div></div></div>`;
+        }
+        if (!isOwner) {
+          return `<div class="person"><div><div class="person-name">${name}${me ? ' (you)' : ''}</div>
+            <div class="person-sub">${esc(c.email)} · ${esc(c.role)}</div></div></div>`;
+        }
+        return `<div class="person" data-uid="${c.user_id}">
+          <div><div class="person-name">${name}</div><div class="person-sub">${esc(c.email)}</div></div>
+          <div class="person-actions">
+            <select class="sp-select person-role" style="width:auto;margin:0">
+              <option value="editor" ${c.role === 'editor' ? 'selected' : ''}>editor</option>
+              <option value="viewer" ${c.role === 'viewer' ? 'selected' : ''}>viewer</option>
+            </select>
+            <button class="btn-sm btn-sm-ghost" data-makeowner>Make owner</button>
+            <button class="btn-sm btn-sm-ghost" data-remove>Remove</button>
+          </div>
+        </div>`;
+      })
+      .join('');
+
+    const inviteRows = invites.length
+      ? `<div class="person-group">Pending invites</div>` +
+        invites
+          .map(
+            (i) =>
+              `<div class="person"><div><div class="person-name">${esc(i.email)}</div>
+              <div class="person-sub">invited as ${esc(i.role)} · joins when they sign in</div></div></div>`
+          )
+          .join('')
+      : '';
+
+    body.replaceChildren(
+      h(`
+      <div>
+        <div class="person-list">${rows}${inviteRows}</div>
+        ${
+          isOwner
+            ? `<div class="person-add">
+                <label class="sp-label">Add someone</label>
+                <input class="sp-input" id="bt-add-q" placeholder="Name or email" />
+                <div id="bt-add-matches"></div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                  <select class="sp-select" id="bt-add-role" style="width:auto;margin:0">
+                    <option value="editor">editor</option>
+                    <option value="viewer">viewer</option>
+                  </select>
+                  <button class="btn-sm btn-sm-sage" id="bt-add-go">Add</button>
+                </div>
+                <div class="person-sub" style="margin-top:6px">Type an email to invite someone without an account.</div>
+              </div>`
+            : ''
+        }
+      </div>
+    `)
+    );
+
+    if (!isOwner) return;
+
+    body.querySelectorAll('.person[data-uid]').forEach((row) => {
+      const uid = row.dataset.uid;
+      on(row, '.person-role', 'change', async (e) => {
+        await guard(() => API.setCollaboratorRole(projectId, uid, e.target.value));
+        toast('Role updated');
+      });
+      on(row, '[data-remove]', 'click', async () => {
+        await guard(() => API.removeCollaborator(projectId, uid));
+        refresh();
+      });
+      on(row, '[data-makeowner]', 'click', async () => {
+        const name = row.querySelector('.person-name').textContent;
+        if (!confirm(`Make ${name} the owner? You'll become an editor.`)) return;
+        await guard(() => API.transferProject(projectId, uid));
+        close();
+        openProject(projectId); // reload — my role changed
+      });
+    });
+
+    const q = body.querySelector('#bt-add-q');
+    const matches = body.querySelector('#bt-add-matches');
+    const go = body.querySelector('#bt-add-go');
+    let timer;
+    q.addEventListener('input', () => {
+      clearTimeout(timer);
+      const term = q.value.trim();
+      matches.replaceChildren();
+      if (term.length < 2 || term.includes('@')) return;
+      timer = setTimeout(async () => {
+        let users = [];
+        try {
+          users = (await API.searchUsers(term)).users || [];
+        } catch {
+          return;
+        }
+        matches.replaceChildren(
+          ...users.map((u) => {
+            const btn = h(
+              `<button class="btn-sm btn-sm-ghost" style="display:block;width:100%;text-align:left;margin-top:4px">${esc(
+                u.name || u.email
+              )} · ${esc(u.email)}</button>`
+            );
+            btn.addEventListener('click', () => add({ userId: u.id }));
+            return btn;
+          })
+        );
+      }, 250);
+    });
+
+    async function add(who) {
+      const role = body.querySelector('#bt-add-role').value;
+      try {
+        await guard(() => API.addCollaborator(projectId, { ...who, role }));
+      } catch {
+        return;
+      }
+      q.value = '';
+      matches.replaceChildren();
+      refresh();
+    }
+
+    go.addEventListener('click', () => {
+      const term = q.value.trim();
+      if (!term) return;
+      if (term.includes('@')) add({ email: term });
+      else toast('Pick a person from the list, or type their email');
+    });
+  }
+
+  refresh();
+}
+
 // ── Project detail ─────────────────────────────────────────────────────────
 async function openProject(id) {
   state.view = 'project';
@@ -559,7 +745,7 @@ function renderProject(app) {
           <span class="status-pill" style="--tab-color:${STATUS_COLOR[p.status]}">${esc(p.status)}</span>
           ${p.category ? `<span>${esc(p.category)}</span>` : ''}
           ${p.deadline ? `<span>due ${esc(fmtDate(p.deadline))}</span>` : ''}
-          <span>${esc(p.role)}</span>
+          <button class="meta-people" id="bt-people">👥 ${b.collaborators.length} &middot; you're ${esc(p.role)}</button>
         </div>
         ${p.description ? `<p style="color:var(--text-muted);font-size:15px;line-height:1.55;margin-bottom:14px">${esc(p.description)}</p>` : ''}
         <div class="pickup-box">
@@ -589,6 +775,7 @@ function renderProject(app) {
     renderApp();
   });
   on(view, '#bt-focus', 'click', () => openFocusSession(state.project));
+  on(view, '#bt-people', 'click', () => openPeople(state.project));
   if (canEdit) on(view, '#bt-editproj', 'click', () => openProjectForm(p));
   on(view, '[data-tab]', 'click', (e) => {
     state.detailTab = e.currentTarget.dataset.tab;

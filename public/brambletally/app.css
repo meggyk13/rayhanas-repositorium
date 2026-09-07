@@ -914,3 +914,28 @@ textarea{resize:vertical;min-height:60px}
 #bt-app .inbox-item:last-child { border-bottom: none; }
 #bt-app .inbox-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 #bt-app .inbox-actions .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ── People / sharing ────────────────────────────────────────────────────── */
+#bt-app .meta-people {
+  background: var(--elevated); border: none; border-radius: 99px;
+  padding: 2px 10px; font: inherit; font-size: 12px; color: var(--text-muted);
+  cursor: pointer;
+}
+.modal-overlay .person-list { margin-bottom: 8px; }
+.modal-overlay .person {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.modal-overlay .person:last-child { border-bottom: none; }
+.modal-overlay .person-name { font-size: 15px; color: var(--text); }
+.modal-overlay .person-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.modal-overlay .person-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.modal-overlay .person-actions .btn-sm,
+.modal-overlay .person-actions .sp-select { padding: 5px 8px; font-size: 12px; }
+.modal-overlay .person-group {
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-faint); margin: 14px 0 2px;
+}
+.modal-overlay .person-add { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 6px; }
+.modal-overlay .person-add .sp-input,
+.modal-overlay .person-add .sp-label { margin-left: 0; margin-right: 0; width: 100%; padding-left: 0; }
