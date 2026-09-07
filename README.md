@@ -82,7 +82,6 @@ src/pages/tools/        ← the browser tools (pattern generators, planners)
 src/styles/             ← design tokens and all CSS
 src/layouts/            ← the shared page shell (header/nav/footer)
 public/images/          ← photos and figures
-worker/                 ← Brambletally API (Cloudflare Worker + D1)
 ```
 
 ## To-do

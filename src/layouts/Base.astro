@@ -13,13 +13,12 @@ const nav = [
   { href: '/', label: 'Home' },
   { href: '/ans/', label: 'A&S', hint: 'Projects & Classes' },
   { href: '/tools/', label: 'Tools', hint: 'Calculators' },
-  { href: '/tools/brambletally/', label: 'Brambletally', hint: 'Project Tracker' },
+  { href: 'https://brambletally.com/', label: 'Brambletally', hint: 'Project Tracker' },
 ];
 
 function isCurrent(href: string) {
+  if (!href.startsWith('/')) return false;
   if (href === '/') return path === '/';
-  // /tools/ shouldn't stay lit while you're in Brambletally.
-  if (href === '/tools/') return path.startsWith('/tools/') && !path.startsWith('/tools/brambletally');
   return path.startsWith(href);
 }
 ---

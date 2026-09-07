@@ -1,8 +1,0 @@
-# Copy to repo root as .dev.vars for `wrangler pages dev`. Never commit .dev.vars.
-# All optional — leave blank to log magic links to the console and skip the bot check.
-RESEND_API_KEY=
-TURNSTILE_SECRET_KEY=
-MAIL_FROM=
-# Origin used to build the emailed magic-link URL. Defaults to the production
-# origin; set this in local dev so the link points at your dev server.
-APP_ORIGIN=

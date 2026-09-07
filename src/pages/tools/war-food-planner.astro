@@ -2,7 +2,6 @@
 import Base from '../../layouts/Base.astro';
 ---
 <Base title="War Food Planner" description="Plan camp meals by day and slot, scaled to your party, with a shopping list and cooler strategy.">
-<div id="bt-account" class="no-print"></div>
 <div class="controls">
     <span class="tag">Caid · Camp Kitchen</span>
     <h1>War Food Planner</h1>
@@ -90,8 +89,6 @@ import Base from '../../layouts/Base.astro';
   </div>
 
   <button class="print-btn" onclick="window.print()">Print this plan</button>
-  <script is:inline>window.BT_TOOL='war-food';</script>
-  <script is:inline src="/brambletally/tools-account.js"></script>
 </Base>
 
 <style is:global>
@@ -804,44 +801,5 @@ function renderCustomMealChips() {
 }
 
 renderDays();
-
-// Brambletally preset save/load
-window.btCollect = () => ({
-  partySize: partyInput.value,
-  numDays: daysInput.value,
-  assignments: JSON.parse(JSON.stringify(assignments)),
-  customMeals: customMeals.map((m) => {
-    const full = LIBRARY[m.slot].find((x) => x.id === m.id) || {};
-    return { slot: m.slot, id: m.id, name: m.name, perishable: !!full.perishable, ing: full.ing || [] };
-  }),
-});
-window.btApply = (data) => {
-  if (!data) return;
-  (data.customMeals || []).forEach((m) => {
-    // Preset data is whatever was stored on the account — validate the shape
-    // before trusting it (unknown slot would also blow up LIBRARY[m.slot]).
-    if (!m || !SLOTS.includes(m.slot)) return;
-    const id = String(m.id || '');
-    const name = String(m.name || '');
-    if (!id || !name) return;
-    const ing = Array.isArray(m.ing)
-      ? m.ing.map((i) => ({
-          n: String((i && i.n) || ''),
-          a: Number(i && i.a) || 0,
-          u: String((i && i.u) || ''),
-        }))
-      : [];
-    if (!LIBRARY[m.slot].some((x) => x.id === id)) {
-      LIBRARY[m.slot].push({ id, name, perishable: !!m.perishable, ing });
-    }
-    if (!customMeals.some((x) => x.id === id)) customMeals.push({ slot: m.slot, id, name });
-  });
-  hasCustomMeals = customMeals.length > 0;
-  renderCustomMealChips();
-  if (data.partySize != null) partyInput.value = data.partySize;
-  if (data.numDays != null) daysInput.value = data.numDays;
-  assignments = data.assignments || {};
-  renderDays();
-};
 
 </script>

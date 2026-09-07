@@ -1,3 +1,7 @@
+# Brambletally moved to its own site.
+/tools/brambletally                                  https://brambletally.com/                301
+/tools/brambletally/*                                https://brambletally.com/:splat          301
+
 # Old URLs -> new structure. Both slash forms listed; Cloudflare matches exactly.
 
 /ans/crab-hat.md                                     /ans/crab-hat/                           301
