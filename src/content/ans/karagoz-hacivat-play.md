@@ -6,7 +6,7 @@ tags: [ottoman, karagoz, performance, summer-arts-2025]
 kind: project
 ---
 
-<!-- image: performance photo -->
+![Karagöz and Hacivat puppets backlit on the muslin screen during a performance](/images/ans/karagoz-hacivat-play-1.jpg)
 
 *Riddle 2: At the end of a darkened path, you will find me in the light of day. I can be given but never taken away.*
 

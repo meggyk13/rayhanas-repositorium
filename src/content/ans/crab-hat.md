@@ -6,7 +6,9 @@ tags: [ottoman, headwear, sewing]
 kind: project
 ---
 
-<!-- image: Türkisches Kostümbuch (Turkish Costume Book); Lambert de Vos - 1574 -->
+![A man in the red "crab hat" seated with two companions, Türkisches Kostümbuch, 1574](/images/ans/crab-hat-1.png)
+
+*Türkisches Kostümbuch (Turkish Costume Book); Lambert de Vos - 1574*
 
 ## Historical Background
 
@@ -22,13 +24,32 @@ There are three pattern pieces used for this. A band for the front and back of t
 
 The band portion of the hat has a small point in the center front and four long "tails" that hang down. This part of the hat was very tricky to sew, and much of it is sewn by hand. It was particularly hard to turn the ends of the tails. Once the main sewing was completed, the inside looked unfinished, so I stitched a hat band inside to finish it, and provide a bit more stability to the band portion.
 
-<!-- image: Band and circle pattern pieces -->
-<!-- image: Main body/bag portion of the hat -->
+![Paper pattern pieces: the tailed band and the top circle](/images/ans/crab-hat-2.jpg)
+
+*Band and circle pattern pieces*
+
+![Paper pattern for the cone-shaped body of the hat](/images/ans/crab-hat-3.jpg)
+
+*Main body/bag portion of the hat*
 
 ## Period Examples
 
-<!-- image: Sultan Murad III (Detail) - 1582 -->
-<!-- image: Ottoman Sultan (Detail) - Late 16th c. -->
-<!-- image: Heinrich Hendrowski (presumed illustrator); European - 1575-1599 -->
-<!-- image: Miniature of Selim II - 1570 -->
-<!-- image: Courtier and Attendants in a Landscape - 1585-1590 -->
+![Attendant wearing the crab hat, detail from a portrait of Sultan Murad III, 1582](/images/ans/crab-hat-4.png)
+
+*Sultan Murad III (Detail) - 1582*
+
+![Attendant in the crab hat beside an Ottoman sultan, late 16th c.](/images/ans/crab-hat-5.png)
+
+*Ottoman Sultan (Detail) - Late 16th c.*
+
+![European drawing of an Ottoman figure in the crab hat, 1575–1599](/images/ans/crab-hat-6.jpg)
+
+*Heinrich Hendrowski (presumed illustrator); European - 1575-1599*
+
+![Attendant wearing the crab hat, miniature of Selim II, 1570](/images/ans/crab-hat-7.png)
+
+*Miniature of Selim II - 1570*
+
+![Courtiers and attendants, one in the crab hat, in a landscape, 1585–1590](/images/ans/crab-hat-8.png)
+
+*Courtier and Attendants in a Landscape - 1585-1590*

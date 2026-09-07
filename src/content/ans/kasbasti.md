@@ -43,12 +43,36 @@ The source does not mention how the end of the piece is finished, so I looked at
 
 ## Appendix
 
-<!-- image: Fig. 1 (Berker, 1973, 22) Extant piece. -->
-<!-- image: Fig. 2 (Berker, 1973, 22) Drawing of extant piece -->
-<!-- image: Fig. 3 Codex Vindobonensis 8626, 1586-1591. -->
-<!-- image: Fig. 4 Codex Vindobonensis 8626, 1586-1591. Detail -->
-<!-- image: Fig. 5 Jacopo Ligozzi, c. 1577-1580 -->
-<!-- image: Fig 6. Extant kaşbastı fragment, also found in the tomb of Ahmed I -->
-<!-- image: Fig. 7 Surviving kaşbastı belonging to Hurrem Sultan, wife of Suleiman the Magnificent (1520-1566) Topkapi Museum -->
-<!-- image: Fig 8. More surviving kaşbastı (Atıl, 1987, 202) -->
-<!-- image: Fig 9. Ottoman cloud collar showing filled goldwork embroidery. 16th c. -->
+![Low-quality photograph of the extant embroidered band fragment](/images/ans/kasbasti-1.png)
+
+*Fig. 1 (Berker, 1973, 22) Extant piece.*
+
+![Line drawing tracing the pattern of the extant piece](/images/ans/kasbasti-2.png)
+
+*Fig. 2 (Berker, 1973, 22) Drawing of extant piece*
+
+![Codex Vindobonensis 8626 — seated harem women and standing servants wearing headbands](/images/ans/kasbasti-3.png)
+
+*Fig. 3 Codex Vindobonensis 8626, 1586-1591.*
+
+![Detail of a headband from Codex Vindobonensis 8626](/images/ans/kasbasti-4.png)
+
+*Fig. 4 Codex Vindobonensis 8626, 1586-1591. Detail*
+
+![Woman wearing a diadem-style headband, Jacopo Ligozzi, c. 1577–1580](/images/ans/kasbasti-5.png)
+
+*Fig. 5 Jacopo Ligozzi, c. 1577-1580*
+
+![Extant kaşbastı fragment from the tomb of Ahmed I](/images/ans/kasbasti-6.jpg)
+
+*Fig 6. Extant kaşbastı fragment, also found in the tomb of Ahmed I*
+
+<!-- image: Fig. 7 Surviving kaşbastı belonging to Hurrem Sultan, wife of Suleiman the Magnificent (1520-1566) Topkapi Museum — MISSING: broken in the source document, not recovered -->
+
+![Surviving beaded and embroidered kaşbastı, Atıl 1987](/images/ans/kasbasti-8.png)
+
+*Fig 8. More surviving kaşbastı (Atıl, 1987, 202)*
+
+![Close-up of filled goldwork couching on an Ottoman cloud collar, 16th c.](/images/ans/kasbasti-9.jpg)
+
+*Fig 9. Ottoman cloud collar showing filled goldwork embroidery. 16th c.*

@@ -6,7 +6,11 @@ tags: [ottoman, karagoz, puppetry, summer-arts-2025]
 kind: project
 ---
 
-<!-- image: finished puppets -->
+![Hand-painted goat-skin Karagöz and Hacivat puppet pieces with jointed limbs](/images/ans/karagoz-hacivat-puppets-1.jpg)
+
+![Cut and painted puppet components — heads, torsos, arms, and boots](/images/ans/karagoz-hacivat-puppets-2.jpg)
+
+![The finished Karagöz and Hacivat puppets assembled and displayed with their manipulation rods](/images/ans/karagoz-hacivat-puppets-3.jpg)
 
 *Riddle 3: I can have arms but a body of one. Sometimes I have legs, but nay can I run.*
 
@@ -26,7 +30,13 @@ Traditionally, the puppets were made from thin, translucent rawhide (usually cam
 
 Each Karagöz play follows a familiar structure: an opening introduction, a rapid-fire dialogue between Karagöz and Hacivat, a main story, and a short closing. This structure shapes the rhythm and pacing of the performance and directly influences how the puppets are built and used. Karagöz's character is loud, physical, and impulsive, which is why his puppet includes a movable arm for gestures and bold coloring. Hacivat, in contrast, is more refined and deliberate, with smaller, more controlled movements. These traits have remained remarkably consistent across centuries of performance, and the puppet designs reflect that tradition.
 
-<!-- image: puppet design comparison -->
+![Karagöz design sheets side by side: original template, redrawn 16th-century outline, and finished painted version](/images/ans/karagoz-hacivat-puppets-4.jpg)
+
+*Karagöz — template, redrawn outline, and painted version*
+
+![Hacivat design sheets side by side: original template, redrawn 16th-century outline, and finished painted version](/images/ans/karagoz-hacivat-puppets-5.jpg)
+
+*Hacivat — template, redrawn outline, and painted version*
 
 ## Methods
 

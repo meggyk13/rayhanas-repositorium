@@ -20,8 +20,22 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 ## Appendix
 
-<!-- image: reproduction 1 - woman in blue entari -->
-<!-- image: reproduction 2 - sergeant in blue caftan -->
-<!-- image: reproduction 3 - woman with red sash -->
-<!-- image: reproduction 4 - man in green caftan with fan -->
-<!-- image: comparison with originals -->
+![Reproduction of a woman in a blue entari with red lining, holding a flower](/images/ans/turkish-miniatures-1.png)
+
+*Reproduction 1 — woman in a blue entari*
+
+![Reproduction of a sergeant in a blue caftan and a turban with a red hat](/images/ans/turkish-miniatures-2.png)
+
+*Reproduction 2 — sergeant in a blue caftan*
+
+![Reproduction of a woman pulling a red sash through her salvar](/images/ans/turkish-miniatures-3.png)
+
+*Reproduction 3 — woman with a red sash*
+
+![Reproduction of a man in a green caftan holding a small fan, wearing an elaborate turban](/images/ans/turkish-miniatures-4.png)
+
+*Reproduction 4 — man in a green caftan with a fan*
+
+![The four reproductions set beside the original British Museum miniatures](/images/ans/turkish-miniatures-5.png)
+
+*Comparison with the originals*

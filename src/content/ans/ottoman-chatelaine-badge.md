@@ -6,7 +6,7 @@ tags: [ottoman, embroidery, goldwork, summer-arts-2025]
 kind: project
 ---
 
-<!-- image: finished badge -->
+![The finished badge mounted on a handwoven sling bag, showing the gold Chatelaine key on a green ground](/images/ans/ottoman-chatelaine-badge-1.jpg)
 
 *Riddle 4: Whatever your art form, let it ring true. The only one who can answer this one is you!*
 

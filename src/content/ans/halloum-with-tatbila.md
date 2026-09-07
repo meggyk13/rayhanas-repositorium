@@ -6,7 +6,7 @@ tags: [culinary, redaction, summer-arts-2025]
 kind: project
 ---
 
-<!-- image: finished dish -->
+![The finished dish: wedges of halloumi layered with tatbīla, dried rose petals, toasted hazelnuts, and mint, served with pita](/images/ans/halloum-with-tatbila-1.jpg)
 
 *Riddle 1: I can be both soft and hard, delicate and bold. I grow better in time but don't call me old.*
 

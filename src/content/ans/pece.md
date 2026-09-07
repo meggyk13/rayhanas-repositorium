@@ -22,11 +22,34 @@ Since horsehair is difficult to weave with by itself, I opted to use wool and ho
 
 ## Appendix
 
-<!-- image: Fig 1. Codex Vindobonensis 8615. c. 1585 -->
-<!-- image: Fig. 2 Türkisches Manierenbuch (Book of Turkish Manners). C. 1595 -->
-<!-- image: Fig. 3 Türkisches Manierenbuch (Book of Turkish Manners). C. 1595 -->
-<!-- image: Fig 4. Detail of woman. Ces Moeurs et fachons de faire de Turcz (Customs and Fashions of the Turks), c. 1553 -->
-<!-- image: Fig 5. Detail of woman. Ces Moeurs et fachons de faire de Turcz (Customs and Fashions of the Turks), c. 1553 -->
-<!-- image: Fig 6. Donna Turca andando per la Citta - Nicolas De Nicolay - 1580 -->
-<!-- image: Fig 7. Donna Turca andando per la Citta - Nicolas De Nicolay - 1580 -->
-<!-- image: Fig. 8 "Türckische weiber wie sie pflegen auf der gaßen zu gehen" (Turkish women, as it is their wont to dress in the street), German, late 16th c. -->
+![Codex Vindobonensis 8615, c. 1585 — women in ferace with black peçe veils](/images/ans/pece-1.png)
+
+*Fig 1. Codex Vindobonensis 8615. c. 1585*
+
+![Türkisches Manierenbuch, c. 1595](/images/ans/pece-2.png)
+
+*Fig. 2 Türkisches Manierenbuch (Book of Turkish Manners). c. 1595*
+
+![Türkisches Manierenbuch, c. 1595](/images/ans/pece-3.png)
+
+*Fig. 3 Türkisches Manierenbuch (Book of Turkish Manners). c. 1595*
+
+![Detail of a veiled woman, Ces Moeurs et fachons de faire de Turcz, c. 1553](/images/ans/pece-4.png)
+
+*Fig 4. Detail of woman. Ces Moeurs et fachons de faire de Turcz (Customs and Fashions of the Turks), c. 1553*
+
+![Detail of a veiled woman, Ces Moeurs et fachons de faire de Turcz, c. 1553](/images/ans/pece-5.png)
+
+*Fig 5. Detail of woman. Ces Moeurs et fachons de faire de Turcz (Customs and Fashions of the Turks), c. 1553*
+
+![Donna Turca andando per la Città, Nicolas de Nicolay, 1580](/images/ans/pece-6.jpg)
+
+*Fig 6. Donna Turca andando per la Citta - Nicolas De Nicolay - 1580*
+
+![Donna Turca andando per la Città, Nicolas de Nicolay, 1580](/images/ans/pece-7.jpg)
+
+*Fig 7. Donna Turca andando per la Citta - Nicolas De Nicolay - 1580*
+
+![German costume book, "Türckische weiber wie sie pflegen auf der gaßen zu gehen", late 16th c.](/images/ans/pece-8.jpg)
+
+*Fig. 8 "Türckische weiber wie sie pflegen auf der gaßen zu gehen" (Turkish women, as it is their wont to dress in the street), German, late 16th c.*
