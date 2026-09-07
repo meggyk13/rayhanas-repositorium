@@ -3,7 +3,7 @@ import { uuid, randomToken, sha256Hex } from '../lib/id.js';
 import { sqlNow } from '../lib/time.js';
 import { verifyTurnstile } from '../lib/turnstile.js';
 import { sendMagicLink } from '../lib/email.js';
-import { MAGIC_LINK_TTL_MIN } from '../lib/constants.js';
+import { MAGIC_LINK_TTL_MIN, appOrigin } from '../lib/constants.js';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -26,7 +26,9 @@ export async function onRequestPost(context) {
     .bind(uuid(), email, await sha256Hex(token), sqlNow(MAGIC_LINK_TTL_MIN * 60 * 1000))
     .run();
 
-  const link = `${new URL(request.url).origin}/api/auth/callback?token=${token}`;
+  // Built from the configured origin, not request Host, so a spoofed/alternate
+  // host can't redirect the emailed sign-in link to an attacker.
+  const link = `${appOrigin(env)}/api/auth/callback?token=${token}`;
   const sent = await sendMagicLink(env, email, link);
   if (!sent.ok) return error(502, 'Could not send the email just now. Try again in a moment.');
 

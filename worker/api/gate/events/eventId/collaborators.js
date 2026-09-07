@@ -49,9 +49,12 @@ export async function onRequestPost(context) {
     .first();
   if (!user) return error(404, 'User not found');
 
+  // The WHERE guard matches PATCH/DELETE: an existing 'owner' row is never
+  // rewritten here.
   await db.prepare(
     `INSERT INTO gate_event_collaborators (gate_event_id, user_id, role) VALUES (?, ?, ?)
-     ON CONFLICT(gate_event_id, user_id) DO UPDATE SET role = excluded.role`
+     ON CONFLICT(gate_event_id, user_id) DO UPDATE SET role = excluded.role
+       WHERE gate_event_collaborators.role != 'owner'`
   )
     .bind(eventId, targetUserId, body.role)
     .run();

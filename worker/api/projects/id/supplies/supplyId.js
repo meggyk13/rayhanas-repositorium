@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../../../lib/http.js';
 import { requireProject, touchStmt } from '../../../lib/projects.js';
-import { pick, isNonEmptyString } from '../../../lib/validate.js';
+import { pick, isNonEmptyString, numOrNull } from '../../../lib/validate.js';
 
 export async function onRequestPatch(context) {
   const { id, supplyId } = context.params;
@@ -14,7 +14,7 @@ export async function onRequestPatch(context) {
   if ('name' in fields && !isNonEmptyString(fields.name)) return error(400, 'Name cannot be empty');
   if ('name' in fields) fields.name = fields.name.trim();
   if ('acquired' in fields) fields.acquired = fields.acquired ? 1 : 0;
-  if ('cost' in fields) fields.cost = fields.cost == null ? null : Number(fields.cost);
+  if ('cost' in fields) fields.cost = numOrNull(fields.cost);
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 
   const owned = await context.env.DB.prepare(

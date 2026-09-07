@@ -8,6 +8,16 @@ import { routes } from './routes.js';
 import { loadSession } from './api/session.js';
 import { error } from './api/lib/http.js';
 
+// decodeURIComponent throws on a malformed %-escape; a bad path segment should
+// just fail to match (-> 404), never crash the request.
+function safeDecode(s) {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
 function matchRoute(pathname) {
   const clean = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
   const uSeg = clean.split('/');
@@ -18,7 +28,7 @@ function matchRoute(pathname) {
     let ok = true;
     for (let i = 0; i < pSeg.length; i++) {
       if (pSeg[i].startsWith(':')) {
-        params[pSeg[i].slice(1)] = decodeURIComponent(uSeg[i]);
+        params[pSeg[i].slice(1)] = safeDecode(uSeg[i]);
       } else if (pSeg[i] !== uSeg[i]) {
         ok = false;
         break;

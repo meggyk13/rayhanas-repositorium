@@ -14,18 +14,17 @@ export async function onRequestGet(context) {
   const token = new URL(request.url).searchParams.get('token');
   if (!token) return redirect(`${APP_PATH}?auth=invalid`);
 
+  // Claim the token in a single atomic UPDATE: two concurrent hits on the same
+  // link (mail-scanner prefetch, double-click) can't both come back with a row.
   const link = await env.DB.prepare(
-    `SELECT id, email FROM magic_links
-      WHERE token_hash = ? AND used_at IS NULL AND expires_at > datetime('now')`
+    `UPDATE magic_links SET used_at = ?
+      WHERE token_hash = ? AND used_at IS NULL AND expires_at > datetime('now')
+      RETURNING id, email`
   )
-    .bind(await sha256Hex(token))
+    .bind(sqlNow(), await sha256Hex(token))
     .first();
 
   if (!link) return redirect(`${APP_PATH}?auth=invalid`);
-
-  await env.DB.prepare('UPDATE magic_links SET used_at = ? WHERE id = ?')
-    .bind(sqlNow(), link.id)
-    .run();
 
   let user = await env.DB.prepare('SELECT id FROM users WHERE email = ?')
     .bind(link.email)
@@ -33,10 +32,16 @@ export async function onRequestGet(context) {
 
   if (!user) {
     const id = uuid();
-    await env.DB.prepare('INSERT INTO users (id, email, name) VALUES (?, ?, ?)')
+    // DO NOTHING + re-select: if the same new address signed in twice at once,
+    // whichever INSERT lands first wins and both requests resolve to that id.
+    await env.DB.prepare(
+      'INSERT INTO users (id, email, name) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING'
+    )
       .bind(id, link.email, link.email.split('@')[0])
       .run();
-    user = { id };
+    user = await env.DB.prepare('SELECT id FROM users WHERE email = ?')
+      .bind(link.email)
+      .first();
   }
 
   await resolvePendingInvites(env, link.email, user.id);

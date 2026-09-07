@@ -937,8 +937,8 @@ async function openPeople(bundle) {
           ...users.map((u) => {
             const btn = h(
               `<button class="btn-sm btn-sm-ghost" style="display:block;width:100%;text-align:left;margin-top:4px">${esc(
-                u.name || u.email
-              )} · ${esc(u.email)}</button>`
+                u.name || '(unnamed)'
+              )}</button>`
             );
             btn.addEventListener('click', () => add({ userId: u.id }));
             return btn;

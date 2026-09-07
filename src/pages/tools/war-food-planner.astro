@@ -580,10 +580,18 @@ const dayCards = document.getElementById('dayCards');
 let assignments = {};
 let hasCustomMeals = false;
 
+// Custom meal + ingredient names are free text and round-trip through saved
+// presets, so escape anything user-supplied before it reaches innerHTML.
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
 // ---------- day grid ----------
 function buildOptions(slot) {
-  return LIBRARY[slot].map(m => `<option value="${m.id}">${m.name}</option>`).join('')
-    + SPECIALS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  return LIBRARY[slot].map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('')
+    + SPECIALS.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
 }
 
 function refreshAllSelectOptions() {
@@ -663,8 +671,8 @@ function renderList() {
     return keys.map(k => {
       const it = bucket[k];
       return `<div class="item-row">
-        <span class="item-name">${it.name}<span class="item-days">${dayLabel(it.days)}</span></span>
-        <span class="item-amt">${fmt(it.amt)} ${it.unit}</span>
+        <span class="item-name">${esc(it.name)}<span class="item-days">${dayLabel(it.days)}</span></span>
+        <span class="item-amt">${fmt(it.amt)} ${esc(it.unit)}</span>
       </div>`;
     }).join('');
   }
@@ -713,15 +721,15 @@ function addIngredientRow(prefill) {
   row.innerHTML = `
     <div class="field">
       <label>Ingredient</label>
-      <input type="text" placeholder="Ingredient name" class="ing-name" value="${prefill ? prefill.n : ''}">
+      <input type="text" placeholder="Ingredient name" class="ing-name" value="${prefill ? esc(prefill.n) : ''}">
     </div>
     <div class="field amt">
       <label>Amount</label>
-      <input type="number" step="0.05" placeholder="Amt/person" class="ing-amt" value="${prefill ? prefill.a : ''}">
+      <input type="number" step="0.05" placeholder="Amt/person" class="ing-amt" value="${prefill ? esc(prefill.a) : ''}">
     </div>
     <div class="field unit">
       <label>Unit</label>
-      <select class="ing-unit">${UNITS.map(u => `<option value="${u}">${u}</option>`).join('')}</select>
+      <select class="ing-unit">${UNITS.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('')}</select>
     </div>
     <button type="button" class="ing-remove" title="Remove ingredient">×</button>
   `;
@@ -775,8 +783,8 @@ function renderCustomMealChips() {
   customMealListEl.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;">Added this session</div>'
     + customMeals.map(m => `
       <div class="custom-meal-chip">
-        <span>${SLOT_LABEL[m.slot]} — ${m.name}</span>
-        <button data-id="${m.id}" data-slot="${m.slot}">Remove</button>
+        <span>${esc(SLOT_LABEL[m.slot] || m.slot)} — ${esc(m.name)}</span>
+        <button data-id="${esc(m.id)}" data-slot="${esc(m.slot)}">Remove</button>
       </div>
     `).join('');
   customMealListEl.querySelectorAll('button[data-id]').forEach(btn => {
@@ -810,10 +818,23 @@ window.btCollect = () => ({
 window.btApply = (data) => {
   if (!data) return;
   (data.customMeals || []).forEach((m) => {
-    if (!LIBRARY[m.slot].some((x) => x.id === m.id)) {
-      LIBRARY[m.slot].push({ id: m.id, name: m.name, perishable: !!m.perishable, ing: m.ing || [] });
+    // Preset data is whatever was stored on the account — validate the shape
+    // before trusting it (unknown slot would also blow up LIBRARY[m.slot]).
+    if (!m || !SLOTS.includes(m.slot)) return;
+    const id = String(m.id || '');
+    const name = String(m.name || '');
+    if (!id || !name) return;
+    const ing = Array.isArray(m.ing)
+      ? m.ing.map((i) => ({
+          n: String((i && i.n) || ''),
+          a: Number(i && i.a) || 0,
+          u: String((i && i.u) || ''),
+        }))
+      : [];
+    if (!LIBRARY[m.slot].some((x) => x.id === id)) {
+      LIBRARY[m.slot].push({ id, name, perishable: !!m.perishable, ing });
     }
-    if (!customMeals.some((x) => x.id === m.id)) customMeals.push({ slot: m.slot, id: m.id, name: m.name });
+    if (!customMeals.some((x) => x.id === id)) customMeals.push({ slot: m.slot, id, name });
   });
   hasCustomMeals = customMeals.length > 0;
   renderCustomMealChips();

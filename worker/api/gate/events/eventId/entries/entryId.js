@@ -1,6 +1,6 @@
 import { json, error, readJson } from '../../../../lib/http.js';
 import { requireGate } from '../../../../lib/gate.js';
-import { pick } from '../../../../lib/validate.js';
+import { pick, numOrNull, intOrZero } from '../../../../lib/validate.js';
 
 export async function onRequestPatch(context) {
   const { eventId, entryId } = context.params;
@@ -15,11 +15,18 @@ export async function onRequestPatch(context) {
     'member_count', 'nonmember_count', 'under18_count', 'notes',
   ]);
   for (const k of ['amount', 'headcount', 'meal_count']) {
-    if (k in fields) fields[k] = fields[k] == null ? null : Number(fields[k]);
+    if (k in fields) fields[k] = numOrNull(fields[k]);
   }
   for (const k of ['member_count', 'nonmember_count', 'under18_count']) {
-    if (k in fields) fields[k] = fields[k] == null ? 0 : Math.trunc(Number(fields[k])) || 0;
+    if (k in fields) fields[k] = intOrZero(fields[k]);
   }
+  if ('entry_type' in fields) {
+    fields.entry_type =
+      typeof fields.entry_type === 'string' && fields.entry_type.trim()
+        ? fields.entry_type.trim()
+        : 'group';
+  }
+  if ('notes' in fields && typeof fields.notes !== 'string') fields.notes = null;
   if (Object.keys(fields).length === 0) return error(400, 'Nothing to update');
 
   const owned = await context.env.DB.prepare(
