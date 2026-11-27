@@ -58,6 +58,20 @@ async function ensureSchema(db) {
     ),
     db.prepare('CREATE INDEX IF NOT EXISTS ebru_prints_created ON ebru_prints (created_at)'),
   ]);
+  // A table made by the first version of the gallery lacks the re-cut columns; add any that are missing.
+  const { results } = await db.prepare('PRAGMA table_info(ebru_prints)').all();
+  const have = new Set(results.map((c) => c.name));
+  const added = [['sheet', 'BLOB'], ['paper', 'TEXT'], ['shape', 'TEXT'], ['layout', 'TEXT']]
+    .filter(([name]) => !have.has(name))
+    .map(([name, type]) => db.prepare(`ALTER TABLE ebru_prints ADD COLUMN ${name} ${type}`));
+  if (added.length) {
+    try {
+      await db.batch(added);
+    } catch (e) {
+      // another request may have added them at the same moment
+      if (!/duplicate column/i.test(String(e && e.message))) throw e;
+    }
+  }
   schemaReady = true;
 }
 
