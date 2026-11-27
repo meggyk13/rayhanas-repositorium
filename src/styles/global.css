@@ -1,33 +1,43 @@
 /* ============================================================
    Rayhana's Repositorium — design tokens
-   Palette drawn from 16th c. İznik ware: cobalt, turquoise,
-   bole red, and gold leaf on a parchment ground.
+   "Miniature manuscript": pigments from 16th c. Ottoman
+   miniature painting (lapis, vermilion, malachite, ochre gilt)
+   on a warm page, with ruled gilt margins and red rubrics.
    ============================================================ */
 
 :root {
-  --parchment: #f5eedc;
-  --parchment-deep: #eadfc6;
-  --panel: #fbf6e9;
-  --ink: #26304a;
-  --ink-soft: #56608a;
-  --cobalt: #1f4396;
-  --cobalt-deep: #16306e;
-  --turquoise: #2e8c8a;
-  --iznik-red: #a93b2a;
-  --gold: #c9a24b;
+  --page: #fbf7ee;
+  --page-deep: #f1e8d6;
+  --panel: #fffcf5;
+  --ink: #2b2420;
+  --ink-soft: #5b5047;
+  --lapis: #2a4b8d;
+  --lapis-deep: #1d3566;
+  --vermilion: #a0341f;
+  --malachite: #3f7a5a;
+  --gilt: #b8923a;
+  --gilt-soft: #dcc897;
+
+  /* Older names, still read by the tool pages. They map onto the new palette. */
+  --parchment: var(--page);
+  --parchment-deep: var(--page-deep);
+  --cobalt: var(--lapis);
+  --cobalt-deep: var(--lapis-deep);
+  --turquoise: var(--malachite);
+  --iznik-red: var(--vermilion);
+  --gold: var(--gilt);
 
   --font-display: 'EB Garamond', serif;
   --font-body: 'EB Garamond', serif;
-  --font-utility: 'IBM Plex Mono', monospace;
+  --font-utility: 'EB Garamond', serif;
 
   --measure: 42rem;
-  --arch: 170px 170px 8px 8px; /* the arched frame radius */
 }
 
 * { box-sizing: border-box; }
 
 html {
-  background: var(--parchment);
+  background: var(--page);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 18px;
@@ -46,7 +56,7 @@ body { margin: 0; }
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 600;
-  color: var(--cobalt-deep);
+  color: var(--lapis-deep);
   line-height: 1.15;
   letter-spacing: 0.01em;
 }
@@ -55,14 +65,38 @@ h1 { font-size: 2.8rem; margin: 0 0 0.5rem; }
 h2 { font-size: 1.9rem; margin: 2.5rem 0 0.75rem; }
 h3 { font-size: 1.35rem; margin: 2rem 0 0.5rem; }
 
-a { color: var(--cobalt); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-a:hover { color: var(--turquoise); }
+a { color: var(--lapis); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--vermilion); }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 3px solid var(--turquoise);
+  outline: 2px solid var(--vermilion);
   outline-offset: 2px;
 }
 
 img { max-width: 100%; height: auto; }
+
+input, select, textarea, table { font-variant-numeric: lining-nums tabular-nums; }
+
+/* Rubric: the small red label a scribe put above a section. */
+.rubric {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--vermilion);
+  margin: 0 0 0.6rem;
+}
+
+/* Illuminated initial. */
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.7em;
+  line-height: 0.82;
+  font-weight: 600;
+  color: var(--vermilion);
+  padding: 0.06em 0.1em 0 0;
+}
 
 /* ---------- Layout shell ---------- */
 
@@ -70,9 +104,9 @@ img { max-width: 100%; height: auto; }
 .prose { max-width: var(--measure); }
 
 .site-header {
-  background: var(--cobalt-deep);
-  color: var(--parchment);
-  border-bottom: 4px solid var(--gold);
+  background: var(--page);
+  color: var(--ink);
+  border-bottom: 4px double var(--gilt);
 }
 .site-header .wrap {
   display: flex;
@@ -80,47 +114,50 @@ img { max-width: 100%; height: auto; }
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem 1.5rem;
-  padding-top: 1rem;
+  padding-top: 1.1rem;
   padding-bottom: 1rem;
 }
 .site-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.55rem;
   font-weight: 600;
-  color: var(--parchment);
+  color: var(--lapis-deep);
   text-decoration: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
-.site-nav { display: flex; flex-wrap: wrap; gap: 1.25rem; font-family: var(--font-utility); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.12em; }
-.site-nav a { color: var(--parchment); text-decoration: none; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
-.site-nav a:hover, .site-nav a[aria-current="page"] { border-bottom-color: var(--gold); color: #fff; }
+.site-title:hover { color: var(--lapis-deep); }
+.site-title::first-letter { color: var(--vermilion); }
+.site-nav { display: flex; flex-wrap: wrap; gap: 1.5rem; font-family: var(--font-utility); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; }
+.site-nav a { color: var(--lapis); text-decoration: none; padding: 0.25rem 0; border-bottom: 1px solid transparent; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { border-bottom-color: var(--vermilion); color: var(--vermilion); }
 
 /* ---------- Mobile menu ---------- */
 
 .menu-btn {
   display: none;
   background: none;
-  border: 1px solid var(--gold);
-  border-radius: 8px;
-  color: var(--parchment);
+  border: 1px solid var(--gilt);
+  border-radius: 2px;
+  color: var(--lapis);
   font-family: var(--font-utility);
   font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   padding: 0.45rem 0.85rem;
   cursor: pointer;
   align-items: center;
   gap: 0.5rem;
 }
 .menu-btn .bars { display: inline-block; width: 16px; }
-.menu-btn .bars span { display: block; height: 2px; background: var(--gold); margin: 3px 0; border-radius: 2px; }
+.menu-btn .bars span { display: block; height: 2px; background: var(--lapis); margin: 3px 0; }
 
 .menu-overlay {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: var(--cobalt-deep);
-  color: var(--parchment);
+  background: var(--page);
+  color: var(--ink);
   display: none;
   flex-direction: column;
   padding: 1rem 1.25rem 2rem;
@@ -132,28 +169,29 @@ img { max-width: 100%; height: auto; }
   align-items: center;
   justify-content: space-between;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 4px double var(--gilt);
 }
 .menu-top .site-title { font-size: 1.25rem; }
 .menu-close {
   background: none;
-  border: 1px solid var(--gold);
-  border-radius: 8px;
-  color: var(--parchment);
+  border: 1px solid var(--gilt);
+  border-radius: 2px;
+  color: var(--lapis);
   font-family: var(--font-utility);
   font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   padding: 0.45rem 0.85rem;
   cursor: pointer;
 }
 .menu-list { list-style: none; margin: 1rem 0 0; padding: 0; }
-.menu-list li { border-bottom: 1px solid rgba(201, 162, 75, 0.35); }
+.menu-list li { border-bottom: 1px solid var(--gilt-soft); }
 .menu-list a {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  color: var(--parchment);
+  color: var(--lapis-deep);
   text-decoration: none;
   font-family: var(--font-display);
   font-weight: 600;
@@ -161,21 +199,22 @@ img { max-width: 100%; height: auto; }
   padding: 1.05rem 0.25rem;
 }
 .menu-list a .diamond {
-  width: 10px; height: 10px;
-  transform: rotate(45deg);
+  width: 8px; height: 8px;
+  border-radius: 50%;
   background: transparent;
-  border: 1px solid var(--gold);
+  border: 1px solid var(--gilt);
   flex: none;
 }
-.menu-list a[aria-current="page"] { color: #fff; }
-.menu-list a[aria-current="page"] .diamond { background: var(--turquoise); border-color: var(--turquoise); }
-.menu-list a:active { color: var(--gold); }
+.menu-list a[aria-current="page"] { color: var(--vermilion); }
+.menu-list a[aria-current="page"] .diamond { background: var(--vermilion); border-color: var(--vermilion); }
+.menu-list a:active { color: var(--vermilion); }
 .menu-list .hint {
   font-family: var(--font-utility);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--gold);
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
   margin-left: auto;
 }
 body.menu-locked { overflow: hidden; }
@@ -184,51 +223,75 @@ body.menu-locked { overflow: hidden; }
   .site-nav { display: none; }
   .menu-btn { display: inline-flex; }
   .site-header .wrap { align-items: center; flex-wrap: nowrap; }
-  .site-title { font-size: 1.25rem; }
+  .site-title { font-size: 1.15rem; }
+  .menu-btn { padding: 0.4rem 0.7rem; }
 }
 
 .site-footer {
   margin-top: 5rem;
-  border-top: 4px solid var(--gold);
-  background: var(--cobalt-deep);
-  color: var(--parchment);
-  font-family: var(--font-utility);
+  border-top: 4px double var(--gilt);
+  background: var(--page-deep);
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.site-footer .wrap { padding-top: 1.5rem; padding-bottom: 1.75rem; }
+.site-footer p { margin: 0.2rem 0; }
+.site-footer a { color: var(--lapis); }
+
+/* ---------- Home hero ---------- */
+
+.hero { padding: 3.5rem 0 1rem; }
+.hero .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 3.5rem;
+  align-items: center;
+}
+.hero h1 { font-size: 3rem; margin: 0 0 1.25rem; }
+.hero-intro { font-size: 1.15rem; margin: 0 0 1.5rem; }
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   font-size: 0.85rem;
 }
-.site-footer .wrap { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.site-footer a { color: var(--parchment); }
+.hero-links a { text-decoration: none; border-bottom: 1px solid var(--gilt); padding-bottom: 2px; }
+.hero-links a:hover { border-bottom-color: var(--vermilion); }
 
-/* ---------- Hero ---------- */
-
-.hero {
-  background: var(--cobalt-deep);
-  padding: 2.75rem 1.25rem;
+/* A gilt double rule around a picture, like a miniature on its page. */
+.framed { margin: 0; }
+.framed img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--gilt);
+  outline: 1px solid var(--gilt);
+  outline-offset: 5px;
+  background: var(--page-deep);
 }
-.hero-panel {
-  max-width: 46rem;
-  margin: 0 auto;
-  background: var(--parchment);
-  border: 1px solid var(--gold);
-  border-radius: var(--arch);
-  padding: 3.5rem 2.5rem 2.5rem;
+.framed figcaption {
+  margin-top: 1rem;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--ink-soft);
   text-align: center;
-  position: relative;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
 }
-/* keystone diamond at the crown of the arch */
-.hero-panel::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 12px;
-  height: 12px;
-  background: var(--turquoise);
-}
-.hero-panel p { color: var(--ink-soft); font-size: 1.1rem; margin-bottom: 0; }
+.hero .framed img { aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 20%; }
 
-/* ---------- Illuminated section rule ---------- */
+@media (max-width: 48rem) {
+  .hero { padding-top: 2rem; }
+  .hero .wrap { grid-template-columns: 1fr; gap: 2rem; }
+  .hero .framed { order: -1; max-width: 15rem; margin: 0 auto; width: calc(100% - 12px); }
+  .hero h1 { font-size: 2.3rem; }
+  .hero-intro { font-size: 1.05rem; }
+}
+
+/* ---------- Section rule ---------- */
 
 .rule {
   display: flex;
@@ -240,17 +303,17 @@ body.menu-locked { overflow: hidden; }
 .rule::before, .rule::after {
   content: '';
   flex: 1;
-  height: 2px;
-  background: linear-gradient(to right, transparent, var(--gold));
+  height: 4px;
+  border-top: 1px solid var(--gilt);
+  border-bottom: 1px solid var(--gilt);
 }
-.rule::after { background: linear-gradient(to left, transparent, var(--gold)); }
 .rule span {
-  width: 10px; height: 10px;
-  background: var(--turquoise);
-  transform: rotate(45deg);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--vermilion);
 }
 
-/* ---------- Arched cards ---------- */
+/* ---------- Ruled cards ---------- */
 
 .card-grid {
   display: grid;
@@ -263,105 +326,95 @@ body.menu-locked { overflow: hidden; }
 .card {
   position: relative;
   background: var(--panel);
-  border: 1px solid var(--gold);
-  border-radius: 24px 24px 6px 6px;
-  padding: 1.5rem 1.25rem 1.25rem;
-}
-.card::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 8px; height: 8px;
-  background: var(--turquoise);
+  border: 1px solid var(--gilt-soft);
+  border-top: 4px double var(--gilt);
+  padding: 1.25rem 1.25rem 1.1rem;
 }
 .card h3 { margin: 0 0 0.4rem; font-size: 1.25rem; }
 .card h3 a { text-decoration: none; }
 .card p { margin: 0 0 0.6rem; font-size: 0.95rem; color: var(--ink-soft); }
 
-/* Index thumbnail: pulled to the card edges, replacing the keystone diamond. */
-.card.has-thumb::before { display: none; }
+/* Index thumbnail: pulled to the card edges, under the top rule. */
 .card-thumb {
   display: block;
   width: calc(100% + 2.5rem);
-  margin: -1.5rem -1.25rem 1rem;
+  margin: -1.25rem -1.25rem 1rem;
   aspect-ratio: 3 / 2;
   object-fit: cover;
-  border-radius: 23px 23px 0 0;
-  border-bottom: 1px solid var(--gold);
-  background: var(--parchment-deep);
+  border-bottom: 1px solid var(--gilt-soft);
+  background: var(--page-deep);
 }
 .card .meta {
-  font-family: var(--font-utility);
   font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--turquoise);
+  letter-spacing: 0.14em;
+  color: var(--vermilion);
 }
 
 .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0; padding: 0; list-style: none; font-family: var(--font-utility); }
 .tag {
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  padding: 0.2rem 0.7rem;
-  border: 1px solid var(--turquoise);
-  border-radius: 999px;
-  color: var(--turquoise);
-  background: none;
+  font-family: var(--font-utility);
+  font-size: 0.85rem;
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--gilt);
+  border-radius: 2px;
+  color: var(--lapis);
+  background: var(--panel);
   cursor: pointer;
 }
-.tag[aria-pressed="true"], .tag:hover { background: var(--turquoise); color: var(--parchment); }
+.tag[aria-pressed="true"], .tag:hover { background: var(--lapis); border-color: var(--lapis); color: var(--page); }
 
 /* ---------- Article/handout body ---------- */
 
 .entry-header { margin: 3rem 0 2rem; }
-.entry-header .meta { font-family: var(--font-utility); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--turquoise); }
+.entry-header .meta { font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--vermilion); }
 .entry-body table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.95rem; }
-.entry-body th, .entry-body td { border: 1px solid var(--parchment-deep); padding: 0.5rem 0.75rem; text-align: left; }
-.entry-body th { background: var(--parchment-deep); font-family: var(--font-utility); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
-.entry-body blockquote { border-left: 3px solid var(--gold); margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.25rem; color: var(--ink-soft); font-style: italic; }
+.entry-body th, .entry-body td { border: 1px solid var(--gilt-soft); padding: 0.5rem 0.75rem; text-align: left; }
+.entry-body th { background: var(--page-deep); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.entry-body blockquote { border-left: 3px double var(--gilt); margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.25rem; color: var(--ink-soft); font-style: italic; }
 
 /* ---------- Tools ---------- */
 
 .tool-panel {
   background: var(--panel);
-  border: 1px solid var(--gold);
-  border-radius: 12px;
+  border: 1px solid var(--gilt-soft);
+  border-top: 4px double var(--gilt);
   padding: 1.5rem;
   margin: 1.5rem 0;
   font-family: var(--font-utility);
 }
-.tool-panel label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 0.25rem; }
+.tool-panel label { display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 0.25rem; }
 .tool-panel input[type="number"], .tool-panel input[type="text"], .tool-panel select {
   width: 100%;
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--ink-soft);
-  border-radius: 6px;
+  border-radius: 2px;
   font-size: 1rem;
   font-family: var(--font-utility);
   background: #fff;
 }
 .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem; margin-bottom: 1rem; }
 .result-table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-.result-table th, .result-table td { border: 1px solid var(--parchment-deep); padding: 0.5rem 0.75rem; text-align: left; }
-.result-table th { background: var(--cobalt-deep); color: var(--parchment); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
-.result-key { font-weight: 700; color: var(--cobalt); }
+.result-table th, .result-table td { border: 1px solid var(--gilt-soft); padding: 0.5rem 0.75rem; text-align: left; }
+.result-table th { background: var(--lapis-deep); color: var(--page); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.result-key { font-weight: 700; color: var(--lapis); }
 
 .btn {
   font-family: var(--font-utility);
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  padding: 0.55rem 1.2rem;
-  border: 1px solid var(--cobalt);
-  border-radius: 8px;
-  background: var(--cobalt);
-  color: var(--parchment);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--lapis);
+  border-radius: 2px;
+  background: var(--lapis);
+  color: var(--page);
   cursor: pointer;
 }
-.btn:hover { background: var(--cobalt-deep); }
-.btn.secondary { background: none; color: var(--cobalt); }
-.btn.secondary:hover { background: var(--parchment-deep); }
+.btn:hover { background: var(--lapis-deep); }
+.btn.secondary { background: none; color: var(--lapis); }
+.btn.secondary:hover { background: var(--page-deep); }
 
 /* ---------- Print (packing list) ---------- */
 
@@ -374,8 +427,6 @@ body.menu-locked { overflow: hidden; }
 
 @media (max-width: 40rem) {
   h1 { font-size: 2.2rem; }
-  .hero { padding: 2rem 1rem; }
-  .hero-panel { padding: 2.5rem 1.25rem 1.5rem; }
 }
 
 /* ---------- Grouped index pages ---------- */
@@ -389,33 +440,32 @@ body.menu-locked { overflow: hidden; }
   margin: 1.5rem 0 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-utility);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 .group-jump a {
-  color: var(--cobalt);
+  color: var(--lapis);
   text-decoration: none;
-  border-bottom: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gilt);
   padding-bottom: 2px;
 }
-.group-jump a:hover { color: var(--turquoise); border-bottom-color: var(--turquoise); }
+.group-jump a:hover { color: var(--vermilion); border-bottom-color: var(--vermilion); }
 .group-jump .count { color: var(--ink-soft); }
 
 .group { scroll-margin-top: 1.5rem; }
 .group h2 { margin-top: 0.5rem; }
 .group-note {
   color: var(--ink-soft);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   margin: 0;
   max-width: var(--measure);
 }
 
 .card .card-tags {
-  font-family: var(--font-utility);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  font-style: italic;
   color: var(--ink-soft);
   margin: 0.9rem 0 0;
 }
@@ -423,17 +473,15 @@ body.menu-locked { overflow: hidden; }
 .filter-empty { color: var(--ink-soft); font-style: italic; margin: 1.5rem 0 0; }
 
 .back-link {
-  font-family: var(--font-utility);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   margin: 3.5rem 0 0;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--parchment-deep);
+  border-top: 4px double var(--gilt-soft);
 }
 
 .empty-note {
   background: var(--panel);
-  border: 1px dashed var(--gold);
-  border-radius: 12px;
+  border: 1px dashed var(--gilt);
   padding: 2rem 1.75rem;
   color: var(--ink-soft);
   max-width: var(--measure);
@@ -441,76 +489,61 @@ body.menu-locked { overflow: hidden; }
 .empty-note p { margin: 0 0 0.75rem; }
 .empty-note p:last-child { margin-bottom: 0; }
 
-/* ---------- Home page ---------- */
-
-.hero-panel h1 { margin-bottom: 1rem; }
-.hero-intro {
-  max-width: 38rem;
-  margin: 0 auto;
-  color: var(--ink-soft);
-  font-size: 1.08rem;
-}
-
-/* Hero image slot. Renders only when heroImage is set in index.astro. */
-.hero-figure {
-  margin: 2rem 0 0;
-  border: 1px solid var(--gold);
-  border-radius: 8px;
-  overflow: hidden;
-  line-height: 0;
-}
-.hero-figure img { width: 100%; aspect-ratio: 5 / 2; object-fit: cover; }
+/* ---------- Home page sections ---------- */
 
 .section-lead {
-  font-size: 1.5rem;
-  margin: 2.25rem 0 0;
-  padding-bottom: 0.6rem;
-  border-bottom: 2px solid var(--gold);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--vermilion);
+  margin: 3.5rem 0 0;
+  padding-bottom: 0.7rem;
+  border-bottom: 4px double var(--gilt);
 }
 
 .signposts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1.25rem;
+  gap: 1.5rem;
   list-style: none;
   padding: 0;
   margin: 1.75rem 0 0;
 }
 .signpost {
   background: var(--panel);
-  border: 1px solid var(--parchment-deep);
-  border-left: 4px solid var(--gold);
-  border-radius: 6px;
-  padding: 1.25rem 1.25rem 1.1rem;
+  border: 1px solid var(--gilt);
+  outline: 1px solid var(--gilt-soft);
+  outline-offset: -6px;
+  padding: 1.4rem 1.5rem 1.25rem;
 }
-.signpost h3 { margin: 0 0 0.35rem; font-size: 1.3rem; }
+.signpost h3 { margin: 0 0 0.35rem; font-size: 1.45rem; }
 .signpost h3 a { text-decoration: none; }
-.signpost p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+.signpost p { margin: 0; color: var(--ink-soft); font-size: 0.98rem; }
 .signpost .count {
   display: block;
   margin-top: 0.85rem;
-  font-family: var(--font-utility);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--turquoise);
+  letter-spacing: 0.14em;
+  color: var(--malachite);
 }
 
-/* Full-bleed cobalt band for the featured pattern generators */
+/* Full-bleed band for the featured pattern generators */
 .band {
   margin-top: 4rem;
   padding: 3rem 0;
-  background: var(--cobalt-deep);
-  border-top: 4px solid var(--gold);
-  border-bottom: 4px solid var(--gold);
+  background: var(--page-deep);
+  border-top: 4px double var(--gilt);
+  border-bottom: 4px double var(--gilt);
 }
-.band h2 { color: var(--parchment); margin: 0 0 0.5rem; font-size: 1.7rem; }
+.band h2 { margin: 0 0 0.5rem; font-size: 1.8rem; }
 .band-note {
-  color: var(--parchment);
-  opacity: 0.82;
+  color: var(--ink-soft);
   max-width: var(--measure);
   margin: 0;
-  font-size: 0.98rem;
+  font-size: 1rem;
 }
 .feature-grid {
   display: grid;
@@ -521,24 +554,44 @@ body.menu-locked { overflow: hidden; }
   margin: 2rem 0 0;
 }
 .feature {
-  background: var(--parchment);
-  border: 1px solid var(--gold);
-  border-radius: 12px;
-  padding: 1.5rem 1.35rem 1.35rem;
+  background: var(--panel);
+  border: 1px solid var(--gilt-soft);
+  border-top: 4px double var(--gilt);
+  padding: 1.35rem 1.35rem 1.25rem;
 }
 .feature h3 { margin: 0 0 0.45rem; font-size: 1.3rem; }
 .feature h3 a { text-decoration: none; }
 .feature p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
 .band-more {
   margin: 1.75rem 0 0;
-  font-family: var(--font-utility);
   font-size: 0.85rem;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
-.band-more a { color: var(--gold); text-decoration: none; }
-.band-more a:hover { color: var(--parchment); text-decoration: underline; }
+.band-more a { text-decoration: none; border-bottom: 1px solid var(--gilt); padding-bottom: 2px; }
 
 @media (max-width: 40rem) {
-  .hero-intro { font-size: 1rem; }
   .band { padding: 2.25rem 0; }
+}
+
+/* ---------- About page ---------- */
+
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
+  gap: 3.5rem;
+  align-items: start;
+}
+.about .framed { position: sticky; top: 1.5rem; }
+.about h2 { font-size: 1.6rem; margin: 2.75rem 0 0.75rem; }
+.about-list { padding-left: 1.2rem; margin: 0.75rem 0 1.25rem; }
+.about-list li { margin: 0.35rem 0; }
+.about-list li::marker { color: var(--vermilion); }
+.about-list .when { color: var(--ink-soft); }
+.blazon { font-style: italic; }
+
+@media (max-width: 48rem) {
+  .about { grid-template-columns: 1fr; gap: 1.5rem; }
+  .about .framed { position: static; order: -1; max-width: 12rem; margin: 0 auto; width: calc(100% - 12px); }
 }

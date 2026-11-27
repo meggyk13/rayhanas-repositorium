@@ -1,9 +1,6 @@
 // Single source of truth for the tools list.
 // Both /tools/ and the home page read from this, so adding a tool here
 // makes it appear in both places.
-//
-// Brambletally is not in this list — it's its own site (brambletally.com),
-// linked from the nav and the home page, not one of the utility tools.
 
 export type Tool = {
   href: string;
