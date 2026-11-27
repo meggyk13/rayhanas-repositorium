@@ -6,6 +6,18 @@
 <title>Ebru Marbling Tray</title>
 <meta name="description" content="A playable Ottoman ebru (paper marbling) tray: float pigment on water, comb it, and lift a print.">
 <meta name="theme-color" content="#211813">
+<link rel="canonical" href="https://rayhanasrepositorium.com/tools/ebru/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rayhana's Repositorium">
+<meta property="og:title" content="Ebru Marbling Tray">
+<meta property="og:description" content="Float pigment on water, comb it, and lift a print. A playable Ottoman paper-marbling tray.">
+<meta property="og:url" content="https://rayhanasrepositorium.com/tools/ebru/">
+<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A combed marbled print in ochre, lapis blue, rose and ivory, beside the words Ebru, Marbling Tray.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c7d6cb'/%3E%3Ccircle cx='12' cy='13' r='7' fill='%232c4d8e'/%3E%3Ccircle cx='12' cy='13' r='3.5' fill='%23f4ecda'/%3E%3Ccircle cx='22' cy='21' r='6' fill='%23b4475a'/%3E%3Ccircle cx='22' cy='21' r='2.5' fill='%23e1bf4c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -65,6 +77,30 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
  .app{max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:auto minmax(0,1fr);column-gap:4px}
  .top{grid-column:1/-1}.stage{grid-row:2;grid-column:1;margin:0 4px 10px 10px}
  .dock{grid-row:2;grid-column:2;align-self:end;padding-bottom:10px}}
+/* desktop: the bench hugs the tray, tools sit in a sidebar at the top, every strip wraps so nothing hides off the edge */
+@media(min-aspect-ratio:1/1) and (min-width:900px){
+ .app{max-width:min(1500px,calc((100dvh - 92px)*.714 + 470px));grid-template-columns:minmax(0,1fr) 420px;column-gap:14px;padding-left:16px;padding-right:16px}
+ .app .top{padding:10px 0 12px}
+ .app .titleb{font-size:32px}
+ .app .stage{margin:0 0 16px}
+ .app .dock{align-self:start;max-height:calc(100% - 16px);overflow-y:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:6px 12px 12px;scrollbar-width:thin}
+ .app .grab{visibility:hidden}
+ .app.collapsed .drawer{grid-template-rows:1fr}
+ .app .panel{height:auto;padding-top:12px;gap:10px}
+ .app .strip{flex-wrap:wrap;overflow:visible}
+ .app #hand,.app #combs,.app #sheet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .app #hand .tile,.app #combs .tile,.app #sheet .tile{width:auto;height:72px;font-size:14px}
+ .app .swrow{gap:9px;padding:4px 2px}
+ .app #prints{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+ .app .pthumb{width:auto;height:auto;aspect-ratio:.714}
+ .app .pempty{grid-column:1/-1}
+ .app .tray canvas{cursor:crosshair}}
+@media(hover:hover){
+ .tile:hover{border-color:rgba(210,172,85,.7)}
+ .sw:not([aria-pressed=true]):hover,.pdot:hover{transform:scale(1.08)}
+ .sw,.pdot{transition:transform .15s}
+ .ib:not(:disabled):hover,.tabs button:not([aria-selected=true]):hover,.seg button:not([aria-pressed=true]):hover{background:rgba(255,255,255,.07)}
+ .pthumb:hover{outline:2px solid rgba(210,172,85,.7);outline-offset:2px}}
 .panel{height:166px;padding-top:8px;display:none;flex-direction:column;gap:8px}
 .panel>*{flex:none}
 .panel.on{display:flex}
@@ -710,7 +746,11 @@ $('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.s
 document.querySelector('.top').addEventListener('click',e=>{if(drifting&&!e.target.closest('#aboutB'))setDrift(false);},true);
 $('aboutB').onclick=()=>$('aboutM').classList.add('on');
 $('done').onclick=()=>{if(active&&active.hold)return;finishAll();lift();};
-addEventListener('keydown',e=>{if(e.key=='Escape')$('picker').classList.remove('on');if(e.key=='Escape')document.querySelectorAll('.modal').forEach(m=>m.classList.remove('on'));});
+addEventListener('keydown',e=>{ // Ctrl/Cmd+Z undo; Ctrl/Cmd+Shift+Z or Ctrl+Y redo
+ if((e.ctrlKey||e.metaKey)&&!e.altKey&&!document.querySelector('.modal.on,.picker.on')){const k=e.key.toLowerCase();
+  if(k=='z'){e.preventDefault();$(e.shiftKey?'redo':'undo').click();return;}
+  if(k=='y'){e.preventDefault();$('redo').click();return;}}
+ if(e.key=='Escape')$('picker').classList.remove('on');if(e.key=='Escape')document.querySelectorAll('.modal').forEach(m=>m.classList.remove('on'));});
 }
 </script>
 </body>
