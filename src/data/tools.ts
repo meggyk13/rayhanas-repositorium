@@ -32,6 +32,13 @@ export const tools: Tool[] = [
     featured: true,
   },
   {
+    href: '/tools/ebru/',
+    title: 'Ebru Marbling Tray',
+    summary:
+      'A playable Ottoman marbling trough: float period pigments on water, comb gelgit and tarak patterns, and lift a print to keep.',
+    group: 'ans',
+  },
+  {
     href: '/tools/war-food-planner/',
     title: 'War Food Planner',
     summary:
