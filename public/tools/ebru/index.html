@@ -314,7 +314,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
     <p><b>Combs.</b> Pick a direction, set the tine spacing and the pull, then tap a comb to draw it through the whole tray.</p>
     <p><b>Recipes.</b> Choose a pattern, set the four layer colors (layer 1 is the largest drops), and tap Go.</p>
     <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Choose shape, layout (full, album page with a ruled center panel, or mounted) and paper color, then press and hold to save. Prints keeps your last six from this visit.</p>
-    <p><b>Gallery.</b> Add to gallery shares a print with everyone, with your name if you like. The newest 100 are kept, each with the date and time it was made. Prints &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all.</p>
+    <p><b>Gallery.</b> Add to gallery shares a print with everyone, with your name if you like. The newest 100 are kept, each with the date and time it was made. Prints &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
     <p class="fn">1. Shufang Lu, Aubrey Jaffer, Xiaogang Jin, Hanli Zhao, and Xiaoyang Mao, &ldquo;Mathematical Marbling,&rdquo; <i>IEEE Computer Graphics and Applications</i> 32, no. 6 (2012): 26&ndash;35, <a href="https://doi.org/10.1109/MCG.2011.51">https://doi.org/10.1109/MCG.2011.51</a>.</p>
     <p style="text-align:center"><button class="btn" data-close>Back to the tray</button></p>
     <p style="text-align:center;font-size:14px"><a href="/tools/">More tools at Rayhana&rsquo;s Repositorium</a></p>
@@ -672,7 +672,7 @@ function renderPrints(){const el=$('prints');
  el.innerHTML=prints.length?prints.map((p,i)=>`<button class="pthumb" data-i="${i}" aria-label="Print from ${p.time}"><img src="${p.thumb}" alt=""></button>`).join(''):'<div class="pempty">No prints yet.</div>';}
 renderPrints();
 $('prints').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=prints[+b.dataset.i];histI=+b.dataset.i;
- printT.forEach(clearTimeout);subject=p.inks;drawOpts();showPrint();pressEl.className='press done';
+ printT.forEach(clearTimeout);restorePo();subject=p.inks;drawOpts();showPrint();pressEl.className='press done';
  cap.textContent=ONSITE?p.time:`${p.time} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=false;$('liftM').classList.add('on');});
 $('restore').onclick=()=>{const p=prints[histI];$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(k=>({c:k.c,p:k.p.slice()}));dirty=true;hideHint();};
 // ----- print options -----
@@ -680,15 +680,19 @@ const PAPERS=[["Ivory (polished)","#efe5cf"],["White","#fbfaf5"],["Tea","#e4cfa6
 const CROPS={portrait:[0,0,1000,1400],square:[0,200,1000,1000],landscape:[0,343,1000,714],strip:[325,0,350,1400]};
 const po={shape:'portrait',layout:'full',paper:null};let subject=null;
 function paperCol(){return po.paper||PAPER[mode];}
+// src is either your own ink (an array of shapes) or a shared print from the gallery: {sheet: image of the whole tray, paper}
 function renderPrint(src){const [cx,cy,cw,ch]=CROPS[po.shape],sc=2100/Math.max(cw,ch),w=Math.round(cw*sc),h=Math.round(ch*sc);
- const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),pc=paperCol(),m=Math.min(w,h);
+ const sheet=src.sheet,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),pc=sheet?src.paper:paperCol(),m=Math.min(w,h),b=Math.round(m*.07);
  g.fillStyle=pc;g.fillRect(0,0,w,h);
+ const tex=a=>{g.globalCompositeOperation='multiply';g.globalAlpha=a;g.fillStyle=g.createPattern(texture,'repeat');g.fillRect(0,0,w,h);g.globalAlpha=1;g.globalCompositeOperation='source-over';};
  const ink=(x,y,ww,hh)=>{g.save();g.beginPath();g.rect(x,y,ww,hh);g.clip();
-  g.setTransform(sc,0,0,sc,-cx*sc,-cy*sc);for(const k of src){const p=k.p;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.closePath();g.fillStyle=k.c;g.fill();}
+  if(sheet){const k=sheet.naturalWidth/W;g.drawImage(sheet,cx*k,cy*k,cw*k,ch*k,0,0,w,h);} // the sheet already carries its paper grain
+  else{g.setTransform(sc,0,0,sc,-cx*sc,-cy*sc);for(const k of src){const p=k.p;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.closePath();g.fillStyle=k.c;g.fill();}}
   g.restore();};
- if(po.layout=='mount'){const b=Math.round(m*.07);ink(b,b,w-2*b,h-2*b);}
+ if(po.layout=='mount')ink(b,b,w-2*b,h-2*b);
  else ink(0,0,w,h);
- g.globalCompositeOperation='multiply';g.globalAlpha=.55;g.fillStyle=g.createPattern(texture,'repeat');g.fillRect(0,0,w,h);g.globalAlpha=1;g.globalCompositeOperation='source-over';
+ if(!sheet)tex(.55);
+ else if(po.layout=='mount'){g.save();g.beginPath();g.rect(0,0,w,h);g.rect(b,b,w-2*b,h-2*b);g.clip('evenodd');tex(.55);g.restore();} // grain on the mount border only
  if(po.layout=='album'){ // ebru margins around a plain panel with ruled gold frame, as on an album page
   const bx=Math.round(m*.17),by=po.shape=='strip'?Math.round(m*.5):Math.round(m*.17);
   g.fillStyle=pc;g.fillRect(bx,by,w-2*bx,h-2*by);
@@ -697,7 +701,7 @@ function renderPrint(src){const [cx,cy,cw,ch]=CROPS[po.shape],sc=2100/Math.max(c
   g.strokeStyle='#2a2018';g.lineWidth=lw*.5;g.strokeRect(bx-lw*2.2,by-lw*2.2,w-2*bx+lw*4.4,h-2*by+lw*4.4);
   g.strokeStyle='#c49a3c';g.lineWidth=lw*2;g.strokeRect(bx-lw,by-lw,w-2*bx+lw*2,h-2*by+lw*2);
   g.strokeStyle='#2a2018';g.lineWidth=lw*.5;g.strokeRect(bx+lw*.6,by+lw*.6,w-2*bx-lw*1.2,h-2*by-lw*1.2);}
- if(po.layout=='mount'){const b=Math.round(m*.07);g.strokeStyle='rgba(60,45,30,.25)';g.lineWidth=2;g.strokeRect(b,b,w-2*b,h-2*b);}
+ if(po.layout=='mount'){g.strokeStyle='rgba(60,45,30,.25)';g.lineWidth=2;g.strokeRect(b,b,w-2*b,h-2*b);}
  return c;}
 function showPrint(){if(!subject)return;resetShare();const c=renderPrint(subject);$('out').src=c.toDataURL('image/jpeg',.92);
  const [, ,cw,ch]=CROPS[po.shape];pressEl.style.setProperty('--ar',(cw/ch).toFixed(4));}
@@ -705,7 +709,7 @@ function drawOpts(){for(const [id,key] of [['oshape','shape'],['olayout','layout
  $('opaper').innerHTML=PAPERS.map(p=>`<button class="pdot" style="background:${p[1]}" data-v="${p[1]}" aria-label="${p[0]} paper" aria-pressed="${p[1]==paperCol()}"></button>`).join('');}
 for(const [id,key] of [['oshape','shape'],['olayout','layout'],['opaper','paper']])
  $(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;po[key]=b.dataset.v;drawOpts();showPrint();});
-function lift(){rustle();
+function lift(){rustle();restorePo();
  const c=document.createElement('canvas');c.width=600;c.height=840;paper(c.getContext('2d'),c.width,c.height,paperCol());
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;tc.getContext('2d').drawImage(c,0,0,180,252);
  subject=clone();
@@ -739,25 +743,50 @@ function setView(v){galView=v;$('pview').querySelectorAll('button').forEach(b=>b
 if(GALLERY)$('pviewRow').hidden=false;
 $('pview').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v);});
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b&&b.dataset.tab=='prints'&&galView=='all')loadGallery();});
-$('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(!p)return;
- $('galM').dataset.i=b.dataset.i;$('galImg').src=p.url;$('galImg').alt=p.name?`Marbled print made by ${p.name}`:'Marbled print';
- $('galCap').textContent=byline(p);$('galM').classList.add('on');});
+// wait for an image with load events (img.decode() can stall in some browsers)
+const imgReady=im=>im.complete?(im.naturalWidth?Promise.resolve():Promise.reject(new Error('Couldn’t prepare the print.'))):new Promise((res,rej)=>{im.addEventListener('load',res,{once:true});im.addEventListener('error',rej,{once:true});});
+const loadImg=(im,src)=>{const p=new Promise((res,rej)=>{im.onload=res;im.onerror=rej;});im.src=src;return p;};
+// a shared print opens in the print screen: shape and layout can change, the design and paper stay the maker's
+let poSaved=null;
+function restorePo(){if(poSaved){Object.assign(po,poSaved);poSaved=null;}$('opaper').closest('.prow').hidden=false;}
+function openSimple(p){$('galM').dataset.i=gal.indexOf(p);$('galImg').src=p.url;$('galImg').alt=p.name?`Marbled print made by ${p.name}`:'Marbled print';
+ $('galCap').textContent=byline(p);$('galM').classList.add('on');}
+async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
+ const im=new Image();try{await loadImg(im,p.sheetUrl);}catch(_){openSimple(p);return;}
+ if(!poSaved)poSaved={...po};
+ po.shape=CROPS[p.shape]?p.shape:'portrait';po.layout=['full','album','mount'].includes(p.layout)?p.layout:'full';
+ subject={sheet:im,paper:/^#[0-9a-f]{6}$/i.test(p.paper||'')?p.paper:PAPER.period};
+ printT.forEach(clearTimeout);drawOpts();$('opaper').closest('.prow').hidden=true;showPrint();pressEl.className='press done';
+ cap.textContent=byline(p);$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=true;$('liftM').classList.add('on');}
+$('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(p)openShared(p);});
+// the gallery page links here as /tools/ebru/#print=<id> to change a print's format
+if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash.slice(7);history.replaceState(null,'',location.pathname+location.search);
+ (async()=>{await loadGallery();const p=gal.find(x=>x.id==id);if(p)openShared(p);})();}
 $('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=document.createElement('a');a.href=p.url;
  a.download=`ebru-${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
-function resetShare(){$('gform').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY;}
+let sharing=false;
+function resetShare(){if(sharing)return;$('gform').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
 $('toGal').onclick=()=>{$('toGal').hidden=true;$('gform').hidden=false;try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gname').focus();};
-async function galleryJpeg(){const im=$('out');await im.decode();const s=Math.min(1,1000/Math.max(im.naturalWidth,im.naturalHeight));
- const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
- return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('Couldn’t prepare the print.')),'image/jpeg',.86));}
+// JPEG under the server's 700 KB limit: start at good quality, step down for very busy prints
+async function jpegUnder(c){for(const q of [.86,.76,.66,.56]){const b=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(b&&b.size<650*1024)return b;}
+ throw new Error('Couldn’t prepare the print.');}
+function scaled(src,sw,sh,maxSide){const s=Math.min(1,maxSide/Math.max(sw,sh)),c=document.createElement('canvas');
+ c.width=Math.round(sw*s);c.height=Math.round(sh*s);c.getContext('2d').drawImage(src,0,0,c.width,c.height);return c;}
+// the print as framed now, at most 1000px on its long side
+async function galleryJpeg(){const im=$('out');await imgReady(im);return jpegUnder(scaled(im,im.naturalWidth,im.naturalHeight,1000));}
+// the whole uncropped tray (1000 x 1400) on this paper, so others can re-cut it
+async function sheetJpeg(src){const sv={shape:po.shape,layout:po.layout};po.shape='portrait';po.layout='full';let big;try{big=renderPrint(src);}finally{Object.assign(po,sv);}
+ return jpegUnder(scaled(big,big.width,big.height,1000));}
 $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('gsend'),msg=$('gmsg');if(btn.disabled)return;
- btn.disabled=true;msg.className='gmsg';msg.textContent='Adding…';
+ btn.disabled=true;sharing=true;msg.className='gmsg';msg.textContent='Adding…';
  const name=$('gname').value.trim().slice(0,40);try{localStorage.setItem('ebru-name',name);}catch(_){}
- try{const fd=new FormData();fd.append('image',await galleryJpeg(),'print.jpg');fd.append('name',name);
+ try{const fd=new FormData();fd.append('image',await galleryJpeg(),'print.jpg');fd.append('sheet',await sheetJpeg(subject),'sheet.jpg');
+  fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);
   const r=await fetch('/api/ebru/prints',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.print)throw new Error(j.error||'Couldn’t add it. Try again.');
   $('gform').hidden=true;msg.textContent='Added to the gallery ✓';gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
  catch(err){msg.className='gmsg err';msg.textContent=err.message||'Couldn’t add it. Try again.';}
- finally{btn.disabled=false;}});
+ finally{btn.disabled=false;sharing=false;}});
 $('shareB').onclick=()=>printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(()=>{});});
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]')){m.classList.remove('on');printT.forEach(clearTimeout);}}));
 $('float').onclick=()=>{settleNow();if(busy())return;snap();hideHint();const a=18*size,b=46*size,m=(a+b)/2;

@@ -56,6 +56,7 @@ footer a{color:var(--gold)}
 .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:var(--gold);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;cursor:pointer}
 .btn.ghost{background:none;color:var(--gold)}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -74,7 +75,7 @@ footer a{color:var(--gold)}
   <figure>
     <img id="vImg" alt="">
     <figcaption id="vCap"></figcaption>
-    <div class="acts"><button class="btn ghost" id="vDl">Download</button><button class="btn" data-close>Close</button></div>
+    <div class="acts"><a class="btn ghost" id="vFmt" hidden>Change format</a><button class="btn ghost" id="vDl">Download</button><button class="btn" data-close>Close</button></div>
   </figure>
 </div>
 
@@ -109,6 +110,7 @@ $('grid').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b)r
   const cap=$('vCap');cap.textContent='';
   if(cur.name){const n=document.createElement('b');n.textContent='Made by '+cur.name;cap.append(n);}
   cap.append(when(cur.createdAt));
+  $('vFmt').hidden=!cur.sheetUrl;$('vFmt').href='/tools/ebru/#print='+encodeURIComponent(cur.id);
   $('view').classList.add('on');$('view').querySelector('[data-close]').focus();});
 $('more').onclick=()=>{const first=shown;shown+=PAGE;render();const next=$('grid').children[first];if(next)next.querySelector('button').focus({preventScroll:true});};
 $('vDl').onclick=()=>{if(!cur)return;const a=document.createElement('a');a.href=cur.url;
