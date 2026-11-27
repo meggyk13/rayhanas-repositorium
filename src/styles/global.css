@@ -595,3 +595,73 @@ body.menu-locked { overflow: hidden; }
   .about { grid-template-columns: 1fr; gap: 1.5rem; }
   .about .framed { position: static; order: -1; max-width: 12rem; margin: 0 auto; width: calc(100% - 12px); }
 }
+
+/* ---------- Gallery ---------- */
+
+.gallery-filters .tag-row { margin: 0.6rem 0; }
+.gallery-filters .tag .n { color: inherit; opacity: 0.75; }
+
+.gallery {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  columns: 16rem;
+  column-gap: 1.5rem;
+}
+.gallery-item {
+  break-inside: avoid;
+  margin: 0 0 1.5rem;
+  background: var(--panel);
+  border: 1px solid var(--gilt-soft);
+  border-top: 4px double var(--gilt);
+}
+.gallery-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--page-deep);
+  cursor: zoom-in;
+  line-height: 0;
+}
+.gallery-open img { width: 100%; height: auto; display: block; }
+.gallery-text { padding: 0.75rem 0.9rem 0.85rem; }
+.gallery-text p { margin: 0 0 0.3rem; }
+.gallery-kind {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--vermilion);
+}
+.gallery-alt { font-size: 0.95rem; line-height: 1.4; }
+.gallery-cite { font-size: 0.85rem; font-style: italic; color: var(--ink-soft); line-height: 1.35; }
+.gallery-from { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0 !important; }
+
+.lightbox {
+  border: 1px solid var(--gilt);
+  outline: 1px solid var(--gilt);
+  outline-offset: 5px;
+  background: var(--page);
+  padding: 1rem;
+  max-width: min(60rem, 94vw);
+  max-height: 94vh;
+}
+.lightbox::backdrop { background: rgba(43, 36, 32, 0.8); }
+.lightbox form { text-align: right; margin: 0 0 0.6rem; }
+.lightbox-close {
+  background: none;
+  border: 1px solid var(--gilt);
+  border-radius: 2px;
+  color: var(--lapis);
+  font-family: var(--font-utility);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+.lightbox img { display: block; max-width: 100%; max-height: 72vh; margin: 0 auto; }
+.lightbox-text { max-width: 40rem; margin: 0.8rem auto 0; text-align: center; }
+.lightbox-text p { margin: 0 0 0.3rem; }
