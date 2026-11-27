@@ -82,7 +82,23 @@ src/pages/tools/        ← the browser tools (pattern generators, planners)
 src/styles/             ← design tokens and all CSS
 src/layouts/            ← the shared page shell (header/nav/footer)
 public/images/          ← photos and figures
+public/tools/ebru/      ← the Ebru marbling tray (standalone page) and its gallery page
+worker/index.js         ← the small server side: only /api/ebru/* (the shared print gallery)
+wrangler.jsonc          ← deploy config: static site + worker + the D1 database
 ```
+
+## The Ebru gallery
+
+The marbling tray's "Add to gallery" button stores prints in a Cloudflare D1
+database (`repositorium-db`, bound as `DB` in `wrangler.jsonc`). The worker
+creates its own table on first use and keeps only the newest 100 prints; each
+visitor can add 6 every 10 minutes.
+
+- See or clear what's stored: Cloudflare dashboard → Storage & databases → D1
+  → repositorium-db → Console, e.g. `SELECT id, name, created_at FROM ebru_prints`
+  or `DELETE FROM ebru_prints WHERE id = '…'` to remove one print.
+- Local test: `npm run build`, then `npx wrangler dev --local` and open
+  http://localhost:8787/tools/ebru/ (uses a throwaway local database).
 
 ## To-do
 

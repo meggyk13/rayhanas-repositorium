@@ -1,0 +1,20 @@
+// The site deploys as a Worker with static assets. Files in ./dist are served
+// by the edge before the Worker runs; worker/index.js only handles /api/*.
+{
+  "name": "rayhanas-repositorium",
+  "compatibility_date": "2026-11-01",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  "d1_databases": [
+    {
+      // The Ebru tray's shared gallery (newest 100 prints).
+      "binding": "DB",
+      "database_name": "repositorium-db",
+      "database_id": "1d4fd560-103d-4b15-8736-cff2fd2f96c4"
+    }
+  ]
+}

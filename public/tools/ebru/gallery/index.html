@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ebru Gallery</title>
+<meta name="description" content="The newest marbled prints made in the Ebru Marbling Tray, a playable Ottoman paper-marbling tray.">
+<meta name="theme-color" content="#211813">
+<link rel="canonical" href="https://rayhanasrepositorium.com/tools/ebru/gallery/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rayhana's Repositorium">
+<meta property="og:title" content="Ebru Gallery">
+<meta property="og:description" content="The newest marbled prints from the Ebru Marbling Tray. Make your own and add it.">
+<meta property="og:url" content="https://rayhanasrepositorium.com/tools/ebru/gallery/">
+<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A combed marbled print in ochre, lapis blue, rose and ivory, beside the words Ebru, Marbling Tray.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c7d6cb'/%3E%3Ccircle cx='12' cy='13' r='7' fill='%232c4d8e'/%3E%3Ccircle cx='12' cy='13' r='3.5' fill='%23f4ecda'/%3E%3Ccircle cx='22' cy='21' r='6' fill='%23b4475a'/%3E%3Ccircle cx='22' cy='21' r='2.5' fill='%23e1bf4c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#211813;--wood:#3a2a21;--wood2:#4b372b;--ink:#f3ead9;--mute:#bba98f;--gold:#d2ac55;--line:rgba(243,234,217,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Alegreya Sans",system-ui,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 40px)}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:22px}
+h1{margin:0;font:700 44px/1 Amiri,Georgia,serif}
+h1 span{display:block;font:italic 400 20px/1.3 Amiri,serif;color:var(--mute);margin-top:6px}
+.make{margin-left:auto;display:inline-flex;align-items:center;min-height:46px;padding:0 18px;border-radius:23px;background:linear-gradient(180deg,#ddb965,#c79e46);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.35);white-space:nowrap}
+.make:focus-visible,.card:focus-visible,.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:22px 18px}
+@media(max-width:420px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}h1{font-size:36px}}
+.card{all:unset;box-sizing:border-box;display:grid;gap:8px;width:100%;cursor:pointer}
+.grid li{min-width:0}
+.frame{aspect-ratio:.714;min-width:0;overflow:hidden;background:linear-gradient(160deg,var(--wood2),var(--wood));border-radius:8px;padding:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 20px rgba(0,0,0,.35);transition:transform .2s}
+.frame img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
+@media(hover:hover){.card:hover .frame{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.frame{transition:none}}
+.who{font:italic 400 18px/1.2 Amiri,serif;color:var(--ink);overflow-wrap:anywhere}
+.when{font-size:14px;color:var(--mute)}
+.note{color:var(--mute);font:italic 20px Amiri,serif;padding:40px 0;text-align:center}
+.note a{color:var(--gold)}
+[hidden]{display:none!important}
+.morep{text-align:center;margin:28px 0 0}
+footer{margin-top:36px;color:var(--mute);font-size:14px;text-align:center}
+footer a{color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(20,14,10,.93);display:none;place-items:center;padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 16px);z-index:5;overflow-y:auto}
+.modal.on{display:grid}
+.modal figure{margin:0;display:grid;gap:12px;justify-items:center;max-width:min(92vw,900px)}
+.modal img{display:block;max-width:100%;max-height:72dvh;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.modal figcaption{text-align:center;color:var(--mute)}
+.modal figcaption b{display:block;font:italic 400 22px Amiri,serif;color:var(--ink)}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:var(--gold);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;cursor:pointer}
+.btn.ghost{background:none;color:var(--gold)}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Ebru Gallery<span>The newest prints from the marbling tray</span></h1>
+    <a class="make" href="/tools/ebru/">Make your own</a>
+  </header>
+  <ul class="grid" id="grid" aria-live="polite"></ul>
+  <p class="note" id="note">Loading&hellip;</p>
+  <p class="morep"><button class="btn ghost" id="more" hidden>Show more</button></p>
+  <footer>Prints are added by anyone using the <a href="/tools/ebru/">Ebru Marbling Tray</a>; the newest 100 are kept. Part of <a href="/">Rayhana&rsquo;s Repositorium</a>.</footer>
+</div>
+
+<div class="modal" id="view" role="dialog" aria-modal="true" aria-label="Marbled print">
+  <figure>
+    <img id="vImg" alt="">
+    <figcaption id="vCap"></figcaption>
+    <div class="acts"><a class="btn ghost" id="vFmt" hidden>Change format</a><button class="btn ghost" id="vDl">Download</button><button class="btn" data-close>Close</button></div>
+  </figure>
+</div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const when=ms=>new Date(ms).toLocaleString([],{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+const PAGE=24;
+let prints=[],cur=null,shown=PAGE,sig='';
+
+function render(){
+  const grid=$('grid');grid.textContent='';
+  for(const [i,p] of prints.slice(0,shown).entries()){
+    const li=document.createElement('li'),b=document.createElement('button'),f=document.createElement('div'),img=document.createElement('img');
+    b.className='card';b.dataset.i=i;b.setAttribute('aria-label',(p.name?`Print made by ${p.name}, `:'Print, ')+when(p.createdAt));
+    f.className='frame';img.src=p.url;img.alt='';img.loading='lazy';img.width=p.width;img.height=p.height;f.append(img);b.append(f);
+    if(p.name){const w=document.createElement('span');w.className='who';w.textContent=p.name;b.append(w);}
+    const t=document.createElement('span');t.className='when';t.textContent=when(p.createdAt);b.append(t);
+    li.append(b);grid.append(li);}
+  $('note').hidden=prints.length>0;
+  if(!prints.length)$('note').innerHTML='No prints yet. <a href="/tools/ebru/">Make the first one</a>.';
+  const left=prints.length-shown;$('more').hidden=left<=0;
+  if(left>0)$('more').textContent=`Show more (${left} older)`;
+}
+async function load(){
+  try{const r=await fetch('/api/ebru/prints',{cache:'no-store'});if(!r.ok)throw 0;const list=(await r.json()).prints||[];
+    const s=list.map(p=>p.id).join();if(s===sig&&prints.length)return;sig=s;prints=list;render();}
+  catch(_){if(!prints.length){$('note').hidden=false;$('note').textContent='The gallery couldn’t load. Try again in a moment.';}}
+}
+$('grid').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b)return;cur=prints[+b.dataset.i];if(!cur)return;
+  $('vImg').src=cur.url;$('vImg').alt=cur.name?`Marbled print made by ${cur.name}`:'Marbled print';
+  const cap=$('vCap');cap.textContent='';
+  if(cur.name){const n=document.createElement('b');n.textContent='Made by '+cur.name;cap.append(n);}
+  cap.append(when(cur.createdAt));
+  $('vFmt').hidden=!cur.sheetUrl;$('vFmt').href='/tools/ebru/#print='+encodeURIComponent(cur.id);
+  $('view').classList.add('on');$('view').querySelector('[data-close]').focus();});
+$('more').onclick=()=>{const first=shown;shown+=PAGE;render();const next=$('grid').children[first];if(next)next.querySelector('button').focus({preventScroll:true});};
+$('vDl').onclick=()=>{if(!cur)return;const a=document.createElement('a');a.href=cur.url;
+  a.download=`ebru-${new Date(cur.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.append(a);a.click();a.remove();};
+$('view').addEventListener('click',e=>{if(e.target.id=='view'||e.target.closest('[data-close]'))$('view').classList.remove('on');});
+addEventListener('keydown',e=>{if(e.key=='Escape')$('view').classList.remove('on');});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+load();
+}
+</script>
+</body>
+</html>
