@@ -14,7 +14,7 @@
       // The Ebru tray's shared gallery (newest 24 prints).
       "binding": "DB",
       "database_name": "repositorium-db",
-      "database_id": "REPLACE_WITH_DATABASE_ID"
+      "database_id": "1d4fd560-103d-4b15-8736-cff2fd2f96c4"
     }
   ]
 }
