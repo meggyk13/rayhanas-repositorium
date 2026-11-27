@@ -373,6 +373,7 @@ body.menu-locked { overflow: hidden; }
 .entry-body th, .entry-body td { border: 1px solid var(--gilt-soft); padding: 0.5rem 0.75rem; text-align: left; }
 .entry-body th { background: var(--page-deep); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .entry-body blockquote { border-left: 3px double var(--gilt); margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.25rem; color: var(--ink-soft); font-style: italic; }
+.entry-body img { display: block; max-height: 34rem; width: auto; max-width: 100%; }
 
 /* ---------- Tools ---------- */
 

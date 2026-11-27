@@ -22,7 +22,7 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 ## The originals and my copies
 
-![Original miniature: a woman in a blue entari with red lining, holding a flower, British Museum, c. 1620](/images/ans/turkish-miniatures-1.png)
+![Original miniature: a woman in a blue entari with red lining, holding a flower, British Museum, c. 1620](/images/ans/turkish-miniatures-1.jpg)
 
 *Original 1: woman in a blue entari. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
@@ -30,7 +30,7 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 *My copy 1: gouache and ink on watercolor paper*
 
-![Original miniature: a sergeant in a blue caftan and a turban with a red hat, British Museum, c. 1620](/images/ans/turkish-miniatures-2.png)
+![Original miniature: a sergeant in a blue caftan and a turban with a red hat, British Museum, c. 1620](/images/ans/turkish-miniatures-2.jpg)
 
 *Original 2: sergeant in a blue caftan. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
@@ -38,7 +38,7 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 *My copy 2: gouache and ink on watercolor paper*
 
-![Original miniature: a woman pulling a red sash through her şalvar, British Museum, c. 1620](/images/ans/turkish-miniatures-3.png)
+![Original miniature: a woman pulling a red sash through her şalvar, British Museum, c. 1620](/images/ans/turkish-miniatures-3.jpg)
 
 *Original 3: woman with a red sash. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
@@ -46,7 +46,7 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 *My copy 3: gouache and ink on watercolor paper*
 
-![Original miniature: a man in a green caftan holding a small fan, wearing an elaborate turban, British Museum, c. 1620](/images/ans/turkish-miniatures-4.png)
+![Original miniature: a man in a green caftan holding a small fan, wearing an elaborate turban, British Museum, c. 1620](/images/ans/turkish-miniatures-4.jpg)
 
 *Original 4: man in a green caftan with a fan. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
