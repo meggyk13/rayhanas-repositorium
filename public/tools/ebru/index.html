@@ -95,7 +95,8 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
  .app #prints,.app #gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
  .app .pthumb{width:auto;height:auto;aspect-ratio:.714}
  .app .pempty{grid-column:1/-1}
- .app .tray canvas{cursor:crosshair}}
+ .app .tray canvas{cursor:crosshair}
+ .app .galside:not([hidden]){display:block;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}}
 @media(hover:hover){
  .tile:hover{border-color:rgba(210,172,85,.7)}
  .sw:not([aria-pressed=true]):hover,.pdot:hover{transform:scale(1.08)}
@@ -166,6 +167,29 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
 .pthumb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pempty{color:var(--mute);font:italic 18px Amiri,serif;padding:24px 4px}
 #prints,#gallery{padding:4px 2px 4px}
+/* current ink on the Tools tab: a dot on the tools that lay ink, and a button to change it there */
+.tile{position:relative}
+.tdot{position:absolute;top:6px;right:6px;width:13px;height:13px;border-radius:50%;background:var(--pig);border:1.5px solid rgba(0,0,0,.45);box-shadow:0 0 0 1px rgba(255,255,255,.3)}
+.tdot.r2{right:15px;background:var(--pig2)}
+.inkrow{gap:8px}
+.inkpick{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 13px 0 8px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.06);color:var(--ink);font:italic 400 17px Amiri,serif;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.inkpick .inkdot{width:22px;height:22px;flex:none;border-radius:50%;background:var(--pig);border:2px solid rgba(0,0,0,.4);box-shadow:inset 0 -4px 7px rgba(0,0,0,.25)}
+.inkpick .inkdot.r2{background:var(--pig2)}
+#ring2B{font:500 14px "Alegreya Sans",sans-serif;color:var(--mute);padding-left:12px}
+#ring2B span:last-child{font:italic 400 17px Amiri,serif;color:var(--ink)}
+.inkpick:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(hover:hover){.inkpick:hover{border-color:rgba(210,172,85,.7)}}
+.inknote{font-size:14px;color:var(--mute);font-style:italic;line-height:1.2}
+.galchip{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 16px 0 13px;border:1px solid rgba(210,172,85,.75);border-radius:21px;background:rgba(33,24,19,.74);color:#f1d48d;font:500 15px "Alegreya Sans",sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.galchip svg{width:18px;height:18px;flex:none}
+body:not([data-fresh]) .galchip{display:none}
+.galchip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(hover:hover){.galchip:hover{background:rgba(33,24,19,.88)}}
+.galside{display:none}
+.galside-h{display:flex;align-items:center;justify-content:space-between;font:italic 400 19px Amiri,serif;color:var(--ink);margin-bottom:8px}
+.galside-h .galllink{margin:0;font:500 14px "Alegreya Sans",sans-serif}
+.galside-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.galside-row .pthumb{width:auto;height:auto;aspect-ratio:.714}
 .pview{gap:10px}
 .pview .seg button{min-height:36px}
 .galllink{margin-left:auto;color:var(--gold);font-size:14px;text-decoration:none;white-space:nowrap;padding:8px 2px}
@@ -227,6 +251,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
       <canvas id="cv" aria-label="Marbling tray"></canvas>
       <div class="veil" id="veil"><img id="veilImg" alt=""></div>
       <div class="hint" id="hint"></div>
+      <button class="galchip" id="galChip" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="7" height="9" rx="1.2"/><rect x="13" y="4" width="7" height="6" rx="1.2"/><rect x="4" y="15" width="7" height="5" rx="1.2"/><rect x="13" y="12" width="7" height="8" rx="1.2"/></svg><span id="galChipT">See the gallery</span></button>
     </div>
   </div>
 
@@ -253,6 +278,7 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
 
     <div class="panel" id="p-hand" role="tabpanel">
       <div class="strip" id="hand"></div>
+      <div class="meta inkrow"><button class="inkpick" id="inkPick"><span class="inkdot"></span><span id="inkName"></span></button><button class="inkpick" id="ring2B" hidden>with<span class="inkdot r2"></span><span id="ring2Name">Auto</span></button><span class="inknote" id="inkNote" hidden>This tool moves the water; it adds no ink.</span></div>
       <div class="meta"><label>Size <input type="range" id="size2" min="0.5" max="2.2" step="0.05" value="1" aria-label="Tool size"></label></div>
     </div>
 
@@ -268,11 +294,12 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
     </div>
 
     <div class="panel" id="p-prints" role="tabpanel">
-      <div class="meta pview" id="pviewRow" hidden><div class="seg" id="pview"><button data-v="mine" aria-pressed="true">Yours</button><button data-v="all" aria-pressed="false">Everyone&rsquo;s</button></div><a class="galllink" href="/tools/ebru/gallery/" target="_blank" rel="noopener">Gallery page &#8599;</a></div>
+      <div class="meta pview" id="pviewRow" hidden><div class="seg" id="pview"><button data-v="all" aria-pressed="false">Everyone&rsquo;s</button><button data-v="mine" aria-pressed="true">Yours</button></div><a class="galllink" href="/tools/ebru/gallery/" target="_blank" rel="noopener">Gallery page &#8599;</a></div>
       <div class="strip" id="prints"></div>
       <div class="strip" id="gallery" hidden></div>
     </div>
     </div></div>
+    <section class="galside" id="galSide" hidden aria-label="From the gallery"><div class="galside-h"><span>From the gallery</span><a class="galllink" href="/tools/ebru/gallery/" target="_blank" rel="noopener">See all &#8599;</a></div><div class="galside-row" id="galSideRow"></div></section>
   </div>
 </div>
 
@@ -286,9 +313,10 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
       <div class="prow"><span>Paper</span><div class="pdots" id="opaper"></div></div>
     </div>
     <div class="pact"><button class="btn ghost" id="clearAfter">Start a new sheet</button><button class="btn ghost" id="closeH" data-close hidden>Close</button><button class="btn" id="keep" data-close>Keep editing</button><button class="btn" id="restore" hidden>Edit this design</button></div>
-    <div class="pact" id="saveRow" hidden><button class="btn ghost" id="dl">Download</button><button class="btn ghost" id="shareB" hidden>Share</button><button class="btn ghost" id="toGal" hidden>Add to gallery</button></div>
+    <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Download</button><button class="btn ghost" id="shareB" hidden>Share</button><button class="btn ghost" id="delMine" hidden>Remove</button></div>
     <form class="gform" id="gform" hidden><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><button class="btn" id="gsend" type="submit">Add</button></form>
     <p class="gmsg" id="gmsg" role="status"></p>
+    <div class="pact"><button class="btn ghost" id="seeGal" hidden>See it in the gallery</button></div>
   </figure>
 </div>
 
@@ -310,11 +338,11 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px}
     <p>Ebru (the name is usually traced to Persian) was part of the Ottoman book arts by the 1500s: marbled sheets for album pages, borders and bindings, and sometimes as the ground under calligraphy. <b>Battal</b>, plain "stone" ebru made by sprinkling color after color, is the base every other pattern is built on. Combed forms like <b>gelgit</b> (back and forth) and <b>tarak</b> (comb) are drawn through a battal ground.</p>
     <p>The physics is the mathematical marbling of Lu, Jaffer and colleagues: every drop, tine and swirl is an exact, area-preserving deformation, so colors never blend. They only stretch, as they do on sized water.<sup>1</sup></p>
     <p><b>Ink.</b> Pick a pigment and tap the tray. Float a layer covers the whole tray in drops of that color; float three or four, largest size first, for your own battal. The palette button switches between period and modern colors.</p>
-    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag five tines. Swirl: hold to turn the water. Mist: drag to spray fine drops. Rings: tap for concentric drops; pull a stylus through the middle for a tulip. Size sets the scale of all of them.</p>
+    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag five tines. Swirl: hold to turn the water. Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto); pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
     <p><b>Combs.</b> Pick a direction, set the tine spacing and the pull, then tap a comb to draw it through the whole tray.</p>
     <p><b>Recipes.</b> Choose a pattern, set the four layer colors (layer 1 is the largest drops), and tap Go.</p>
-    <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Choose shape, layout (full, album page with a ruled center panel, or mounted) and paper color, then press and hold to save. Prints keeps your last six from this visit.</p>
-    <p><b>Gallery.</b> Add to gallery shares a print with everyone, with your name if you like. The newest 100 are kept, each with the date and time it was made. Prints &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
+    <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Choose shape, layout (full, album page with a ruled center panel, or mounted) and paper color, then press and hold to save. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
+    <p><b>Gallery.</b> Add to gallery shares a print with everyone, with your name if you like. The newest 100 are kept, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
     <p class="fn">1. Shufang Lu, Aubrey Jaffer, Xiaogang Jin, Hanli Zhao, and Xiaoyang Mao, &ldquo;Mathematical Marbling,&rdquo; <i>IEEE Computer Graphics and Applications</i> 32, no. 6 (2012): 26&ndash;35, <a href="https://doi.org/10.1109/MCG.2011.51">https://doi.org/10.1109/MCG.2011.51</a>.</p>
     <p style="text-align:center"><button class="btn" data-close>Back to the tray</button></p>
     <p style="text-align:center;font-size:14px"><a href="/tools/">More tools at Rayhana&rsquo;s Repositorium</a></p>
@@ -367,7 +395,16 @@ const I={
 const tile=(id,label,ic,attr='')=>`<button class="tile" data-id="${id}" ${attr}><svg viewBox="0 0 24 24">${I[ic]}</svg><span>${label}</span></button>`;
 
 const HAND=[["drop","Drop","drop"],["stylus","Stylus","stylus"],["rake","Rake","rake"],["swirl","Swirl","swirl"],["mist","Mist","mist"],["rings","Rings","rings"]];
-$('hand').innerHTML=HAND.map(h=>tile(h[0],h[1],h[2],`aria-pressed="${h[0]=='drop'}"`)).join('');
+// tools that lay ink carry a dot in the current ink (Rings: both of its colors)
+const INKY={drop:'<span class="tdot" aria-hidden="true"></span>',mist:'<span class="tdot" aria-hidden="true"></span>',rings:'<span class="tdot r2" aria-hidden="true"></span><span class="tdot" aria-hidden="true"></span>'};
+$('hand').innerHTML=HAND.map(h=>tile(h[0],h[1],h[2],`aria-pressed="${h[0]=='drop'}"`).replace('</button>',(INKY[h[0]]||'')+'</button>')).join('');
+let inkLabel='',ring2=null,ring2Label='';
+// what Rings alternate with: your choice, or (Auto) ivory/white, or dark when the ink itself is light
+function ringOther(){const L=LIGHT[mode];return ring2||(color==L?(mode=='modern'?'#141414':'#2a2521'):L);}
+function syncInk(name){if(name)inkLabel=name;const r=document.documentElement.style;r.setProperty('--pig',color);r.setProperty('--pig2',ringOther());
+ $('inkName').textContent=inkLabel;$('inkPick').setAttribute('aria-label',`Ink color: ${inkLabel}. Tap to change`);
+ $('ring2Name').textContent=ring2?ring2Label:'Auto';$('ring2B').setAttribute('aria-label',`Rings alternate with: ${ring2?ring2Label:'Auto'}. Tap to change`);}
+function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool];}
 const COMBS=[["gel","Gelgit","gelV"],["comb","Comb","combV"],["fine","Fine","fineV"],["wave","Wave","waveV"],["chev","Chevron","chev"],["spiral","Spiral","spiral"]];
 $('combs').innerHTML=COMBS.map(c=>tile(c[0],c[1],c[2])).join('');
 $('combs').dataset.dir='down';
@@ -380,7 +417,7 @@ function drawSw(sel){const L=allInk();
  $('sw').innerHTML=L.map((p,i)=>`<button class="sw" style="background:${p[1]}" aria-label="${p[0]}" aria-pressed="${p[1]==sel}" data-i="${i}"></button>`).join('')+
   '<label class="sw addc" aria-label="Mix your own color"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg><input type="color" id="cpick" value="#7a5c9e"></label>';}
 function swatches(){PIG=PALS[mode];color=PIG[0][1];drawSw(color);
- $('cname').textContent=PIG[0][0];$('sw').scrollLeft=0;
+ $('cname').textContent=PIG[0][0];$('sw').scrollLeft=0;syncInk(PIG[0][0]);
  const dots=mode=='modern'?['#1f5fff','#ff3d8b','#ffd60a','#00b5b8']:['#2c4d8e','#b4475a','#e1bf4c','#3a8c7b'];
  dots.forEach((c,i)=>$('pd'+i).setAttribute('fill',c));
  $('mode').setAttribute('aria-label',mode=='modern'?'Palette: modern colors. Tap for period colors':'Palette: period colors. Tap for modern colors');
@@ -389,10 +426,10 @@ swatches();
 $('mode').addEventListener('click',()=>{mode=mode=='modern'?'period':'modern';try{localStorage.setItem('ebru-mode',mode);}catch(_){}swatches();resetSlots();});
 $('sw').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b||b.classList.contains('addc'))return;
  $('sw').querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');
- const p=allInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];});
+ const p=allInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];syncInk(p[0]);});
 $('sw').addEventListener('change',e=>{if(e.target.id!='cpick')return;const c=e.target.value.toLowerCase();if(!/^#[0-9a-f]{6}$/.test(c))return;
  customs=[c,...customs.filter(x=>x!=c)].slice(0,6);try{localStorage.setItem('ebru-custom',JSON.stringify(customs));}catch(_){}
- color=c;drawSw(c);$('cname').textContent='Your color';const s=$('sw');s.scrollLeft=s.scrollWidth;});
+ color=c;drawSw(c);$('cname').textContent='Your color';syncInk('Your color');const s=$('sw');s.scrollLeft=s.scrollWidth;});
 
 // tabs
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
@@ -535,29 +572,41 @@ $('combs').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)
 $('csp').addEventListener('input',e=>cs.sp=+e.target.value);$('cst').addEventListener('input',e=>cs.st=+e.target.value);
 $('dpad').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;dir=b.dataset.d;$('combs').dataset.dir=dir;
  $('dpad').querySelectorAll('[data-d]').forEach(x=>x.setAttribute('aria-pressed',x===b));});
-let recipe='r-gelgit',slots=[],pickI=0;
+let recipe='r-gelgit',slots=[],pickI=0,pickFor='slot';
 const nameOf=c=>{for(const m in PALS){const f=PALS[m].find(p=>p[1]==c);if(f)return f[0];}return 'your color';};
 function resetSlots(){slots=SETS[mode][si++%SETS[mode].length].slice();drawSlots();}
 function drawSlots(){$('slots').innerHTML=slots.map((c,i)=>c?`<button class="slot" style="background:${c}" data-i="${i}" aria-label="Layer ${i+1}: ${nameOf(c)}. Tap to change">${i+1}</button>`:`<button class="slot none" data-i="${i}" aria-label="Layer ${i+1}: none. Tap to choose">${i+1}</button>`).join('');}
 $('sheet').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)return;recipe=b.dataset.id;
  $('sheet').querySelectorAll('.tile').forEach(x=>x.setAttribute('aria-pressed',x===b));});
-$('slots').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b)return;pickI=+b.dataset.i;
+$('slots').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b)return;pickI=+b.dataset.i;pickFor='slot';
  $('pickT').textContent=`Layer ${pickI+1} color`+(pickI==0?' (largest drops)':pickI==3?' (smallest drops)':'');
  $('pgrid').innerHTML=allInk().map(p=>`<button class="sw" style="background:${p[1]}" data-c="${p[1]}" aria-label="${p[0]}" aria-pressed="${slots[pickI]==p[1]}"></button>`).join('')+(pickI>0?'<button class="nonec" data-c="">None</button>':'');
  $('picker').classList.add('on');});
-$('pgrid').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;slots[pickI]=b.dataset.c||null;drawSlots();$('picker').classList.remove('on');});
+// the same color sheet also picks the ink (from the Tools tab) and what Rings alternate with
+function pickColor(forWhat,title,current,extra){pickFor=forWhat;$('pickT').textContent=title;
+ $('pgrid').innerHTML=allInk().map(p=>`<button class="sw" style="background:${p[1]}" data-c="${p[1]}" aria-label="${p[0]}" aria-pressed="${current==p[1]}"></button>`).join('')+(extra||'');
+ $('picker').classList.add('on');}
+$('inkPick').onclick=()=>pickColor('ink','Ink color',color);
+$('ring2B').onclick=()=>pickColor('ring2','Rings alternate with',ring2,'<button class="nonec" data-c="">Auto</button>');
+$('pgrid').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const c=b.dataset.c,hit=allInk().find(p=>p[1]==c),nm=hit?hit[0]:'Your color';
+ if(pickFor=='ink'){if(!c)return;color=c;drawSw(c);$('cname').textContent=nm;syncInk(nm);}
+ else if(pickFor=='ring2'){ring2=c||null;ring2Label=nm;syncInk();}
+ else{slots[pickI]=c||null;drawSlots();}
+ $('picker').classList.remove('on');});
 $('picker').addEventListener('click',e=>{if(e.target.id=='picker')$('picker').classList.remove('on');});
 $('shuffle').onclick=resetSlots;
 $('go').onclick=()=>{settleNow();if(busy())return;const set=slots.filter(Boolean);if(!set.length)return;
  snap();hideHint();inks=[];dirty=true;for(const op of RECIPE[recipe](set))queue.push(op);};
 resetSlots();
 $('hand').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)return;const id=b.dataset.id;
- tool=id;$('hand').querySelectorAll('[aria-pressed]').forEach(x=>x.setAttribute('aria-pressed',x===b));showHint();});
+ tool=id;$('hand').querySelectorAll('[aria-pressed]').forEach(x=>x.setAttribute('aria-pressed',x===b));syncTool();showHint();});
+syncTool();
 
 // ---------- pointer ----------
 const HINTS={drop:"tap to drop ink · hold to let it spread",stylus:"drag a needle through the ink",rake:"drag five tines through the ink",swirl:"hold to turn the water · drag to move",mist:"drag to spray fine drops",rings:"tap for concentric rings"};
-function showHint(){hint.textContent=HINTS[tool];hint.style.opacity=inks.length?0:1;}
-function hideHint(){hint.style.opacity=0;}
+// data-fresh marks an untouched tray: the hint shows, and so does the "See the gallery" button
+function showHint(){hint.textContent=HINTS[tool];hint.style.opacity=inks.length?0:1;document.body.toggleAttribute('data-fresh',!inks.length);}
+function hideHint(){hint.style.opacity=0;document.body.removeAttribute('data-fresh');}
 function toTray(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];}
 function finishAll(){settleNow();while(cur||queue.length){if(!cur)cur=queue.shift();let g=0;while(!cur.step()&&g++<5000){}cur=null;}refine();dirty=true;}
 function settleNow(){const a=active;if(!a||a.t!='drop'||a.hold)return;
@@ -565,7 +614,7 @@ function settleNow(){const a=active;if(!a||a.t!='drop'||a.hold)return;
 cv.addEventListener('pointerdown',e=>{if(drifting){setDrift(false);return;}settleNow();if(cur||queue.length||active)return;e.preventDefault();cv.setPointerCapture(e.pointerId);hideHint();snap();
  const [x,y]=toTray(e);
  if(tool=='drop'){const r0=6,sd=Math.random(),k={c:color,p:circle(x,y,r0,sd)};drop(x,y,r0,k);inks.push(k);ripple(x,y,10);drip(14*size);active={t:'drop',x,y,r:r0,target:34*size,hold:true,k,sd};}
- else if(tool=='rings'){const L=LIGHT[mode],other=color==L?(mode=="modern"?"#141414":"#2a2521"):L;let n=0;const r=15*size;
+ else if(tool=='rings'){const other=ringOther();let n=0;const r=15*size;
   let fr=0;queue.push({step(){if(fr++%5)return false;drop(x,y,r);inks.push({c:n%2?other:color,p:circle(x,y,r)});ripple(x,y,r);lastDrip=0;drip(r+n*4,.8);n++;return n>=8;}});}
  else if(tool=='mist'){active={t:'mist',x,y,acc:0,hold:true};spray(x,y,4);}
  else active={t:tool,x,y,pts:[],hold:true};
@@ -667,14 +716,36 @@ document.addEventListener('visibilitychange',()=>{if(AC&&sound){document.hidden?
 
 // ---------- print & modals ----------
 const pressEl=$('press'),cap=$('cap');let printT=[];
-const prints=[];let histI=-1;
+// ----- your prints: kept on this device (IndexedDB) so they survive a refresh; Drift's prints stay for this visit only -----
+const prints=[];let histI=-1,histId=null;
+const KEEP_MINE=24,KEEP_DRIFT=6;
+function stamp(ms){return new Date(ms).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+let mineDb=null;
+function openMine(){if(!mineDb)mineDb=new Promise(res=>{try{const r=indexedDB.open('ebru',1);
+  r.onupgradeneeded=()=>r.result.createObjectStore('prints',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);r.onblocked=()=>res(null);}catch(_){res(null);}});
+ return mineDb;}
+async function mineDo(fn){const d=await openMine();if(!d)return null;
+ return new Promise(res=>{try{const tx=d.transaction('prints','readwrite'),st=tx.objectStore('prints'),out=fn(st);
+  tx.oncomplete=()=>res(out&&'result' in out?out.result:true);tx.onerror=tx.onabort=()=>res(null);}catch(_){res(null);}});}
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+function addPrint(entry){prints.unshift(entry);
+ if(!entry.auto)mineDo(st=>st.put({id:entry.id,t:entry.t,thumb:entry.thumb,inks:entry.inks}));
+ for(const auto of [true,false]){const lim=auto?KEEP_DRIFT:KEEP_MINE,list=prints.filter(p=>!!p.auto==auto);
+  for(const old of list.slice(lim)){prints.splice(prints.indexOf(old),1);if(!auto)mineDo(st=>st.delete(old.id));}}
+ renderPrints();}
+async function loadMine(){const all=await mineDo(st=>st.getAll());if(!all||!all.length)return;
+ all.sort((a,b)=>b.t-a.t);const known=new Set(prints.map(p=>p.id));
+ for(const p of all.slice(0,KEEP_MINE))if(!known.has(p.id))prints.push({id:p.id,t:p.t,thumb:p.thumb,inks:p.inks});
+ prints.sort((a,b)=>b.t-a.t);for(const old of all.slice(KEEP_MINE))mineDo(st=>st.delete(old.id));renderPrints();}
 function renderPrints(){const el=$('prints');
- el.innerHTML=prints.length?prints.map((p,i)=>`<button class="pthumb" data-i="${i}" aria-label="Print from ${p.time}"><img src="${p.thumb}" alt=""></button>`).join(''):'<div class="pempty">No prints yet.</div>';}
-renderPrints();
-$('prints').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=prints[+b.dataset.i];histI=+b.dataset.i;
+ el.innerHTML=prints.length?prints.map((p,i)=>`<button class="pthumb" data-i="${i}" aria-label="Your print from ${stamp(p.t)}"><img src="${p.thumb}" alt=""></button>`).join(''):'<div class="pempty">No prints yet. Lift one and it&rsquo;ll be kept here.</div>';}
+renderPrints();loadMine();
+$('prints').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=prints[+b.dataset.i];histI=+b.dataset.i;histId=p.id;
  printT.forEach(clearTimeout);restorePo();subject=p.inks;drawOpts();showPrint();pressEl.className='press done';
- cap.textContent=ONSITE?p.time:`${p.time} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=false;$('liftM').classList.add('on');});
-$('restore').onclick=()=>{const p=prints[histI];$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(k=>({c:k.c,p:k.p.slice()}));dirty=true;hideHint();};
+ cap.textContent=ONSITE?stamp(p.t):`${stamp(p.t)} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=false;$('delMine').hidden=false;$('liftM').classList.add('on');});
+$('delMine').onclick=()=>{histI=prints.findIndex(x=>x.id==histId);const p=prints[histI];if(!p||!confirm('Remove this print from Yours? This can’t be undone.'))return;
+ prints.splice(histI,1);if(!p.auto)mineDo(st=>st.delete(p.id));renderPrints();$('liftM').classList.remove('on');};
+$('restore').onclick=()=>{const p=prints.find(x=>x.id==histId);$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(k=>({c:k.c,p:k.p.slice()}));dirty=true;hideHint();};
 // ----- print options -----
 const PAPERS=[["Ivory (polished)","#efe5cf"],["White","#fbfaf5"],["Tea","#e4cfa6"],["Rose","#eed6cf"],["Sky","#dbe3e6"],["Sage","#dfe3cc"]];
 const CROPS={portrait:[0,0,1000,1400],square:[0,200,1000,1000],landscape:[0,343,1000,714],strip:[325,0,350,1400]};
@@ -713,9 +784,8 @@ function lift(){rustle();restorePo();
  const c=document.createElement('canvas');c.width=600;c.height=840;paper(c.getContext('2d'),c.width,c.height,paperCol());
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;tc.getContext('2d').drawImage(c,0,0,180,252);
  subject=clone();
- prints.unshift({thumb:tc.toDataURL('image/jpeg',.8),inks:subject,time:new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})});
- if(prints.length>6)prints.pop();renderPrints();
- $('clearAfter').hidden=false;$('keep').hidden=false;$('closeH').hidden=true;$('restore').hidden=true;
+ addPrint({id:newId(),t:Date.now(),thumb:tc.toDataURL('image/jpeg',.8),inks:subject});
+ $('clearAfter').hidden=false;$('keep').hidden=false;$('closeH').hidden=true;$('restore').hidden=true;$('delMine').hidden=true;
  drawOpts();showPrint();pressEl.style.setProperty('--ar','.714');document.querySelector('.sheetP').style.background=paperCol();$('wsnap').src=cv.toDataURL('image/jpeg',.85);
  printT.forEach(clearTimeout);pressEl.className='press';cap.textContent='';$('liftM').classList.add('on');
  if(RM){pressEl.className='press done';cap.textContent=DONECAP;showPrint();return;}
@@ -732,17 +802,28 @@ const GALLERY=ONSITE&&/^https?:$/.test(location.protocol);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const when=ms=>new Date(ms).toLocaleString([],{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
 const byline=p=>(p.name?`Made by ${p.name} · `:'')+when(p.createdAt);
-let gal=[],galView='mine',galLoading=false;
+let gal=[],galView='mine',galLoading=false,tabNow='ink';
+const thumb=(p,i)=>`<button class="pthumb" data-i="${i}" aria-label="${esc(byline(p))}" title="${esc(byline(p))}"><img src="${esc(p.url)}" alt="" loading="lazy"></button>`;
 function renderGallery(msg){const el=$('gallery');
- el.innerHTML=msg?`<div class="pempty">${esc(msg)}</div>`:gal.length?gal.slice(0,24).map((p,i)=>`<button class="pthumb" data-i="${i}" aria-label="${esc(byline(p))}" title="${esc(byline(p))}"><img src="${esc(p.url)}" alt="" loading="lazy"></button>`).join(''):'<div class="pempty">No shared prints yet. Add yours!</div>';}
+ el.innerHTML=msg?`<div class="pempty">${esc(msg)}</div>`:gal.length?gal.slice(0,24).map(thumb).join(''):'<div class="pempty">No shared prints yet. Add yours!</div>';
+ // the tray's "See the gallery" button and, on desktop, the sidebar's newest four
+ $('galChip').hidden=!gal.length;$('galChipT').textContent=`See the gallery · ${gal.length} print${gal.length==1?'':'s'}`;
+ $('galSideRow').innerHTML=gal.slice(0,4).map(thumb).join('');syncSide();}
+function syncSide(){$('galSide').hidden=!GALLERY||!gal.length||tabNow=='prints';}
 async function loadGallery(){if(!GALLERY||galLoading)return;galLoading=true;if(!gal.length)renderGallery('Loading…');
  try{const r=await fetch('/api/ebru/prints',{cache:'no-store'});if(!r.ok)throw 0;gal=(await r.json()).prints||[];renderGallery();}
  catch(_){renderGallery('The gallery couldn’t load. Try again in a moment.');}finally{galLoading=false;}}
 function setView(v){galView=v;$('pview').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==v));
  $('prints').hidden=v!='mine';$('gallery').hidden=v!='all';if(v=='all')loadGallery();}
-if(GALLERY)$('pviewRow').hidden=false;
 $('pview').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v);});
-document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b&&b.dataset.tab=='prints'&&galView=='all')loadGallery();});
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tabNow=b.dataset.tab;syncSide();
+ if(tabNow=='prints'&&galView=='all')loadGallery();});
+// on the real site the Prints tab becomes the Gallery, opening on everyone's prints
+if(GALLERY){$('pviewRow').hidden=false;document.querySelector('[data-tab=prints]').textContent='Gallery';setView('all');}
+function openGalleryTab(){setCollapsed(false);document.querySelector('[data-tab=prints]').click();setView('all');$('gallery').scrollLeft=0;$('dock').scrollTop=0;}
+$('galChip').onclick=openGalleryTab;
+$('seeGal').onclick=()=>{$('liftM').classList.remove('on');printT.forEach(clearTimeout);openGalleryTab();};
+$('galSideRow').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(p)openShared(p);});
 // wait for an image with load events (img.decode() can stall in some browsers)
 const imgReady=im=>im.complete?(im.naturalWidth?Promise.resolve():Promise.reject(new Error('Couldn’t prepare the print.'))):new Promise((res,rej)=>{im.addEventListener('load',res,{once:true});im.addEventListener('error',rej,{once:true});});
 const loadImg=(im,src)=>{const p=new Promise((res,rej)=>{im.onload=res;im.onerror=rej;});im.src=src;return p;};
@@ -757,7 +838,7 @@ async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
  po.shape=CROPS[p.shape]?p.shape:'portrait';po.layout=['full','album','mount'].includes(p.layout)?p.layout:'full';
  subject={sheet:im,paper:/^#[0-9a-f]{6}$/i.test(p.paper||'')?p.paper:PAPER.period};
  printT.forEach(clearTimeout);drawOpts();$('opaper').closest('.prow').hidden=true;showPrint();pressEl.className='press done';
- cap.textContent=byline(p);$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=true;$('liftM').classList.add('on');}
+ cap.textContent=byline(p);$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=true;$('delMine').hidden=true;$('liftM').classList.add('on');}
 $('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(p)openShared(p);});
 // the gallery page links here as /tools/ebru/#print=<id> to change a print's format
 if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash.slice(7);history.replaceState(null,'',location.pathname+location.search);
@@ -765,7 +846,7 @@ if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash
 $('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=document.createElement('a');a.href=p.url;
  a.download=`ebru-${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
 let sharing=false;
-function resetShare(){if(sharing)return;$('gform').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
+function resetShare(){if(sharing)return;$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
 $('toGal').onclick=()=>{$('toGal').hidden=true;$('gform').hidden=false;try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gname').focus();};
 // JPEG under the server's 700 KB limit: start at good quality, step down for very busy prints
 async function jpegUnder(c){for(const q of [.86,.76,.66,.56]){const b=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(b&&b.size<650*1024)return b;}
@@ -784,7 +865,7 @@ $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('g
   fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);
   const r=await fetch('/api/ebru/prints',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.print)throw new Error(j.error||'Couldn’t add it. Try again.');
-  $('gform').hidden=true;msg.textContent='Added to the gallery ✓';gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
+  $('gform').hidden=true;msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
  catch(err){msg.className='gmsg err';msg.textContent=err.message||'Couldn’t add it. Try again.';}
  finally{btn.disabled=false;sharing=false;}});
 $('shareB').onclick=()=>printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(()=>{});});
@@ -816,7 +897,7 @@ let dT=[],dSaved=null;
 function driftLift(){ // lay paper, show the print a while, then fresh water
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;paper(tc.getContext('2d'),180,252);
  const big=document.createElement('canvas');big.width=1000;big.height=1400;paper(big.getContext('2d'),1000,1400);
- dSaved=clone();prints.unshift({thumb:tc.toDataURL('image/jpeg',.8),inks:dSaved,time:new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})});if(prints.length>6)prints.pop();renderPrints();
+ dSaved=clone();addPrint({id:newId(),t:Date.now(),thumb:tc.toDataURL('image/jpeg',.8),inks:dSaved,auto:true});
  const v=$('veil');v.style.background=PAPER[mode];$('veilImg').src=big.toDataURL('image/jpeg',.9);
  rustle();v.classList.add('on');
  dT=[setTimeout(()=>{v.classList.add('show');inks=[];dirty=true;},1500),
