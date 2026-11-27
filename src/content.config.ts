@@ -6,13 +6,19 @@ import { glob } from 'astro/loaders';
 // title: "..."
 // summary: "One line shown on index pages"
 // date: 2026-07-15
-// tags: [ottoman, sewing]
+// tags: [garb, headwear]
 // ---
 const base = z.object({
   title: z.string(),
   summary: z.string(),
   date: z.coerce.date(),
   tags: z.array(z.string()).default([]),
+  // Where it was entered or shown, e.g. "Pentathlon 2022". Shown in the
+  // entry's details line, not used as a filter.
+  event: z.string().optional(),
+  // Optional search/share description. Falls back to `summary`. Use it to
+  // carry alternate spellings people search for (salvar, tarpush, kaftan).
+  description: z.string().optional(),
   // Optional link to the PDF "as judged" or "as taught"
   pdf: z.string().optional(),
   // Optional cover image (path under /public) for index thumbnails.
@@ -31,6 +37,16 @@ const ans = defineCollection({
     generateId: ({ entry }) => entry.replace(/\.md$/, ''),
   }),
   schema: base.extend({
+    // Subject tags, from a fixed list so the A&S filter stays useful.
+    // One or two per entry.
+    tags: z
+      .array(
+        z.enum([
+          'garb', 'headwear', 'accessories', 'embroidery', 'textiles',
+          'food', 'performance', 'painting', 'teaching',
+        ])
+      )
+      .default([]),
     kind: z.enum(['project', 'handout', 'research']).default('project'),
   }),
 });

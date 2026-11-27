@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 ---
-<Base title="Şalvar Pattern Generator" description="Generate a to-scale cutting diagram for Turkish pants (şalvar) from four body measurements.">
+<Base title="Şalvar Pattern Generator" description="Free şalvar (salvar) pattern generator: a to-scale cutting diagram for Ottoman Turkish pants from four body measurements.">
   <div class="wrap">
     <header class="entry-header prose">
       <p class="meta">Tool</p>
@@ -91,37 +91,37 @@ import Base from '../../layouts/Base.astro';
       <figure>
         <svg viewBox="0 0 300 205" style="max-width:420px" role="img" aria-label="The joined pants laid flat, legs splayed: the center seam from waist to crotch is T of one leg sewn to T of the other, then G to G; the gore corners sit T below the waist; B and E seams meet at the crotch and run down to each ankle">
           <!-- gore triangles -->
-          <polygon points="150,55 150,115 48,172" fill="rgba(46,140,138,.14)"/>
-          <polygon points="150,55 150,115 252,172" fill="rgba(46,140,138,.14)"/>
+          <polygon points="150,55 150,115 48,172" fill="rgba(63,122,90,.14)"/>
+          <polygon points="150,55 150,115 252,172" fill="rgba(63,122,90,.14)"/>
           <!-- pants outline: waist, casing, outer edges, ankles -->
-          <line x1="95" y1="25" x2="205" y2="25" stroke="#26304a" stroke-width="1.8"/>
-          <line x1="96" y1="31" x2="204" y2="31" stroke="#26304a" stroke-width="1"/>
-          <line x1="95" y1="25" x2="30" y2="155" stroke="#26304a" stroke-width="1.8"/>
-          <line x1="30" y1="155" x2="48" y2="172" stroke="#26304a" stroke-width="1.8"/>
-          <line x1="205" y1="25" x2="270" y2="155" stroke="#26304a" stroke-width="1.8"/>
-          <line x1="270" y1="155" x2="252" y2="172" stroke="#26304a" stroke-width="1.8"/>
+          <line x1="95" y1="25" x2="205" y2="25" stroke="#2b2420" stroke-width="1.8"/>
+          <line x1="96" y1="31" x2="204" y2="31" stroke="#2b2420" stroke-width="1"/>
+          <line x1="95" y1="25" x2="30" y2="155" stroke="#2b2420" stroke-width="1.8"/>
+          <line x1="30" y1="155" x2="48" y2="172" stroke="#2b2420" stroke-width="1.8"/>
+          <line x1="205" y1="25" x2="270" y2="155" stroke="#2b2420" stroke-width="1.8"/>
+          <line x1="270" y1="155" x2="252" y2="172" stroke="#2b2420" stroke-width="1.8"/>
           <!-- seams, all dashed: center seam in two segments, then B and E out to the ankles -->
-          <line x1="150" y1="25" x2="150" y2="55" stroke="#1f4396" stroke-width="1.9" stroke-dasharray="3 2.5"/>
-          <line x1="150" y1="55" x2="150" y2="115" stroke="#1f4396" stroke-width="1.9" stroke-dasharray="3 2.5"/>
-          <line x1="150" y1="55" x2="48" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
-          <line x1="150" y1="55" x2="252" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
-          <line x1="150" y1="115" x2="48" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
-          <line x1="150" y1="115" x2="252" y2="172" stroke="#1f4396" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="25" x2="150" y2="55" stroke="#2a4b8d" stroke-width="1.9" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="150" y2="115" stroke="#2a4b8d" stroke-width="1.9" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="48" y2="172" stroke="#2a4b8d" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="55" x2="252" y2="172" stroke="#2a4b8d" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="115" x2="48" y2="172" stroke="#2a4b8d" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+          <line x1="150" y1="115" x2="252" y2="172" stroke="#2a4b8d" stroke-width="1.5" stroke-dasharray="3 2.5"/>
           <!-- junction tick and crotch point -->
-          <line x1="144" y1="55" x2="156" y2="55" stroke="#2e8c8a" stroke-width="1.8"/>
-          <circle cx="150" cy="115" r="2.3" fill="#2e8c8a"/>
+          <line x1="144" y1="55" x2="156" y2="55" stroke="#3f7a5a" stroke-width="1.8"/>
+          <circle cx="150" cy="115" r="2.3" fill="#3f7a5a"/>
           <!-- seam letters -->
-          <text x="144" y="44" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">T+T</text>
-          <text x="144" y="90" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">G+G</text>
-          <text x="92" y="106" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">B</text>
-          <text x="208" y="106" font-size="8" fill="#1f4396" font-family="IBM Plex Mono,monospace">B</text>
-          <text x="90" y="160" font-size="8" fill="#1f4396" text-anchor="end" font-family="IBM Plex Mono,monospace">E</text>
-          <text x="210" y="160" font-size="8" fill="#1f4396" font-family="IBM Plex Mono,monospace">E</text>
+          <text x="144" y="44" font-size="8" fill="#2a4b8d" text-anchor="end" font-family="IBM Plex Mono,monospace">T+T</text>
+          <text x="144" y="90" font-size="8" fill="#2a4b8d" text-anchor="end" font-family="IBM Plex Mono,monospace">G+G</text>
+          <text x="92" y="106" font-size="8" fill="#2a4b8d" text-anchor="end" font-family="IBM Plex Mono,monospace">B</text>
+          <text x="208" y="106" font-size="8" fill="#2a4b8d" font-family="IBM Plex Mono,monospace">B</text>
+          <text x="90" y="160" font-size="8" fill="#2a4b8d" text-anchor="end" font-family="IBM Plex Mono,monospace">E</text>
+          <text x="210" y="160" font-size="8" fill="#2a4b8d" font-family="IBM Plex Mono,monospace">E</text>
           <!-- callouts -->
-          <line x1="156" y1="55" x2="174" y2="44" stroke="#2e8c8a" stroke-width="1"/>
+          <line x1="156" y1="55" x2="174" y2="44" stroke="#3f7a5a" stroke-width="1"/>
           <text x="176" y="42" font-size="6" fill="#1d5f5d" font-family="Karla,sans-serif">gore corners sit</text>
           <text x="176" y="50" font-size="6" fill="#1d5f5d" font-family="Karla,sans-serif">T below the waist</text>
-          <line x1="150" y1="122" x2="150" y2="184" stroke="#2e8c8a" stroke-width="1"/>
+          <line x1="150" y1="122" x2="150" y2="184" stroke="#3f7a5a" stroke-width="1"/>
           <text x="150" y="194" font-size="6.5" fill="#1d5f5d" text-anchor="middle" font-family="Karla,sans-serif">B and E seams meet at the crotch</text>
         </svg>
       </figure>
@@ -150,26 +150,26 @@ import Base from '../../layouts/Base.astro';
   label:first-of-type{margin-top:0}
   label.tight{margin-top:.5rem}
   .hint{font-weight:400;opacity:.72;font-size:.82rem;display:block}
-  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(31,67,150,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
-  input[type=number]:focus{outline:2px solid #2e8c8a;outline-offset:1px}
+  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(42,75,141,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
+  input[type=number]:focus{outline:2px solid #3f7a5a;outline-offset:1px}
   .seg{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.25rem}
-  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(31,67,150,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer}
-  .seg button[aria-pressed=true]{background:#1f4396;border-color:#1f4396;color:#fff}
-  .seg button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(42,75,141,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer}
+  .seg button[aria-pressed=true]{background:#2a4b8d;border-color:#2a4b8d;color:#fff}
+  .seg button:focus-visible{outline:2px solid #b8923a;outline-offset:2px}
   table{width:100%;border-collapse:collapse;margin-top:.25rem}
-  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(31,67,150,.28);text-align:left;font-size:.95rem}
-  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#2e8c8a;width:2.2rem}
+  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(42,75,141,.28);text-align:left;font-size:.95rem}
+  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#3f7a5a;width:2.2rem}
   td.val{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;white-space:nowrap}
   .diagram-card{margin-top:1.25rem}
   figure{margin:0}
   figure :global(svg){display:block;width:100%;height:auto;margin-inline:auto}
   .print-only{display:none}
   .note{font-size:.85rem;opacity:.75;margin-top:.6rem}
-  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #c9a24b;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
+  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #b8923a;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
   figure :global(.note){font-size:.85rem;opacity:.75;margin-top:.6rem}
   .actions{margin-top:1.5rem}
-  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #1f4396;background:#1f4396;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
-  .actions button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #2a4b8d;background:#2a4b8d;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
+  .actions button:focus-visible{outline:2px solid #b8923a;outline-offset:2px}
   .steps{margin:.25rem 0 0;padding-left:1.35rem}
   .steps li{margin:.5rem 0;font-size:.95rem}
   .ci{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
@@ -248,20 +248,20 @@ import Base from '../../layouts/Base.astro';
     const midX = (A+D)/2, midY = (T0+C)/2;
     const ang = Math.atan2(C-T0, D-A)*180/Math.PI;
     const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#2b2420" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
     return `<svg viewBox="${vb}" style="max-width:min(100%,${cap}px)" role="img" aria-label="Cutting diagram: rectangle ${fmt(A)} wide by ${fmt(C)} long on the fold, diagonal cut starting ${fmt(T)} below the waist, leaving ${fmt(D)} at the ankle">
-      <polygon points="${A},${T0} ${A},${C} ${D},${C}" fill="rgba(46,140,138,.18)"/>
-      <rect x="0" y="0" width="${A}" height="${C}" fill="none" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-      <line x1="0" y1="0" x2="0" y2="${C}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <polygon points="${A},${T0} ${A},${C} ${D},${C}" fill="rgba(63,122,90,.18)"/>
+      <rect x="0" y="0" width="${A}" height="${C}" fill="none" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="0" x2="0" y2="${C}" stroke="#b8923a" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
       <text x="${-fs*.7}" y="${C/2}" font-size="${fs}" fill="#8a6d1f" text-anchor="middle" transform="rotate(-90 ${-fs*.7} ${C/2})" font-family="Karla,sans-serif">fold</text>
-      <line x1="${D}" y1="${C}" x2="${A}" y2="${T0}" stroke="#1f4396" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
+      <line x1="${D}" y1="${C}" x2="${A}" y2="${T0}" stroke="#2a4b8d" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
       ${dim(0,-fs*1.4,A,-fs*1.4,`A ${fmt(A)}`,A/2,-fs*1.9)}
       ${dim(-fs*2.2,0,-fs*2.2,C,`C ${fmt(C)}`,-fs*2.7,C/2,'middle',-90)}
       ${dim(0,C+fs*1.4,D,C+fs*1.4,`D ${fmt(D)}`,D/2,C+fs*2.6)}
       ${dim(A+fs*.9,0,A+fs*.9,T0,`T ${fmt(T)}`,A+fs*1.4,T0/2+fs*.35,'start')}
       ${dim(D,C+fs*3.4,A,C+fs*3.4,`G ${fmt(G)}`,(D+A)/2,C+fs*4.6)}
-      <text x="${midX}" y="${midY-fs*.5}" font-size="${fs}" fill="#1f4396" text-anchor="middle" transform="rotate(${ang} ${midX} ${midY-fs*.5})" font-family="IBM Plex Mono,monospace">B ${fmt(B)}</text>
+      <text x="${midX}" y="${midY-fs*.5}" font-size="${fs}" fill="#2a4b8d" text-anchor="middle" transform="rotate(${ang} ${midX} ${midY-fs*.5})" font-family="IBM Plex Mono,monospace">B ${fmt(B)}</text>
       <text x="${A-(A-D)*0.28}" y="${C-fs*1.1}" font-size="${fs*.92}" fill="#1d5f5d" text-anchor="middle" font-family="Karla,sans-serif">gore</text>
     </svg>`;
   }
@@ -281,8 +281,8 @@ import Base from '../../layouts/Base.astro';
     const vb = `${-W2-m} ${-m} ${vbw} ${vbh}`;
     const cap = Math.round(540*vbw/vbh);
     const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <text x="${tx}" y="${ty}" font-size="${fs}" fill="#2b2420" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
     // label placement: midpoints of the two gore edges, nudged outward along each edge's perpendicular
     const gdx = qx-A, gdy = qy-T, gl = Math.hypot(gdx,gdy);
     const gpx = gdy/gl, gpy = -gdx/gl;
@@ -292,18 +292,18 @@ import Base from '../../layouts/Base.astro';
     const epx = edy/el, epy = -edx/el;
     const eAng = Math.atan2(edy, edx)*180/Math.PI;
     const etx = (qx+D)/2 + epx*fs*1.15, ety = (qy+C)/2 + epy*fs*1.15;
-    const gore = (s)=>`<polygon points="${s*A},${T} ${s*qx},${qy} ${s*D},${C}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+    const gore = (s)=>`<polygon points="${s*A},${T} ${s*qx},${qy} ${s*D},${C}" fill="rgba(63,122,90,.18)" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
     const outline = `${-A},0 ${A},0 ${A},${T} ${qx},${qy} ${D},${C} ${-D},${C} ${-qx},${qy} ${-A},${T}`;
     return `<svg viewBox="${vb}" style="max-width:min(100%,${cap}px)" role="img" aria-label="Flat view of one sewn leg: waist edge ${fmt(2*A)} across, gores flipped diagonal to diagonal with widest edge ${fmt(G)} at depth ${fmt(T)}, straight free edges of ${fmt(E)} tapering to an ankle ${fmt(2*D)} across">
-      <polygon points="${outline}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <polygon points="${outline}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${gore(1)}${gore(-1)}
-      <line x1="${A}" y1="${T}" x2="${D}" y2="${C}" stroke="#1f4396" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
-      <line x1="${-A}" y1="${T}" x2="${-D}" y2="${C}" stroke="#1f4396" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+      <line x1="${A}" y1="${T}" x2="${D}" y2="${C}" stroke="#2a4b8d" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+      <line x1="${-A}" y1="${T}" x2="${-D}" y2="${C}" stroke="#2a4b8d" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
       ${dim(-A,-fs*1.4,A,-fs*1.4,`waist edge 2A ${fmt(2*A)}`,0,-fs*1.9)}
       ${dim(-W2-fs*.9,0,-W2-fs*.9,T,`T ${fmt(T)}`,-W2-fs*1.4,T/2+fs*.35,'end')}
       ${dim(-D,C+fs*1.4,D,C+fs*1.4,`2D ${fmt(2*D)}`,0,C+fs*2.6)}
       <text x="${gtx}" y="${gty}" font-size="${fs}" fill="#1d5f5d" text-anchor="middle" transform="rotate(${gAng} ${gtx} ${gty})" font-family="IBM Plex Mono,monospace">G ${fmt(G)}</text>
-      <text x="${etx}" y="${ety}" font-size="${fs}" fill="#1f4396" text-anchor="middle" transform="rotate(${eAng} ${etx} ${ety})" font-family="IBM Plex Mono,monospace">E ${fmt(E)}</text>
+      <text x="${etx}" y="${ety}" font-size="${fs}" fill="#2a4b8d" text-anchor="middle" transform="rotate(${eAng} ${etx} ${ety})" font-family="IBM Plex Mono,monospace">E ${fmt(E)}</text>
       <text x="0" y="${(T+C)/2}" font-size="${fs*.92}" fill="#5a6382" text-anchor="middle" font-family="Karla,sans-serif">leg panel</text>
     </svg>`;
   }
@@ -320,14 +320,14 @@ import Base from '../../layouts/Base.astro';
     const fs = len/40;
     const vb = `${-fs*3} ${-fs*3} ${len+fs*6} ${half+fs*7}`;
     const panel = (x)=>`
-      <rect x="${x}" y="${half-A}" width="${C}" height="${A}" fill="rgba(31,67,150,.12)" stroke="#1f4396" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-      <text x="${x+C/2}" y="${half-A/2}" font-size="${fs*1.1}" fill="#1f4396" text-anchor="middle" font-family="Karla,sans-serif">leg panel — C × A</text>`;
+      <rect x="${x}" y="${half-A}" width="${C}" height="${A}" fill="rgba(42,75,141,.12)" stroke="#2a4b8d" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <text x="${x+C/2}" y="${half-A/2}" font-size="${fs*1.1}" fill="#2a4b8d" text-anchor="middle" font-family="Karla,sans-serif">leg panel — C × A</text>`;
     const svg = `<svg viewBox="${vb}" role="img" aria-label="Fabric folded lengthwise with two leg panels placed end to end along the fold">
-      <rect x="0" y="0" width="${len}" height="${half}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-      <line x1="0" y1="${half}" x2="${len}" y2="${half}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <rect x="0" y="0" width="${len}" height="${half}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${half}" x2="${len}" y2="${half}" stroke="#b8923a" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
       <text x="${len/2}" y="${half+fs*2.2}" font-size="${fs}" fill="#8a6d1f" text-anchor="middle" font-family="Karla,sans-serif">lengthwise fold — selvages at the top</text>
       ${panel(0.5)}${panel(C+1.5)}
-      <text x="${len/2}" y="${-fs*1.2}" font-size="${fs}" fill="#26304a" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(len)} of fabric</text>
+      <text x="${len/2}" y="${-fs*1.2}" font-size="${fs}" fill="#2b2420" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(len)} of fabric</text>
     </svg>`;
     const yards = Math.ceil((len/36)*4)/4;
     return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(len)} along the fold), before shrinkage — wash first and add a little if your fabric is prone to it. The gores come out of the cutaway wedges — no extra fabric needed.`};

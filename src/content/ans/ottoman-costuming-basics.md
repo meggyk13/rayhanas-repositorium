@@ -2,7 +2,7 @@
 title: "Ottoman Costuming Basics"
 summary: "A layer-by-layer introduction to 16th-century Ottoman garb for men and women, with fabric guidance and recreation notes."
 date: 2026-07-16
-tags: [garb, ottoman]
+tags: [garb]
 kind: handout
 ---
 

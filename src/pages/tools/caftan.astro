@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 ---
-<Base title="Kaftan Pattern Generator" description="Pick a length, fit, and sleeve style, enter three measurements, and get a to-scale cutting diagram for an Ottoman kaftan.">
+<Base title="Kaftan Pattern Generator" description="Free Ottoman kaftan (caftan) pattern generator: pick a length, fit, and sleeve style, enter three measurements, and get a to-scale cutting diagram.">
   <div class="wrap">
     <header class="entry-header prose">
       <p class="meta">Tool</p>
@@ -166,28 +166,28 @@ import Base from '../../layouts/Base.astro';
   label.tight{margin-top:.5rem}
   label.gap{margin-top:1.1rem}
   .hint{font-weight:400;opacity:.72;font-size:.82rem;display:block}
-  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(31,67,150,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
-  input[type=number]:focus{outline:2px solid #2e8c8a;outline-offset:1px}
+  input[type=number]{width:100%;padding:.55rem .7rem;border:1px solid rgba(42,75,141,.28);border-radius:8px;background:#fff;font-family:"IBM Plex Mono",monospace;font-size:1rem}
+  input[type=number]:focus{outline:2px solid #3f7a5a;outline-offset:1px}
   .seg{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.25rem}
-  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(31,67,150,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer;white-space:nowrap}
-  .seg button[aria-pressed=true]{background:#1f4396;border-color:#1f4396;color:#fff}
-  .seg button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .seg button{flex:1;padding:.5rem .6rem;border:1px solid rgba(42,75,141,.28);background:#fff;border-radius:999px;font-size:.88rem;cursor:pointer;white-space:nowrap}
+  .seg button[aria-pressed=true]{background:#2a4b8d;border-color:#2a4b8d;color:#fff}
+  .seg button:focus-visible{outline:2px solid #b8923a;outline-offset:2px}
   .detach-label{display:flex;align-items:center;gap:.45rem;font-size:.92rem;font-weight:500;margin:.7rem 0 .15rem;cursor:pointer}
-  .detach-label input{width:1.1rem;height:1.1rem;accent-color:#1f4396}
+  .detach-label input{width:1.1rem;height:1.1rem;accent-color:#2a4b8d}
   table{width:100%;border-collapse:collapse;margin-top:.25rem}
-  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(31,67,150,.28);text-align:left;font-size:.95rem}
-  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#2e8c8a;width:2.2rem}
+  td,th{padding:.5rem .4rem;border-bottom:1px solid rgba(42,75,141,.28);text-align:left;font-size:.95rem}
+  th{font-family:"IBM Plex Mono",monospace;font-weight:500;color:#3f7a5a;width:2.2rem}
   td.val{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;white-space:nowrap}
   .diagram-card{margin-top:1.25rem}
   figure{margin:0}
   figure :global(svg){display:block;width:100%;height:auto;margin-inline:auto}
   .print-only{display:none}
   .note{font-size:.85rem;opacity:.75;margin-top:.6rem}
-  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #c9a24b;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
+  .warn, figure :global(.warn){font-size:.9rem;background:#fff4e2;border:1px solid #b8923a;border-radius:8px;padding:.6rem .8rem;margin-top:.75rem}
   figure :global(.note){font-size:.85rem;opacity:.75;margin-top:.6rem}
   .actions{margin-top:1.5rem}
-  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #1f4396;background:#1f4396;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
-  .actions button:focus-visible{outline:2px solid #c9a24b;outline-offset:2px}
+  .actions button{padding:.65rem 1.3rem;border-radius:999px;border:1px solid #2a4b8d;background:#2a4b8d;color:#fff;font-weight:600;font-size:.95rem;cursor:pointer}
+  .actions button:focus-visible{outline:2px solid #b8923a;outline-offset:2px}
   .steps{margin:.25rem 0 0;padding-left:1.35rem}
   .steps li{margin:.5rem 0;font-size:.95rem}
   .ci{font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap}
@@ -306,8 +306,8 @@ import Base from '../../layouts/Base.astro';
 
   // shared helpers
   const dimLine = (fs) => (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
-    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
-    <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <text x="${tx}" y="${ty}" font-size="${fs}" fill="#2b2420" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
   const label = (fs,x,y,txt,color='#5a6382',rot=0) =>
     `<text x="${x}" y="${y}" font-size="${fs}" fill="${color}" text-anchor="middle" ${rot?`transform="rotate(${rot} ${x} ${y})"`:''} font-family="Karla,sans-serif">${txt}</text>`;
 
@@ -328,14 +328,14 @@ import Base from '../../layouts/Base.astro';
     const dim = dimLine(fs);
 
     const back = `
-      <rect x="0" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-      <line x1="0" y1="${y1}" x2="0" y2="${y1+L}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <rect x="0" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${y1}" x2="0" y2="${y1+L}" stroke="#b8923a" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
       ${label(fs*.92, -fs*.7, y1+L/2, 'fold', '#8a6d1f', -90)}
       ${label(fs*.92, P/2, y1+L/2, 'back — cut 1 on fold')}
       ${dim(0, y1-fs*1.2, P, y1-fs*1.2, `P ${fmt(P)}`, P/2, y1-fs*1.7)}`;
 
     const front = (x,n) => `
-      <rect x="${x}" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <rect x="${x}" y="${y1}" width="${P}" height="${L}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${label(fs*.92, x+P/2, y1+L/2, `front ${n}`)}
       ${n===1 ? dim(x, y1-fs*1.2, x+P, y1-fs*1.2, `P ${fmt(P)}`, x+P/2, y1-fs*1.7) : ''}`;
 
@@ -343,9 +343,9 @@ import Base from '../../layouts/Base.astro';
     if (state.sleeve==='narrow'){
       const sx = Math.min(SLEEVE_STD, N);
       sleeve = `
-        <polygon points="0,${y2} ${N},${y2+(S-C)/2} ${N},${y2+(S+C)/2} 0,${y2+S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-        <line x1="${sx}" y1="${y2+(S-C)/2*(sx/N)}" x2="${sx+SLIT}" y2="${y2+(S-C)/2*((sx+SLIT)/N)}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>
-        ${label(fs*.85, sx+SLIT/2, y2+(S-C)/2*(sx/N)-fs*.8, `wrist slit ${fmt(SLIT)}`, '#a93b2a')}
+        <polygon points="0,${y2} ${N},${y2+(S-C)/2} ${N},${y2+(S+C)/2} 0,${y2+S}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        <line x1="${sx}" y1="${y2+(S-C)/2*(sx/N)}" x2="${sx+SLIT}" y2="${y2+(S-C)/2*((sx+SLIT)/N)}" stroke="#a0341f" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        ${label(fs*.85, sx+SLIT/2, y2+(S-C)/2*(sx/N)-fs*.8, `wrist slit ${fmt(SLIT)}`, '#a0341f')}
         ${label(fs*.92, N/2, y2+S/2, 'sleeve — cut 2')}
         ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
         ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}
@@ -353,38 +353,38 @@ import Base from '../../layouts/Base.astro';
     } else if (state.sleeve==='elbow'){
       const cy = y2 + S/2;
       sleeve = `
-        <path d="M 0,${y2} L ${N},${y2} L ${N},${cy-M} A ${M} ${M} 0 0 0 ${N},${cy+M} L ${N},${y2+S} L 0,${y2+S} Z" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-        <text x="${N-M*0.5}" y="${cy}" font-size="${fs*.75}" fill="#c9a24b" text-anchor="middle" font-family="Karla,sans-serif">ay</text>
+        <path d="M 0,${y2} L ${N},${y2} L ${N},${cy-M} A ${M} ${M} 0 0 0 ${N},${cy+M} L ${N},${y2+S} L 0,${y2+S} Z" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        <text x="${N-M*0.5}" y="${cy}" font-size="${fs*.75}" fill="#b8923a" text-anchor="middle" font-family="Karla,sans-serif">ay</text>
         ${label(fs*.92, N*0.35, y2+S/2, 'sleeve — cut 2')}
         ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
         ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}
         ${dim(N+fs*.9, cy-M, N+fs*.9, cy+M, `M ${fmt(M)}`, N+fs*1.4, cy, 'start')}`;
     } else {
       sleeve = `
-        <rect x="0" y="${y2}" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+        <rect x="0" y="${y2}" width="${N}" height="${S}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
         ${label(fs*.92, N/2, y2+S/2, 'sleeve — cut 2')}
         ${dim(0, y2+S+fs*1.2, N, y2+S+fs*1.2, `N ${fmt(N)}`, N/2, y2+S+fs*2.4)}
         ${dim(-fs*.9, y2, -fs*.9, y2+S, `S ${fmt(S)}`, -fs*1.4, y2+S/2, 'end')}`;
     }
 
     const detachPiece = hasDetach ? `
-      <rect x="0" y="${y2b}" width="${DN}" height="${DW}" fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
-      ${[0.2,0.4,0.6,0.8].map(t=>`<circle cx="${fs*1.1}" cy="${y2b+DW*t}" r="${fs*.38}" fill="#1f4396"/>`).join('')}
-      ${label(fs*.85, fs*3.4, y2b+fs*1.2, 'buttons', '#1f4396')}
+      <rect x="0" y="${y2b}" width="${DN}" height="${DW}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      ${[0.2,0.4,0.6,0.8].map(t=>`<circle cx="${fs*1.1}" cy="${y2b+DW*t}" r="${fs*.38}" fill="#2a4b8d"/>`).join('')}
+      ${label(fs*.85, fs*3.4, y2b+fs*1.2, 'buttons', '#2a4b8d')}
       ${label(fs*.92, DN/2, y2b+DW/2, 'detachable sleeve — cut 2')}
       ${dim(0, y2b+DW+fs*1.2, DN, y2b+DW+fs*1.2, `DN ${fmt(DN)}`, DN/2, y2b+DW+fs*2.4)}
       ${dim(-fs*.9, y2b, -fs*.9, y2b+DW, `DW ${fmt(DW)}`, -fs*1.4, y2b+DW/2, 'end')}` : '';
 
     // side gore: trapezoid drawn sideways — top edge (T) at the left, hem (GW) at the right
     const sideGore = `
-      <polygon points="0,${y3+(GW-T)/2} 0,${y3+(GW+T)/2} ${GH},${y3+GW} ${GH},${y3}" fill="rgba(46,140,138,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,${y3+(GW-T)/2} 0,${y3+(GW+T)/2} ${GH},${y3+GW} ${GH},${y3}" fill="rgba(63,122,90,.18)" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${label(fs*.92, GH*.55, y3+GW/2, 'side gore — cut 2', '#1d5f5d')}
       ${dim(0, y3+GW+fs*1.2, GH, y3+GW+fs*1.2, `G ${fmt(GH)}`, GH/2, y3+GW+fs*2.4)}
       ${dim(-fs*.9, y3+(GW-T)/2, -fs*.9, y3+(GW+T)/2, `T ${fmt(T)}`, -fs*1.4, y3+GW/2, 'end')}
       ${dim(GH+fs*.9, y3, GH+fs*.9, y3+GW, `${fmt(GW)}`, GH+fs*1.4, y3+GW/2, 'start')}`;
 
     const frontGore = hasFront ? `
-      <polygon points="0,${y4+FG/2} ${FH},${y4} ${FH},${y4+FG}" fill="rgba(46,140,138,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,${y4+FG/2} ${FH},${y4} ${FH},${y4+FG}" fill="rgba(63,122,90,.18)" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${label(fs*.92, FH*.55, y4+FG/2, 'front gore — cut 2', '#1d5f5d')}
       ${dim(0, y4+FG+fs*1.2, FH, y4+FG+fs*1.2, `F ${fmt(FH)}`, FH/2, y4+FG+fs*2.4)}
       ${dim(FH+fs*.9, y4, FH+fs*.9, y4+FG, `${fmt(FG)}`, FH+fs*1.4, y4+FG/2, 'start')}` : '';
@@ -392,7 +392,7 @@ import Base from '../../layouts/Base.astro';
     const gussetX = GH + gap;
     const gussetY = y3 + (GW-U)/2;
     const gusset = `
-      <rect x="${gussetX}" y="${gussetY}" width="${U}" height="${U}" fill="rgba(201,162,75,.18)" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+      <rect x="${gussetX}" y="${gussetY}" width="${U}" height="${U}" fill="rgba(201,162,75,.18)" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
       ${dim(gussetX, gussetY-fs*1.2, gussetX+U, gussetY-fs*1.2, `U ${fmt(U)}`, gussetX+U/2, gussetY-fs*1.7)}
       ${label(fs*.85, gussetX+U/2, gussetY+U+fs*1.6, 'gusset — cut 2', '#8a6d1f')}`;
 
@@ -420,24 +420,24 @@ import Base from '../../layouts/Base.astro';
     // underarm gusset — diamond at each armpit
     const gh = U*0.707;
     const gussets = `
-      <polygon points="${bw},${A-gh} ${bw+gh},${A} ${bw},${A+gh} ${bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#c9a24b" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <polygon points="${-bw},${A-gh} ${-bw+gh},${A} ${-bw},${A+gh} ${-bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#c9a24b" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+      <polygon points="${bw},${A-gh} ${bw+gh},${A} ${bw},${A+gh} ${bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#b8923a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${-bw},${A-gh} ${-bw+gh},${A} ${-bw},${A+gh} ${-bw-gh},${A}" fill="rgba(201,162,75,.25)" stroke="#b8923a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
 
     // body: panels straight to the underarm, gores step out T then flare to GW at hem
     const bodyOutline = `
       <polygon points="${-bw},0 ${bw},0 ${bw},${A} ${bw+T},${A} ${bw+GW},${L} ${-bw-GW},${L} ${-bw-T},${A} ${-bw},${A}"
-        fill="#fffdf6" stroke="#26304a" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+        fill="#fffdf6" stroke="#2b2420" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
     const fGores = hasFront ? `
-      <polygon points="0,${WAIST_DEPTH} ${FG},${L} 0,${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <polygon points="0,${WAIST_DEPTH} ${-FG},${L} 0,${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>` : '';
+      <polygon points="0,${WAIST_DEPTH} ${FG},${L} 0,${L}" fill="rgba(63,122,90,.18)" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,${WAIST_DEPTH} ${-FG},${L} 0,${L}" fill="rgba(63,122,90,.18)" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>` : '';
     const gores = `
-      <polygon points="${bw},${A} ${bw+T},${A} ${bw+GW},${L} ${bw},${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
-      <polygon points="${-bw},${A} ${-bw-T},${A} ${-bw-GW},${L} ${-bw},${L}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${bw},${A} ${bw+T},${A} ${bw+GW},${L} ${bw},${L}" fill="rgba(63,122,90,.18)" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="${-bw},${A} ${-bw-T},${A} ${-bw-GW},${L} ${-bw},${L}" fill="rgba(63,122,90,.18)" stroke="#3f7a5a" stroke-width="1" vector-effect="non-scaling-stroke"/>
       ${fGores}`;
     const neckW = P*0.42, neckD = A*0.42;
     const centerFront = `
-      <line x1="0" y1="${neckD}" x2="0" y2="${L}" stroke="#26304a" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-      <path d="M ${-neckW} 0 Q 0 ${neckD*1.9} ${neckW} 0" fill="none" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+      <line x1="0" y1="${neckD}" x2="0" y2="${L}" stroke="#2b2420" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+      <path d="M ${-neckW} 0 Q 0 ${neckD*1.9} ${neckW} 0" fill="none" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
     let sleeves;
     if (state.sleeve==='narrow'){
       const clipped = showN < N;
@@ -447,20 +447,20 @@ import Base from '../../layouts/Base.astro';
         const slitX = s*(bw+SLEEVE_STD);
         const slitY = (S-C)/2*(SLEEVE_STD/N);
         let svg = `<polygon points="${x1},0 ${x2},${tTop} ${x2},${tBot} ${x1},${S}"
-          fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-          <line x1="${slitX}" y1="${slitY}" x2="${slitX}" y2="${slitY+SLIT}" stroke="#a93b2a" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
-        if (clipped) svg += `<line x1="${x2}" y1="${tTop}" x2="${x2}" y2="${tBot}" stroke="#26304a" stroke-width="1.4" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
+          fill="#fffdf6" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+          <line x1="${slitX}" y1="${slitY}" x2="${slitX}" y2="${slitY+SLIT}" stroke="#a0341f" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+        if (clipped) svg += `<line x1="${x2}" y1="${tTop}" x2="${x2}" y2="${tBot}" stroke="#2b2420" stroke-width="1.4" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>`;
         return svg;
       };
       const clipNote = clipped ? label(fs*.8, bw+showN+fs*1.2, S/2, `→ ${fmt(N)} total`, '#5a6382') : '';
-      sleeves = sl(1)+sl(-1)+label(fs*.85, bw+SLEEVE_STD, (S-C)/2*(SLEEVE_STD/N)-fs*.8, 'slit', '#a93b2a')+clipNote;
+      sleeves = sl(1)+sl(-1)+label(fs*.85, bw+SLEEVE_STD, (S-C)/2*(SLEEVE_STD/N)-fs*.8, 'slit', '#a0341f')+clipNote;
     } else if (state.sleeve==='elbow'){
       const sl = (s)=>{
         const x1 = s===1 ? bw : -bw;
         const x2 = s===1 ? bw+N : -bw-N;
         const cy = S/2;
         return `<path d="M ${x1},0 L ${x2},0 L ${x2},${cy-M} A ${M} ${M} 0 0 ${s===1?0:1} ${x2},${cy+M} L ${x2},${S} L ${x1},${S} Z"
-          fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+          fill="#fffdf6" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
       };
       let detachUnder = '';
       if (hasDetach){
@@ -468,13 +468,13 @@ import Base from '../../layouts/Base.astro';
           const dx1 = s*bw, dx2 = s*(bw+showDN);
           const dOff = (S-DW)/2;
           return `<rect x="${Math.min(dx1,dx2)}" y="${dOff}" width="${showDN}" height="${DW}"
-            fill="none" stroke="#1f4396" stroke-width="1.2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`;
+            fill="none" stroke="#2a4b8d" stroke-width="1.2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`;
         };
-        detachUnder = dsl(1)+dsl(-1)+label(fs*.7, bw+showDN*0.6, (S-DW)/2-fs*.5, 'detachable', '#1f4396');
+        detachUnder = dsl(1)+dsl(-1)+label(fs*.7, bw+showDN*0.6, (S-DW)/2-fs*.5, 'detachable', '#2a4b8d');
       }
       sleeves = sl(1)+sl(-1)+detachUnder;
     } else {
-      const sl = (s)=>`<rect x="${s===1?bw:-bw-N}" y="0" width="${N}" height="${S}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+      const sl = (s)=>`<rect x="${s===1?bw:-bw-N}" y="0" width="${N}" height="${S}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
       sleeves = sl(1)+sl(-1);
     }
 
@@ -518,8 +518,8 @@ import Base from '../../layouts/Base.astro';
     let x = 0, boxes = '';
     for (const s of segs){
       boxes += `
-        <rect x="${x}" y="${half-s.h}" width="${s.len}" height="${s.h}" fill="rgba(31,67,150,.12)" stroke="#1f4396" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-        ${label(fs*.95, x+s.len/2, half-s.h/2, s.label, '#1f4396')}`;
+        <rect x="${x}" y="${half-s.h}" width="${s.len}" height="${s.h}" fill="rgba(42,75,141,.12)" stroke="#2a4b8d" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+        ${label(fs*.95, x+s.len/2, half-s.h/2, s.label, '#2a4b8d')}`;
       x += s.len;
     }
     const sleeveX = segs[0].len + segs[1].len;
@@ -527,11 +527,11 @@ import Base from '../../layouts/Base.astro';
       ? label(fs*.9, sleeveX + segs[2].len/2, half - S - fs*1.1, 'gores nest above the sleeves — trapezoids pair head to toe', '#1d5f5d')
       : '';
     const svg = `<svg viewBox="${vb}" role="img" aria-label="Fabric folded lengthwise with the back on the fold, then fronts, sleeves, and gores placed along it">
-      <rect x="0" y="0" width="${total}" height="${half}" fill="#fffdf6" stroke="#26304a" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-      <line x1="0" y1="${half}" x2="${total}" y2="${half}" stroke="#c9a24b" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
+      <rect x="0" y="0" width="${total}" height="${half}" fill="#fffdf6" stroke="#2b2420" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="${half}" x2="${total}" y2="${half}" stroke="#b8923a" stroke-width="2.4" stroke-dasharray="8 4 1.5 4" vector-effect="non-scaling-stroke"/>
       ${label(fs, total/2, half+fs*2.2, 'lengthwise fold — selvages at the top', '#8a6d1f')}
       ${boxes}${besideNote}
-      <text x="${total/2}" y="${-fs*1.2}" font-size="${fs}" fill="#26304a" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(total)} of fabric</text>
+      <text x="${total/2}" y="${-fs*1.2}" font-size="${fs}" fill="#2b2420" text-anchor="middle" font-family="IBM Plex Mono,monospace">${fmt(total)} of fabric</text>
     </svg>`;
     const yards = Math.ceil((total/36)*4)/4;
     return {svg, yd:`About ${yards} yd of ${FW}″ fabric (${fmt(total)} along the fold), before shrinkage and without seam allowance — wash first and add a little for both. ${goresBeside ? 'The gores nest in the spare width above the sleeves — flip every other trapezoid head to toe and they pack tight.' : 'The gores need their own stretch of fabric at this width.'} Cutting through the folded fabric yields both fronts, both sleeves${hasDetach?', both detachable sleeves':''}, and both of each gore at once.`};

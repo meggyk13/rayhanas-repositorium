@@ -2,7 +2,8 @@
 title: "Ottoman Style Chatelaine Badge"
 summary: "An SCA Chatelaine officer badge in 16th-century Ottoman embroidery techniques — diagonal surface darning, chain stitch, and goldwork — finished as a working sling bag."
 date: 2025-08-01
-tags: [ottoman, embroidery, goldwork, summer-arts-2025]
+tags: [accessories, embroidery]
+event: "Dreiburgen Summer Arts 2025"
 kind: project
 ---
 

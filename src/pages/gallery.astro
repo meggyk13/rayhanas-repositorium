@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { imagesFromEntry, type GalleryItem } from '../lib/gallery';
+import { kindLabels, type GalleryKind } from '../data/gallery';
+
+const entries = (await getCollection('ans')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf() || a.data.title.localeCompare(b.data.title)
+);
+
+const items: GalleryItem[] = [
+  {
+    src: '/images/rayhana-portrait.jpg',
+    alt: 'Me in my block-printed caftan and red tarpuş, in front of a fan of peacock feathers',
+    cite: null,
+    kind: 'mine',
+    tags: ['garb', 'headwear'],
+    entryTitle: 'About me',
+    entryHref: '/about/',
+  },
+  ...entries.flatMap(imagesFromEntry),
+];
+
+const kinds = (Object.keys(kindLabels) as GalleryKind[])
+  .map((k) => ({ id: k, label: kindLabels[k], count: items.filter((i) => i.kind === k).length }))
+  .filter((k) => k.count > 0);
+
+const tags = [...new Set(items.flatMap((i) => i.tags))].sort();
+---
+<Base
+  title="Gallery"
+  description="Every image from Rayhana's Repositorium in one place: 16th-century Ottoman miniatures and costume books, extant garments, and my own reconstructions, patterns, and process photos."
+>
+  <div class="wrap">
+    <header class="entry-header">
+      <p class="rubric">Gallery</p>
+      <h1>Every picture on the site</h1>
+      <p class="prose">
+        Period art and surviving pieces I&rsquo;ve used as sources, next to what I
+        made from them. Each picture links back to the article it comes from.
+      </p>
+    </header>
+
+    <div class="gallery-filters no-print">
+      <div class="tag-row" data-filter="kind" role="group" aria-label="Kind of image">
+        <button class="tag" data-value="" aria-pressed="true">All <span class="n">({items.length})</span></button>
+        {kinds.map((k) => (
+          <button class="tag" data-value={k.id} aria-pressed="false">{k.label} <span class="n">({k.count})</span></button>
+        ))}
+      </div>
+      <div class="tag-row" data-filter="tag" role="group" aria-label="Subject">
+        <button class="tag" data-value="" aria-pressed="true">Any subject</button>
+        {tags.map((t) => (
+          <button class="tag" data-value={t} aria-pressed="false">{t}</button>
+        ))}
+      </div>
+    </div>
+
+    <p class="filter-empty" id="gallery-empty" hidden>No pictures match both filters.</p>
+
+    <ul class="gallery">
+      {items.map((item) => (
+        <li class="gallery-item" data-kind={item.kind} data-tags={item.tags.join(',')}>
+          <button class="gallery-open" type="button" aria-label={`Enlarge: ${item.alt}`}>
+            <img src={item.src} alt={item.alt} loading="lazy" decoding="async" />
+          </button>
+          <div class="gallery-text">
+            <p class="gallery-kind">{kindLabels[item.kind]}</p>
+            <p class="gallery-alt">{item.alt}</p>
+            {item.cite && <p class="gallery-cite">{item.cite}</p>}
+            <p class="gallery-from">From <a href={item.entryHref}>{item.entryTitle}</a></p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Enlarged picture">
+    <form method="dialog"><button class="lightbox-close" aria-label="Close">Close ✕</button></form>
+    <img id="lightbox-img" src="" alt="" />
+    <div class="lightbox-text" id="lightbox-text"></div>
+  </dialog>
+
+  <script>
+    const state: Record<string, string> = { kind: '', tag: '' };
+    const items = [...document.querySelectorAll<HTMLElement>('.gallery-item')];
+    const empty = document.getElementById('gallery-empty');
+
+    function apply() {
+      let shown = 0;
+      for (const el of items) {
+        const ok =
+          (!state.kind || el.dataset.kind === state.kind) &&
+          (!state.tag || (el.dataset.tags || '').split(',').includes(state.tag));
+        el.hidden = !ok;
+        if (ok) shown++;
+      }
+      if (empty) empty.hidden = shown > 0;
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-filter]').forEach((row) => {
+      row.addEventListener('click', (ev) => {
+        const btn = (ev.target as HTMLElement).closest<HTMLButtonElement>('button[data-value]');
+        if (!btn) return;
+        row.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        state[row.dataset.filter!] = btn.dataset.value || '';
+        apply();
+      });
+    });
+
+    const dialog = document.getElementById('lightbox') as HTMLDialogElement;
+    const bigImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const bigText = document.getElementById('lightbox-text')!;
+
+    document.querySelectorAll<HTMLButtonElement>('.gallery-open').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const li = btn.closest('.gallery-item')!;
+        const img = btn.querySelector('img')!;
+        bigImg.src = img.src;
+        bigImg.alt = img.alt;
+        bigText.innerHTML = li.querySelector('.gallery-text')!.innerHTML;
+        dialog.showModal();
+      });
+    });
+    // Click outside the picture closes it.
+    dialog.addEventListener('click', (ev) => {
+      if (ev.target === dialog) dialog.close();
+    });
+  </script>
+</Base>

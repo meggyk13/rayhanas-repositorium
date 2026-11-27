@@ -2,7 +2,9 @@
 title: "Ottoman Style Tarpuş"
 summary: "A 16th-century Ottoman woman's hat in red cotton velveteen over a handmade pasteboard foundation — the base of the whole Ottoman headdress system."
 date: 2025-08-01
-tags: [ottoman, headwear, sewing, summer-arts-2025]
+tags: [headwear]
+event: "Dreiburgen Summer Arts 2025"
+description: "A 16th-century Ottoman woman's tarpuş (tarpus, tarpush) hat in red cotton velveteen over a handmade pasteboard foundation, the base of the Ottoman headdress."
 kind: project
 ---
 
