@@ -1,12 +1,47 @@
 ---
 import '../styles/global.css';
+import { website, person } from '../lib/seo';
 
 interface Props {
   title: string;
   description?: string;
+  // Full <title> text, when "Title · Rayhana's Repositorium" isn't wanted (the home page).
+  fullTitle?: string;
+  // Share image: a path under /public. Defaults to the site card.
+  image?: string;
+  imageAlt?: string;
+  // Articles get og:type "article" and their publish date.
+  article?: { published: Date };
+  // Pages search engines shouldn't list (empty sections, 404).
+  noindex?: boolean;
+  // Structured data (schema.org) for this page, merged into one JSON-LD graph.
+  schema?: Record<string, unknown>[];
 }
 
-const { title, description = "SCA research, class handouts, and tools from Rayhana bint Estafanos al-Abbas" } = Astro.props;
+const {
+  title,
+  description = "Ottoman Arts & Sciences documentation, class handouts, and free pattern tools from Rayhana bint Estafanos al-Abbas, SCA Kingdom of Caid.",
+  fullTitle,
+  image = '/images/og.jpg',
+  imageAlt = "Rayhana's Repositorium",
+  article,
+  noindex = false,
+  schema = [],
+} = Astro.props;
+
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site);
+const imageUrl = new URL(image, site);
+const pageTitle = fullTitle ?? `${title} · Rayhana's Repositorium`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    website,
+    person,
+    ...schema,
+  ],
+};
 const path = Astro.url.pathname;
 
 const nav = [
@@ -27,17 +62,22 @@ function isCurrent(href: string) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} · Rayhana's Repositorium</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Rayhana's Repositorium" />
-    <meta property="og:image" content={new URL('/images/og.png', Astro.site)} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={imageAlt} />
+    {article && <meta property="article:published_time" content={article.published.toISOString()} />}
     <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

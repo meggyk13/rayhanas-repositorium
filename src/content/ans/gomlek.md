@@ -2,7 +2,8 @@
 title: "Ottoman Garb Layers - Gomlek"
 summary: "The gomlek, the innermost chemise layer of Ottoman garb: what we know and how to pattern one."
 date: 2024-08-31
-tags: [garb, how-to, ottoman-garb-basics]
+tags: [garb]
+description: "The gömlek (gomlek), the innermost chemise layer of 16th-century Ottoman garb: what we know and how to pattern one for the SCA."
 kind: research
 ---
 

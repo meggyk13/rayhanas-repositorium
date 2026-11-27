@@ -1,9 +1,29 @@
 ---
 import Base from '../layouts/Base.astro';
+import { person, website, SITE } from '../lib/seo';
+
+const schema = [
+  {
+    '@type': 'ProfilePage',
+    '@id': new URL('/about/', SITE).href,
+    url: new URL('/about/', SITE).href,
+    name: 'About Rayhana bint Estafanos al-Abbas',
+    mainEntity: { '@id': person['@id'] },
+    isPartOf: { '@id': website['@id'] },
+  },
+  {
+    ...person,
+    description:
+      'SCA member since 2005 with a 16th-century Ottoman persona; Kingdom Chatelaine of Caid. Researches and teaches Ottoman dress, food, and performance.',
+  },
+];
 ---
 <Base
   title="About me"
-  description="Rayhana bint Estafanos al-Abbas: SCA member since 2005, 16th-century Ottoman persona, Kingdom Chatelaine of Caid."
+  description="Rayhana bint Estafanos al-Abbas: SCA member since 2005, 16th-century Ottoman persona, Kingdom Chatelaine of Caid. Classes taught, competitions, and how to get in touch."
+  image="/images/rayhana-portrait.jpg"
+  imageAlt="Rayhana in a block-printed caftan and red tarpuş"
+  schema={schema}
 >
   <div class="wrap">
     <header class="entry-header">

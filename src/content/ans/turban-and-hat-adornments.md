@@ -2,7 +2,7 @@
 title: "Turban and Hat Adornments"
 summary: "Sorguç and other feathered ornaments worn on turbans and hats, with extant examples and period art."
 date: 2021-08-27
-tags: [garb, accessories, headwear]
+tags: [headwear, accessories]
 kind: research
 ---
 

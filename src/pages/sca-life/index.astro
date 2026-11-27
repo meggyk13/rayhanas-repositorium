@@ -10,7 +10,11 @@ const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
 const fmt = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 ---
-<Base title="SCA Life">
+<Base
+  title="SCA Life"
+  description="Getting started in the SCA, helping newcomers, and thoughts on how the Society works, from Caid's Kingdom Chatelaine."
+  noindex={entries.length === 0}
+>
   <div class="wrap">
     <header class="entry-header">
       <h1>SCA Life</h1>

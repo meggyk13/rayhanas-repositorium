@@ -2,7 +2,8 @@
 title: "The Ottoman Caftan"
 summary: "The defining features of the Ottoman caftan — sleeves, closures, and cut — for recreating one in the SCA."
 date: 2024-08-31
-tags: [garb, ottoman-garb-basics]
+tags: [garb]
+description: "What makes a caftan (kaftan) Ottoman: the sleeves, closures, and cut to get right when recreating one for the SCA."
 kind: research
 ---
 

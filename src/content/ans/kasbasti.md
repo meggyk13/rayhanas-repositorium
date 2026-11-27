@@ -2,7 +2,9 @@
 title: "Kaşbastı: Ottoman Diadem"
 summary: "An embroidered Ottoman court headband in silk and goldwork, reconstructed from an extant tomb find associated with a daughter of Ahmed I."
 date: 2022-01-01
-tags: [ottoman, embroidery, goldwork, pentathlon-2022]
+tags: [headwear, embroidery]
+event: "Pentathlon 2022"
+description: "A kaşbastı (kasbasti), an embroidered Ottoman court headband or diadem in silk and goldwork, reconstructed from an extant tomb find associated with a daughter of Ahmed I."
 kind: project
 ---
 
