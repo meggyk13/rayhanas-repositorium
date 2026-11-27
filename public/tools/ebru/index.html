@@ -80,10 +80,7 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .tog[aria-checked=true] .tog-track{background:var(--gold)}
 .tog[aria-checked=true] .tog-knob{transform:translateX(15px);background:#fffaf0}
 @media(prefers-reduced-motion:reduce){.tog-track,.tog-knob{transition:none}}
-.sndb svg{width:21px;height:21px;flex:none}
-.sndb.on{color:var(--ink)}.sndb.on svg{color:var(--gold)}
 @media(hover:hover){.tog:hover{color:var(--ink)}}
-#snd .w1,#snd .w2{display:none}#snd.on .x{display:none}#snd.on .w1{display:block}#snd.amb .w2{display:block}
 .grab:focus-visible,.tog:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;border-radius:10px}
 /* while Auto mode runs: a banner on the tray that also stops it */
 .galchip.autopill{top:auto;bottom:14px;gap:9px}
@@ -132,6 +129,8 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .panel>*{flex:none}
 .panel.on{display:flex}
 .strip{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:2px;scrollbar-width:none}
+.strip.dragging{scroll-snap-type:none;cursor:grabbing}
+.strip.dragging *{cursor:grabbing}
 .strip::-webkit-scrollbar{display:none}
 .tile{flex:none;scroll-snap-align:start;width:70px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:500 13px/1.1 "Alegreya Sans",sans-serif;cursor:pointer;padding:4px}
 .tile svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -153,7 +152,11 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .seg button{min-height:40px;padding:0 11px;border:0;border-radius:9px;background:none;color:var(--mute);font:500 14px "Alegreya Sans",sans-serif;cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--wood2);color:var(--ink)}
 .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-#cname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cname{flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ink opacity: a half-filled circle, then the slider, which takes the room left beside the ink's name */
+.opl{display:flex;align-items:center;gap:7px;flex:1 1 90px;color:var(--mute)}
+.opl::before{content:"";flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--mute);background:linear-gradient(90deg,var(--mute) 50%,transparent 50%)}
+.opl span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .float{margin-left:auto;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--gold);background:none;color:var(--gold);font:700 15px "Alegreya Sans",sans-serif;cursor:pointer}
 .float:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .dpad{display:flex;gap:6px;margin-left:auto}
@@ -219,8 +222,8 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .pview .seg button{min-height:36px}
 .galllink{margin-left:auto;color:var(--gold);font-size:14px;text-decoration:none;white-space:nowrap;padding:8px 2px}
 .galllink:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
-.gform{display:flex;align-items:flex-end;gap:10px;width:100%;max-width:420px}
-.gform label{flex:1;display:grid;gap:4px;font-size:14px;color:var(--mute)}
+.gform{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;width:100%;max-width:420px}
+.gform label{flex:1 1 150px;display:grid;gap:4px;font-size:14px;color:var(--mute)}
 .gform input{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font:16px "Alegreya Sans",sans-serif;-webkit-user-select:text;user-select:text}
 .gform input:focus{outline:2px solid var(--gold);outline-offset:1px}
 .gmsg{margin:0;min-height:1.4em;text-align:center;font-size:15px;color:var(--gold)}
@@ -256,6 +259,45 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:var(--gold);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;cursor:pointer}
 @keyframes lift{from{transform:perspective(900px) rotateX(28deg) translateY(40px);opacity:0}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.press.done #out{animation:none}.sheetP{transition:none}}
+/* the count beside Size on the Tools tab: how many rings a tap lays, or how many tines the rake has */
+.cnt{flex:1}.cnt output{min-width:1.6em;text-align:right;font:700 15px "Alegreya Sans",sans-serif;color:var(--ink)}
+/* settings: a gear in the top bar opens a card */
+.gear svg{width:22px;height:22px}
+/* on narrow phones the top bar is full, so the gear sits at the end of the tools row instead */
+.gear2{display:none;padding:0 8px}.gear2 svg{width:21px;height:21px}
+@media(max-width:420px){.top .gear{display:none}.gear2{display:inline-flex}}
+.setcard{width:min(100%,460px);padding-bottom:16px}
+.srow{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.srow.col{flex-direction:column;align-items:stretch;gap:10px}
+.srow b{display:block;color:var(--ink);font:700 17px "Alegreya Sans",sans-serif}
+.srow .sd{display:block;color:var(--mute);font-size:14px;line-height:1.35;margin-top:2px}
+.srow>div:first-child{flex:1}
+.srow .seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+.srow .tog{padding:0;flex:none}
+.wpick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.wpick button{display:grid;justify-items:center;gap:6px;padding:8px 2px 6px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04);color:var(--mute);font:500 13px/1.1 "Alegreya Sans",sans-serif;cursor:pointer}
+.wpick i{width:40px;height:40px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}
+.wpick button[aria-pressed=true]{border-color:var(--gold);color:var(--ink);background:rgba(210,172,85,.12)}
+.wpick button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.setcard .btn{margin-top:6px}
+.sh{margin:16px 0 0;font:italic 400 20px Amiri,serif;color:var(--gold)}
+.sh:first-of-type{margin-top:4px}
+.srow input[type=text]{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font:16px "Alegreya Sans",sans-serif;-webkit-user-select:text;user-select:text}
+.srow input[type=text]:focus{outline:2px solid var(--gold);outline-offset:1px}
+.srow .pdots{align-items:center}
+.srow .pdots .auto{min-height:40px;padding:0 12px;border-radius:20px;border:1px dashed var(--mute);background:none;color:var(--mute);font:500 14px "Alegreya Sans",sans-serif;cursor:pointer}
+.srow .pdots .auto[aria-pressed=true]{border:1px solid var(--gold);color:var(--ink);background:rgba(210,172,85,.12)}
+.srow .pdots .auto:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn.warn{border-color:#e79a8a;color:#e79a8a;background:none}
+.btn:disabled{opacity:.4;cursor:default}
+/* light water: dark hint text so it stays readable */
+body[data-water=white] .hint,body[data-water=pale] .hint{color:#3a2a21;text-shadow:0 1px 4px rgba(255,255,255,.7)}
+body[data-water=white] .hint.flash span,body[data-water=pale] .hint.flash span{color:#f6f1e4}
+/* the Colorblind palette: every color in the color sheet is named under its swatch */
+body.cb .pgrid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));row-gap:24px;padding-bottom:6px}
+body.cb .pgrid .sw{position:relative}
+body.cb .pgrid .sw::after{content:attr(aria-label);position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);width:68px;text-align:center;font:500 12px/1.1 "Alegreya Sans",sans-serif;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+body.cb .pgrid .nonec{align-self:start}
 /* phones: a slimmer drawer and narrower bench edges, so the water gets the room */
 @media (max-aspect-ratio:1/1),(max-width:559px){
  .top{padding:3px 8px 5px}
@@ -288,7 +330,7 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 <body>
 <div class="app">
   <div class="top">
-    <h1><button class="titleb" id="aboutB" aria-label="Ebru: how it works" title="How it works">Ebru<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button></h1>
+    <h1><button class="titleb" id="aboutB" aria-label="Ebru: how it works" title="How it works">Ebru<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button><button class="ib gear" id="setB" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></h1>
     <div class="grp" role="group" aria-label="Tray controls">
       <button class="ib ibc" id="undo" title="Undo (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span class="ibl">Undo</span></button>
       <button class="ib ibc" id="redo" title="Redo (Ctrl+Shift+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg><span class="ibl">Redo</span></button>
@@ -312,7 +354,7 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
     <div class="handle">
       <button class="tog" id="drift" role="switch" aria-checked="false" title="Auto mode: the tray marbles itself and lifts prints, over and over"><span class="tog-track" aria-hidden="true"><span class="tog-knob"></span></span><span>Auto mode</span></button>
       <button class="grab" id="grab" aria-label="Hide tools" title="Hide tools" aria-expanded="true"><span></span></button>
-      <button class="tog sndb" id="snd" title="Sound: off, on, or on with water sounds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" d="M18 7a7 7 0 0 1 0 10"/><path class="x" d="m16 10 4 4m0-4-4 4"/></svg><span id="sndT">Sound off</span></button>
+      <button class="tog gear2" id="setB2" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="drawer" id="drawer"><div>
     <div class="tabs" role="tablist">
@@ -325,14 +367,14 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 
     <div class="panel on" id="p-ink" role="tabpanel">
       <div class="strip swrow" id="sw"></div>
-      <div class="meta"><b id="cname"></b><button class="float" id="float" title="Sprinkle drops of this ink over the whole tray">Sprinkle the tray</button></div>
-      <div class="meta"><label>Size <input type="range" id="size" min="0.5" max="2.2" step="0.05" value="1" aria-label="Tool size"></label><div class="seg palseg" id="palSeg" role="group" aria-label="Colors"><button data-m="period" title="Historical pigments">Period</button><button data-m="modern" title="Bright modern colors">Modern</button></div></div>
+      <div class="meta"><b id="cname"></b><label class="opl" title="Ink opacity: lower lets the water, and the paper of a print, show through"><span>Opacity</span><input type="range" id="opac" min="0.15" max="1" step="0.05" value="1" aria-label="Ink opacity"></label><button class="float" id="float" title="Sprinkle drops of this ink over the whole tray">Sprinkle the tray</button></div>
+      <div class="meta"><label>Size <input type="range" id="size" min="0.5" max="4" step="0.05" value="1" aria-label="Tool size"></label><div class="seg palseg" id="palSeg" role="group" aria-label="Colors"><button data-m="period" title="Historical pigments">Period</button><button data-m="modern" title="Bright modern colors">Modern</button><button data-m="distinct" title="Colorblind-friendly: colors that stay easy to tell apart with most kinds of color blindness, each named in the color sheet">Colorblind</button></div></div>
     </div>
 
     <div class="panel" id="p-hand" role="tabpanel">
       <div class="strip" id="hand"></div>
       <div class="meta inkrow"><button class="inkpick" id="inkPick"><span class="inkdot"></span><span id="inkName"></span></button><button class="inkpick" id="ring2B" hidden>with<span class="inkdot r2"></span><span id="ring2Name">Auto</span></button><span class="inknote" id="inkNote" hidden>This tool moves the water; it adds no ink.</span></div>
-      <div class="meta"><label>Size <input type="range" id="size2" min="0.5" max="2.2" step="0.05" value="1" aria-label="Tool size"></label></div>
+      <div class="meta csl"><label>Size <input type="range" id="size2" min="0.5" max="4" step="0.05" value="1" aria-label="Tool size"></label><label class="cnt" id="cntL" hidden><span id="cntT">Rings</span> <input type="range" id="cnt" min="2" max="24" step="1" value="8"><output id="cntV" for="cnt">8</output></label></div>
     </div>
 
     <div class="panel" id="p-comb" role="tabpanel">
@@ -368,7 +410,7 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
     </div>
     <div class="pact"><button class="btn ghost" id="clearAfter" title="Clear the tray and start a new design">Start over</button><button class="btn ghost" id="closeH" data-close hidden>Close</button><button class="btn" id="keep" data-close>Keep editing</button><button class="btn" id="restore" hidden>Edit this design</button></div>
     <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Download</button><button class="btn ghost" id="shareB" hidden>Share</button><button class="btn ghost" id="delMine" hidden>Remove</button></div>
-    <form class="gform" id="gform" hidden><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><button class="btn" id="gsend" type="submit">Add</button></form>
+    <form class="gform" id="gform" hidden><label>Title (optional)<input id="gtitle" maxlength="60" autocomplete="off" placeholder="Name your print" enterkeyhint="next"></label><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><button class="btn" id="gsend" type="submit">Add</button></form>
     <p class="gmsg" id="gmsg" role="status"></p>
     <div class="pact"><button class="btn ghost" id="seeGal" hidden>See it in the gallery</button></div>
   </figure>
@@ -382,6 +424,35 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
   </figure>
 </div>
 
+<div class="modal" id="autoM" role="dialog" aria-modal="true" aria-labelledby="autoT">
+  <div class="card setcard">
+    <h2 id="autoT">Start Auto mode?</h2>
+    <p>Auto mode clears the water and marbles the tray by itself, lifting prints over and over. Your design on the tray now will be cleared; once you stop Auto mode, Undo brings it back.</p>
+    <div class="pact"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="autoGo">Clear the water and start</button></div>
+  </div>
+</div>
+
+<div class="modal" id="setM" role="dialog" aria-modal="true" aria-labelledby="setT">
+  <div class="card setcard">
+    <h2 id="setT">Settings</h2>
+    <h3 class="sh">Sound</h3>
+    <div class="srow col" style="border-top:0"><div><span class="sd">Gentle drips as ink lands, the swish of combs and the rustle of paper. With water, a soft lapping plays underneath.</span></div><div class="seg" id="sndSeg" role="group" aria-label="Sound"><button data-v="0">Off</button><button data-v="1">On</button><button data-v="2">On + water</button></div></div>
+    <h3 class="sh">Tray</h3>
+    <div class="srow col" style="border-top:0"><div><b>Water</b><span class="sd">Thin water lets drops spread wider and tools pull further. Thick water keeps every mark tight.</span></div><div class="seg" id="viscSeg" role="group" aria-label="Water consistency"><button data-v="thin">Thin</button><button data-v="medium">Medium</button><button data-v="thick">Thick</button></div></div>
+    <div class="srow col"><div><b>Tray color</b><span class="sd">The water behind the ink. Prints still lift onto the paper you choose.</span></div><div class="wpick" id="waterSeg" role="group" aria-label="Tray color"></div></div>
+    <div class="srow"><div><b>Calm water</b><span class="sd">Stills the moving light and ripples on the water.</span></div><button class="tog" id="calmT" role="switch" aria-checked="false" aria-label="Calm water"><span class="tog-track" aria-hidden="true"><span class="tog-knob"></span></span></button></div>
+    <div class="srow"><div><b>Tips on the tray</b><span class="sd">The short italic hints that say what a tool does.</span></div><button class="tog" id="tipsT" role="switch" aria-checked="true" aria-label="Tips on the tray"><span class="tog-track" aria-hidden="true"><span class="tog-knob"></span></span></button></div>
+    <h3 class="sh">Prints</h3>
+    <div class="srow col"><label for="setName"><b>Your name</b><span class="sd">Filled in for you when you add a print to the gallery. Optional.</span></label><input type="text" id="setName" maxlength="40" autocomplete="nickname" placeholder="Your name"></div>
+    <div class="srow col"><div><b>Paper</b><span class="sd">The paper every new print starts on. You can still change it on each print.</span></div><div class="pdots" id="setPaper" role="group" aria-label="Default paper"></div></div>
+    <div class="srow"><div><b>Your prints</b><span class="sd" id="mineNote">Kept on this device. Prints you added to the gallery stay there.</span></div><button class="btn warn" id="clearMine">Clear all</button></div>
+    <h3 class="sh">Auto mode</h3>
+    <div class="srow col"><div><b>Pace</b><span class="sd">How quickly the tray marbles itself.</span></div><div class="seg" id="paceSeg" role="group" aria-label="Auto mode pace"><button data-v="slow">Slow</button><button data-v="medium">Medium</button><button data-v="fast">Fast</button></div></div>
+    <div class="srow col"><div><b>Each print shows for</b><span class="sd">How long a finished print stays on the tray before it starts again.</span></div><div class="seg" id="holdSeg" role="group" aria-label="How long each print shows"><button data-v="short">4 seconds</button><button data-v="medium">8 seconds</button><button data-v="long">15 seconds</button></div></div>
+    <p style="text-align:center;margin:0"><button class="btn" data-close>Done</button></p>
+  </div>
+</div>
+
 <div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="pickT">
   <div class="pcard"><div class="ptitle" id="pickT"></div><div class="pgrid" id="pgrid"></div></div>
 </div>
@@ -392,13 +463,14 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
     <p>Ebru (the name is usually traced to Persian) was part of the Ottoman book arts by the 1500s: marbled sheets for album pages, borders and bindings, and sometimes as the ground under calligraphy. <b>Battal</b>, plain "stone" ebru made by sprinkling color after color, is the base every other pattern is built on. Combed forms like <b>gelgit</b> (back and forth) and <b>tarak</b> (comb) are drawn through a battal ground.</p>
     <p>The physics is the mathematical marbling of Lu, Jaffer and colleagues: every drop, tine and swirl is an exact, area-preserving deformation, so colors never blend. They only stretch, as they do on sized water.<sup>1</sup></p>
     <p><b>Top bar.</b> Undo and Redo step back and forward (Ctrl+Z and Ctrl+Shift+Z on a computer). Clear empties the tray to fresh water; you can undo it. Done, lift paper (Lift print on a phone) makes a print.</p>
-    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. Period and Modern switch between historical pigments and bright modern colors; + mixes your own.</p>
-    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag five tines. Swirl: hold to turn the water. Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto); pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
+    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. Period, Modern and Colorblind switch between historical pigments, bright modern colors, and a colorblind-friendly set whose colors stay easy to tell apart (with each color named in the color sheet); + mixes your own. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
+    <p><b>Settings</b> (the gear). Sound: off, on, or on with gentle water sounds. Water sets how thin or thick the size is: thin water spreads drops wider and lets tools pull further. Tray color changes the water behind the ink: sea glass, pale, plain white or black. Calm water stills the moving light and ripples, and Tips on the tray hides the hints. Your name is filled in when you share, Paper sets the paper new prints start on, and Clear all removes the prints kept on this device. Auto mode has its own pace and timing.</p>
+    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag a row of tines, each drawing its own line; set how many beside Size. Swirl: hold to turn the water. Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto), and set how many rings a tap lays (up to 24) beside Size; pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
     <p><b>Combs.</b> Pick a direction, set the tine spacing and strength, then tap a comb to draw it through the whole tray.</p>
     <p><b>Recipes.</b> Choose a pattern, set the four layer colors (layer 1 is the largest drops; tap a color to change it, or Shuffle for another set), and tap Make it. It starts on a fresh tray.</p>
-    <p><b>Auto mode.</b> Switch it on and the tray marbles itself: it sprinkles, combs, lifts a print into Gallery &rsaquo; Yours for this visit, and starts again. Tap the tray or the switch to stop. <b>Sound</b> steps through off, on, and on with gentle water sounds.</p>
+    <p><b>Auto mode.</b> Switch it on, confirm that the water can be cleared, and the tray marbles itself: it sprinkles, combs, lifts a print into Gallery &rsaquo; Yours for this visit, and starts again. Tap the tray or the switch to stop. Settings sets its pace and how long each print shows.</p>
     <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Choose shape, layout (full, album page with a ruled center panel, or mounted) and paper color, then Download (or press and hold the print to save it). Start over clears the tray; Keep editing goes back to it. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
-    <p><b>Gallery.</b> Add to gallery shares a print with everyone, with your name if you like. The newest 100 are kept, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
+    <p><b>Gallery.</b> Add to gallery shares a print with everyone. You can give it a title and your name; both are optional. The newest 100 are kept, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
     <p class="fn">1. Shufang Lu, Aubrey Jaffer, Xiaogang Jin, Hanli Zhao, and Xiaoyang Mao, &ldquo;Mathematical Marbling,&rdquo; <i>IEEE Computer Graphics and Applications</i> 32, no. 6 (2012): 26&ndash;35, <a href="https://doi.org/10.1109/MCG.2011.51">https://doi.org/10.1109/MCG.2011.51</a>.</p>
     <p style="text-align:center"><button class="btn" data-close>Back to the tray</button></p>
     <p style="text-align:center;font-size:14px"><a href="/tools/">More tools at Rayhana&rsquo;s Repositorium</a></p>
@@ -410,14 +482,29 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 const W=1000,H=1400;
 const PALS={
  period:[["Lapis","#2c4d8e"],["Azurite","#3f6fae"],["Indigo","#1f2b52"],["Vermilion","#cf4630"],["Rose madder","#b4475a"],["Brazilwood rose","#c45a74"],["Lac crimson","#8a1f33"],["Red ochre","#a6492e"],["Saffron","#e0a22e"],["Yellow ochre","#c8923a"],["Orpiment","#e1bf4c"],["Malachite","#3f9a6b"],["Verdigris","#3a8c7b"],["Terre verte","#6f7d55"],["Umber","#5b3f2c"],["Lamp black","#2a2521"],["Ivory","#f4ecda"]],
+ distinct:[["Black","#000000"],["Orange","#e69f00"],["Sky blue","#56b4e9"],["Bluish green","#009e73"],["Yellow","#f0e442"],["Blue","#0072b2"],["Vermillion","#d55e00"],["Reddish purple","#cc79a7"],["Grey","#999999"],["White","#ffffff"]],
  modern:[["Cobalt","#1f5fff"],["Sky","#4fc3ff"],["Turquoise","#00b5b8"],["Teal","#0b7a75"],["Lime","#8fd13b"],["Lemon","#ffd60a"],["Tangerine","#ff7a1a"],["Coral","#ff6b5e"],["Hot pink","#ff3d8b"],["Magenta","#d01b8f"],["Violet","#7b3fe4"],["Ink black","#141414"],["White","#ffffff"]]
 };
-const LIGHT={period:"#f4ecda",modern:"#ffffff"},PAPER={period:'#efe5cf',modern:'#fbfaf5'};
+const LIGHT={period:"#f4ecda",modern:"#ffffff",distinct:"#ffffff"},DARK={period:'#2a2521',modern:'#141414',distinct:'#000000'},PAPER={period:'#efe5cf',modern:'#fbfaf5',distinct:'#fbfaf5'};
 const SETS={period:[["#c8923a","#2c4d8e","#b4475a","#f4ecda"],["#1f2b52","#3a8c7b","#e1bf4c","#f4ecda"],["#a6492e","#e1bf4c","#2a2521","#f4ecda"],["#6f7d55","#8a1f33","#e0a22e","#f4ecda"],["#3f6fae","#cf4630","#e1bf4c","#f4ecda"],["#8a1f33","#1f2b52","#c8923a","#f4ecda"],["#3f9a6b","#c45a74","#e0a22e","#f4ecda"]],
+ distinct:[["#0072b2","#e69f00","#cc79a7","#ffffff"],["#000000","#56b4e9","#f0e442","#ffffff"],["#d55e00","#009e73","#f0e442","#ffffff"],["#0072b2","#d55e00","#56b4e9","#ffffff"],["#009e73","#cc79a7","#e69f00","#ffffff"]],
  modern:[["#1f5fff","#ff3d8b","#ffd60a","#ffffff"],["#00b5b8","#7b3fe4","#ff7a1a","#ffffff"],["#d01b8f","#8fd13b","#4fc3ff","#ffffff"],["#141414","#ff6b5e","#00b5b8","#ffffff"],["#0b7a75","#ffd60a","#ff3d8b","#ffffff"]]};
-let mode='period';try{if(localStorage.getItem('ebru-mode')=='modern')mode='modern';}catch(e){}
+// settings (the gear): water consistency and tray color; kept on this device
+const VISC={thin:1.45,medium:1,thick:.65};
+const WATERS={
+ sea:{n:'Sea glass',g:['#dfe6d8','#c7d6cb','#a9c0b8'],blot:1,shim:1,rip:'255,255,248',wall:'rgba(25,55,52,.32)'},
+ pale:{n:'Pale',g:['#f2f6f0','#e6eee8','#d6e3dd'],blot:.6,shim:.6,rip:'120,150,140',wall:'rgba(25,55,52,.16)'},
+ white:{n:'White',g:['#fcfcfa','#fcfcfa','#fcfcfa'],blot:0,shim:0,rip:'120,120,120',wall:'rgba(0,0,0,.07)'},
+ black:{n:'Black',g:['#1d1d20','#151517','#0d0d0f'],blot:0,shim:.3,rip:'255,255,248',wall:'rgba(0,0,0,.45)'}};
+const PACE={slow:{gap:1.7,every:8},medium:{gap:1,every:5},fast:{gap:.5,every:3}},HOLD={short:4000,medium:8000,long:15000};
+const cfg={visc:'medium',water:'sea',sound:0,calm:false,tips:true,paper:null,pace:'medium',hold:'medium'};
+try{const s=JSON.parse(localStorage.getItem('ebru-settings')||'{}');if(VISC[s.visc])cfg.visc=s.visc;if([0,1,2].includes(s.sound))cfg.sound=s.sound;if(s.calm===true)cfg.calm=true;if(s.tips===false)cfg.tips=false;
+ if(/^#[0-9a-f]{6}$/i.test(s.paper||''))cfg.paper=s.paper;if(PACE[s.pace])cfg.pace=s.pace;if(HOLD[s.hold])cfg.hold=s.hold;if(WATERS[s.water])cfg.water=s.water;}catch(_){}
+const saveCfg=()=>{try{localStorage.setItem('ebru-settings',JSON.stringify(cfg));}catch(_){}};
+let visc=VISC[cfg.visc];
+let mode='period';try{const m=localStorage.getItem('ebru-mode');if(m=='modern'||m=='distinct')mode=m;}catch(e){}
 let PIG=PALS[mode];
-let color=PIG[0][1],tool="drop",size=1;
+let color=PIG[0][1],tool="drop",size=1,opac=1; // opac: how solid new ink is (1 = fully opaque)
 let inks=[];
 const undoS=[],redoS=[];
 const $=id=>document.getElementById(id);
@@ -449,7 +536,7 @@ const I={
  rec:'<path d="M5 4h11l3 3v13H5z"/><path d="M9 10h6M9 14h6"/>'
 };
 // hover descriptions for every tile
-const TIPS={drop:'Tap to drop ink; hold to let it spread',stylus:'Drag one needle through the ink',rake:'Drag five tines through the ink',
+const TIPS={drop:'Tap to drop ink; hold to let it spread',stylus:'Drag one needle through the ink',rake:'Drag a row of tines through the ink',
  swirl:'Hold to turn the water; drag to move the swirl',mist:'Drag to spray fine drops of ink',rings:'Tap for rings of ink in two colors',
  gel:'Gelgit: a wide back-and-forth comb, drawn through the whole tray',comb:'Comb: evenly spaced tines, drawn through the whole tray',
  fine:'Fine comb: close tines for a feathered look',wave:'Wave: a gentle S-curve through the tray',chev:'Chevron: sharp zigzags',
@@ -465,11 +552,17 @@ const INKY={drop:'<span class="tdot" aria-hidden="true"></span>',mist:'<span cla
 $('hand').innerHTML=HAND.map(h=>tile(h[0],h[1],h[2],`aria-pressed="${h[0]=='drop'}"`).replace('</button>',(INKY[h[0]]||'')+'</button>')).join('');
 let inkLabel='',ring2=null,ring2Label='';
 // what Rings alternate with: your choice, or (Auto) ivory/white, or dark when the ink itself is light
-function ringOther(){const L=LIGHT[mode];return ring2||(color==L?(mode=='modern'?'#141414':'#2a2521'):L);}
+function ringOther(){const L=LIGHT[mode];return ring2||(color==L?DARK[mode]:L);}
 function syncInk(name){if(name)inkLabel=name;const r=document.documentElement.style;r.setProperty('--pig',color);r.setProperty('--pig2',ringOther());
  $('inkName').textContent=inkLabel;$('inkPick').setAttribute('aria-label',`Ink color: ${inkLabel}. Tap to change`);
  $('ring2Name').textContent=ring2?ring2Label:'Auto';$('ring2B').setAttribute('aria-label',`Rings alternate with: ${ring2?ring2Label:'Auto'}. Tap to change`);}
-function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool];}
+// the count beside Size: how many rings a tap lays (Rings) or how many tines the rake has
+let ringN=8,rakeN=7;
+const CNT={rings:{t:'Rings',min:2,max:24,get:()=>ringN,set:v=>ringN=v},rake:{t:'Tines',min:3,max:12,get:()=>rakeN,set:v=>rakeN=v}};
+function syncCnt(){const c=CNT[tool];$('cntL').hidden=!c;if(!c)return;const s=$('cnt');s.min=c.min;s.max=c.max;s.value=c.get();
+ $('cntT').textContent=c.t;$('cntV').textContent=c.get();s.setAttribute('aria-label',tool=='rings'?'Rings per tap':'Number of tines');}
+$('cnt').addEventListener('input',e=>{const c=CNT[tool];if(!c)return;const v=Math.round(+e.target.value);c.set(v);$('cntV').textContent=v;peek();});
+function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool];syncCnt();}
 const COMBS=[["gel","Gelgit","gelV"],["comb","Comb","combV"],["fine","Fine","fineV"],["wave","Wave","waveV"],["chev","Chevron","chev"],["spiral","Spiral","spiral"]];
 $('combs').innerHTML=COMBS.map(c=>tile(c[0],c[1],c[2])).join('');
 $('combs').dataset.dir='down';
@@ -484,7 +577,8 @@ function drawSw(sel){const L=allInk();
 function swatches(){PIG=PALS[mode];color=PIG[0][1];drawSw(color);
  $('cname').textContent=PIG[0][0];$('sw').scrollLeft=0;syncInk(PIG[0][0]);
  $('palSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m==mode));
- document.querySelector('.sheetP').style.background=PAPER[mode];}
+ document.body.classList.toggle('cb',mode=='distinct');
+ document.querySelector('.sheetP').style.background=cfg.paper||PAPER[mode];}
 swatches();
 $('palSeg').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m==mode)return;
  mode=b.dataset.m;try{localStorage.setItem('ebru-mode',mode);}catch(_){}swatches();resetSlots();});
@@ -495,16 +589,27 @@ $('sw').addEventListener('change',e=>{if(e.target.id!='cpick')return;const c=e.t
  customs=[c,...customs.filter(x=>x!=c)].slice(0,6);try{localStorage.setItem('ebru-custom',JSON.stringify(customs));}catch(_){}
  color=c;drawSw(c);$('cname').textContent='Your color';syncInk('Your color');const s=$('sw');s.scrollLeft=s.scrollWidth;});
 
+// a mouse can drag the sideways rows (colors, tools, combs, recipes, prints) like a finger can, and the wheel scrolls them too;
+// a drag never counts as a click on the swatch or tile it ends on
+document.querySelectorAll('.strip').forEach(el=>{let x0=0,s0=0,down=false,moved=false;
+ el.addEventListener('pointerdown',e=>{if(e.pointerType!='mouse'||e.button!=0||el.scrollWidth<=el.clientWidth||e.target.closest('input'))return;down=true;moved=false;x0=e.clientX;s0=el.scrollLeft;});
+ addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-x0;if(!moved&&Math.abs(dx)>5){moved=true;el.classList.add('dragging');}if(moved)el.scrollLeft=s0-dx;});
+ addEventListener('pointerup',()=>{if(!down)return;down=false;if(moved)setTimeout(()=>el.classList.remove('dragging'),0);});
+ el.addEventListener('click',e=>{if(el.classList.contains('dragging')){e.preventDefault();e.stopPropagation();}},true);
+ el.addEventListener('dragstart',e=>e.preventDefault());
+ el.addEventListener('wheel',e=>{if(el.scrollWidth<=el.clientWidth||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});});
 // tabs
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id=='p-'+b.dataset.tab));});
 // size sliders kept in sync
+$('opac').addEventListener('input',e=>{opac=+e.target.value;});
 const s1=$('size'),s2=$('size2');
-[s1,s2].forEach(s=>s.addEventListener('input',()=>{size=+s.value;s1.value=s2.value=s.value;}));
+[s1,s2].forEach(s=>s.addEventListener('input',()=>{size=+s.value;s1.value=s2.value=s.value;peek();}));
 
 // ---------- sound (synthesized, off until asked for) ----------
-let AC=null,master=null,nbuf=null,sound=0,amb=null,lastDrip=0;
+let AC=null,master=null,nbuf=null,sound=cfg.sound,amb=null,lastDrip=0;
+addEventListener('pointerdown',()=>{if(sound==2&&!amb)try{ambience(true);}catch(_){}},{once:true,capture:true});
 function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.55;master.connect(AC.destination);
   const n=AC.sampleRate*3;nbuf=AC.createBuffer(1,n,AC.sampleRate);const d=nbuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;}
  if(AC.state=='suspended')AC.resume();return AC;}
@@ -538,7 +643,7 @@ function drop(cx,cy,r,skip){const r2=r*r;
  for(const k of inks){if(k===skip)continue;const p=k.p;
   for(let i=0;i<p.length;i+=2){let dx=p[i]-cx,dy=p[i+1]-cy,d2=dx*dx+dy*dy;if(d2<1e-6){dx=1e-3;d2=1e-6;}
    const s=Math.sqrt(1+r2/d2);p[i]=cx+dx*s;p[i+1]=cy+dy*s;}}}
-function addDrop(x,y,r,c){drop(x,y,r);inks.push({c,p:circle(x,y,r)});if(Math.random()<.35){ripple(x,y,r);drip(r,.7);}}
+function addDrop(x,y,r,c,a=1){drop(x,y,r);inks.push({c,a,p:circle(x,y,r)});if(Math.random()<.35){ripple(x,y,r);drip(r,.7);}}
 function totalVerts(){let t=0;for(const k of inks)t+=k.p.length/2;return t;}
 function refine(){ // keep edges short enough to look smooth, and the total point count within a budget
  const tv=totalVerts(),base=3.2*Math.max(1,(tv/170000)**1.5);
@@ -576,17 +681,18 @@ function boxes(){travel=0;for(const k of inks){const p=k.p,n=p.length/2,nc=Math.
   cb[c*4]=a;cb[c*4+1]=b;cb[c*4+2]=e;cb[c*4+3]=f;}k.cb=cb;}}
 // one pass that applies several needles at once (stylus = 1, rake = 5); each needle drags nearby ink along (dx,dy)
 let travel=0; // how far needles have moved since chunk boxes were measured
-function pullMany(pts,dx,dy,lam,reach){travel+=Math.hypot(dx,dy);let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const [x,y] of pts){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+function pullMany(pts,dx,dy,lam,reach,sharp){travel+=Math.hypot(dx,dy);let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const [x,y] of pts){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
  const mg=reach+8+travel;x0-=mg;y0-=mg;x1+=mg;y1+=mg;const np=pts.length;
  for(const k of inks){const p=k.p,cb=k.cb,n=p.length/2;
   const nc=cb?cb.length/4:1;
   for(let c=0;c<nc;c++){if(cb&&(cb[c*4]>x1||cb[c*4+2]<x0||cb[c*4+1]>y1||cb[c*4+3]<y0))continue;
    const st=cb?c*CH*2:0,end=cb?Math.min(n,(c+1)*CH)*2:p.length;
-   for(let i=st;i<end;i+=2){let w=0;for(let q=0;q<np;q++){const ex=p[i]-pts[q][0],ey=p[i+1]-pts[q][1];if(ex>reach||ex<-reach||ey>reach||ey<-reach)continue;w+=lam/(Math.sqrt(ex*ex+ey*ey)+lam);}
+   for(let i=st;i<end;i+=2){let w=0;for(let q=0;q<np;q++){const ex=p[i]-pts[q][0],ey=p[i+1]-pts[q][1];if(ex>reach||ex<-reach||ey>reach||ey<-reach)continue;const f=lam/(Math.sqrt(ex*ex+ey*ey)+lam);w+=sharp?f*f:f;}
     if(w){p[i]+=dx*w;p[i+1]+=dy*w;}}}}}
 
 // ---------- undo / redo ----------
-const clone=()=>inks.map(k=>({c:k.c,p:k.p.slice()}));
+const copyInk=k=>({c:k.c,a:k.a,p:k.p.slice()});
+const clone=()=>inks.map(copyInk);
 const bytes=st=>st.reduce((a,k)=>a+k.p.length*4,0);
 function snap(){undoS.push(clone());redoS.length=0;
  let tot=undoS.reduce((a,st)=>a+bytes(st),0); // keep undo memory under ~40 MB so big sheets stay smooth
@@ -598,9 +704,9 @@ $('redo').onclick=()=>{settleNow();if(busy()||!redoS.length)return;undoS.push(cl
 // ---------- animated operation queue ----------
 const queue=[];let cur=null,active=null;
 const busy=()=>!!(cur||queue.length||active);
-function sprinkleOp(c,count,rmin,rmax,every=1){let left=count,f=0;return{step(){if(every>1&&f++%every)return false;const per=Math.min(left,every>1?1:2);
+function sprinkleOp(c,count,rmin,rmax,every=1,a=1){let left=count,f=0;return{step(){if(every>1&&f++%every)return false;const per=Math.min(left,every>1?1:2);
  for(let j=0;j<per;j++){const x=Math.random()*W,y=Math.random()*H,r=rmin+Math.random()*(rmax-rmin);
-  if(every>1){drop(x,y,r);inks.push({c,p:circle(x,y,r)});ripple(x,y,r);if(Math.random()<.5)drip(r,.6);}else addDrop(x,y,r,c);}
+  if(every>1){drop(x,y,r);inks.push({c,a,p:circle(x,y,r)});ripple(x,y,r);if(Math.random()<.5)drip(r,.6);}else addDrop(x,y,r,c,a);}
  left-=per;if(left%12<per)refine();return left<=0;}};}
 const ease=x=>.5-.5*Math.cos(Math.PI*x);
 function stepsOp(n,fn){let s=0;return{step(){if(s==0)swish(n/60);const w=ease((s+1)/n)-ease(s/n);fn(w);s++;if(s%3==0)refine();return s>=n;}};}
@@ -608,9 +714,9 @@ const DIRS={down:['v',1],up:['v',-1],right:['h',1],left:['h',-1]};
 let dir='down';
 let cs={sp:1,st:1}; // comb tine spacing and pull strength
 const PAT={ // weights w sum to 1, so each stroke lands exactly; easing just makes it glide
- gel:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>tines(ax,90*o.sp,sg*190*o.st*w,true,9*Math.sqrt(o.sp)));},
- comb:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>tines(ax,40*o.sp,sg*90*o.st*w,false,6*Math.sqrt(o.sp)));},
- fine:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(70,w=>tines(ax,16*o.sp,sg*40*o.st*w,false,3*Math.sqrt(o.sp)));},
+ gel:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>tines(ax,90*o.sp,sg*190*o.st*w,true,9*Math.sqrt(o.sp)*(o.v||1)));},
+ comb:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>tines(ax,40*o.sp,sg*90*o.st*w,false,6*Math.sqrt(o.sp)*(o.v||1)));},
+ fine:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(70,w=>tines(ax,16*o.sp,sg*40*o.st*w,false,3*Math.sqrt(o.sp)*(o.v||1)));},
  wave:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>wave(ax,sg*55*o.st*w,(ax=='v'?260:220)*o.sp));},
  chev:(d,o=cs)=>{const [ax,sg]=DIRS[d];return stepsOp(80,w=>chevron(ax,sg*120*o.st*w,180*o.sp));},
  spiral:(d,o=cs)=>{const sg=DIRS[d][1];return stepsOp(130,w=>rotate(W/2,H/2,r=>sg*(2.6*Math.PI*o.st*w)*170*o.sp/(r+170*o.sp)));}
@@ -632,7 +738,7 @@ const RECIPE={
 let si=Math.floor(Math.random()*7);
 function lazy(f,label){let op=null;return{label,step(){if(!op)op=f();return op.step();}};}
 
-$('combs').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)return;settleNow();if(busy())return;snap();hideHint();const k=b.dataset.id,o={...cs};queue.push(lazy(()=>PAT[k](dir,o),`Drawing ${PNAME[k]}`));});
+$('combs').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)return;settleNow();if(busy())return;snap();hideHint();const k=b.dataset.id,o={...cs,v:visc};queue.push(lazy(()=>PAT[k](dir,o),`Drawing ${PNAME[k]}`));});
 $('csp').addEventListener('input',e=>cs.sp=+e.target.value);$('cst').addEventListener('input',e=>cs.st=+e.target.value);
 $('dpad').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;dir=b.dataset.d;$('combs').dataset.dir=dir;
  $('dpad').querySelectorAll('[data-d]').forEach(x=>x.setAttribute('aria-pressed',x===b));});
@@ -667,13 +773,13 @@ $('hand').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)r
 syncTool();
 
 // ---------- pointer ----------
-const HINTS={drop:"tap to drop ink · hold to let it spread",stylus:"drag a needle through the ink",rake:"drag five tines through the ink",swirl:"hold to turn the water · drag to move",mist:"drag to spray fine drops",rings:"tap for concentric rings"};
+const HINTS={drop:"tap to drop ink · hold to let it spread",stylus:"drag a needle through the ink",rake:"drag a row of tines through the ink",swirl:"hold to turn the water · drag to move",mist:"drag to spray fine drops",rings:"tap for concentric rings"};
 // data-fresh marks an untouched tray: the hint shows, and so does the "See the gallery" button
-function showHint(){hint.textContent=HINTS[tool];hint.style.opacity=inks.length?0:1;document.body.toggleAttribute('data-fresh',!inks.length);}
+function showHint(){hint.textContent=HINTS[tool];hint.style.opacity=inks.length||!cfg.tips?0:1;document.body.toggleAttribute('data-fresh',!inks.length);}
 function hideHint(){clearTimeout(hintT);hint.classList.remove('flash');hint.style.opacity=0;document.body.removeAttribute('data-fresh');}
 // a short tip on the tray for a few seconds (when you pick a tool or open Combs/Recipes), even over ink
 let hintT=0;
-function flashHint(text){if(drifting)return;clearTimeout(hintT);hint.innerHTML='';const s=document.createElement('span');s.textContent=text;hint.append(s);
+function flashHint(text){if(drifting||!cfg.tips)return;clearTimeout(hintT);hint.innerHTML='';const s=document.createElement('span');s.textContent=text;hint.append(s);
  hint.classList.add('flash');hint.style.opacity=1;
  hintT=setTimeout(()=>{hint.classList.remove('flash');if(inks.length)hint.style.opacity=0;else showHint();},3200);}
 function toTray(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];}
@@ -682,9 +788,10 @@ function settleNow(){const a=active;if(!a||a.t!='drop'||a.hold)return;
  if(a.target>a.r){drop(a.x,a.y,Math.sqrt(a.target*a.target-a.r*a.r),a.k);a.r=a.target;a.k.p=circle(a.x,a.y,a.r,a.sd);}refine();active=null;dirty=true;}
 cv.addEventListener('pointerdown',e=>{if(drifting){setDrift(false);return;}settleNow();if(cur||queue.length||active)return;e.preventDefault();cv.setPointerCapture(e.pointerId);hideHint();snap();
  const [x,y]=toTray(e);
- if(tool=='drop'){const r0=6,sd=Math.random(),k={c:color,p:circle(x,y,r0,sd)};drop(x,y,r0,k);inks.push(k);ripple(x,y,10);drip(14*size);active={t:'drop',x,y,r:r0,target:34*size,hold:true,k,sd};}
+ if(tool=='drop'){const r0=6,sd=Math.random(),k={c:color,a:opac,p:circle(x,y,r0,sd)};drop(x,y,r0,k);inks.push(k);ripple(x,y,10);drip(14*size);active={t:'drop',x,y,r:r0,target:34*size*visc,hold:true,k,sd};}
  else if(tool=='rings'){const other=ringOther();let n=0;const r=15*size;
-  let fr=0;queue.push({step(){if(fr++%5)return false;drop(x,y,r);inks.push({c:n%2?other:color,p:circle(x,y,r)});ripple(x,y,r);lastDrip=0;drip(r+n*4,.8);n++;return n>=8;}});}
+  const N=ringN,op=opac,gap=N>12?3:N>6?4:5; // many rings come a little faster
+  let fr=0;queue.push({step(){if(fr++%gap)return false;drop(x,y,r);inks.push({c:n%2?other:color,a:op,p:circle(x,y,r)});ripple(x,y,r);lastDrip=0;drip(r+n*4,.8);n++;if(n%6==0)refine();return n>=N;}});}
  else if(tool=='mist'){active={t:'mist',x,y,acc:0,hold:true};spray(x,y,4);}
  else active={t:tool,x,y,pts:[],hold:true};
  dirty=true;});
@@ -694,24 +801,48 @@ cv.addEventListener('pointermove',e=>{if(!active)return;const [x,y]=toTray(e);
  else if(active.t=='mist'){active.acc+=Math.hypot(x-active.x,y-active.y);active.x=x;active.y=y;if(active.acc>14){spray(x,y,2);active.acc=0;}}});
 const endP=()=>{if(!active)return;if(active.t=='drop'&&active.hold)active.target*=1.1;active.hold=false;if(active.t!='drop'){refine();active=null;dirty=true;}};
 cv.addEventListener('pointerup',endP);cv.addEventListener('pointercancel',endP);
-function spray(x,y,n){for(let i=0;i<n;i++){const a=Math.random()*6.283,d=Math.random()*50*size;addDrop(x+Math.cos(a)*d,y+Math.sin(a)*d,(2.5+Math.random()*6)*size,color);}dirty=true;}
+// size preview: a dashed outline of what the tool will cover. It follows a mouse over the tray,
+// and shows for a moment in the middle of the tray while Size (or the Rings / Tines count) is dragged.
+const ghost={x:W/2,y:H/2,hover:false,until:0};
+function peek(){if(!ghost.hover){ghost.x=W/2;ghost.y=H/2;}ghost.until=performance.now()+1600;}
+cv.addEventListener('pointermove',e=>{if(e.pointerType!='mouse')return;[ghost.x,ghost.y]=toTray(e);ghost.hover=true;});
+cv.addEventListener('pointerleave',()=>{ghost.hover=false;});
+function footprint(g,sx,sy,t){if(drifting||active||(!ghost.hover&&t>ghost.until))return;
+ const fade=ghost.hover?1:Math.min(1,(ghost.until-t)/400),x=ghost.x*sx,y=ghost.y*sy,k=sx;
+ const ring=r=>{g.moveTo(x+r*k,y);g.arc(x,y,r*k,0,6.283);},dot=(px,py,r)=>{g.moveTo(px+r,py);g.arc(px,py,r,0,6.283);};
+ g.beginPath();
+ if(tool=='drop')ring(34*size*visc);
+ else if(tool=='rings'){const r0=15*size;ring(r0);ring(r0*Math.sqrt(ringN));} // the first ring and the outer edge of the set
+ else if(tool=='mist')ring(50*size*Math.sqrt(visc)+6*size);
+ else if(tool=='swirl')ring(110*size);
+ else if(tool=='stylus')dot(x,y,Math.max(3,4*size*k));
+ else if(tool=='rake'){const sp=30*size,h=(rakeN-1)/2;for(let i=0;i<rakeN;i++)dot(x+(i-h)*sp*k,y,Math.max(2.5,3*size*k));}
+ const lw=Math.max(1.5,cv.width/450),dark=cfg.water=='white'||cfg.water=='pale';
+ g.save();g.globalAlpha=fade;g.setLineDash([lw*4,lw*3]);
+ g.lineWidth=lw*2.2;g.strokeStyle=dark?'rgba(255,255,255,.7)':'rgba(20,15,10,.45)';g.stroke();
+ g.lineWidth=lw;g.strokeStyle=dark?'rgba(40,30,20,.9)':'rgba(255,253,245,.95)';g.stroke();g.restore();}
+function spray(x,y,n){for(let i=0;i<n;i++){const a=Math.random()*6.283,d=Math.random()*50*size*Math.sqrt(visc);addDrop(x+Math.cos(a)*d,y+Math.sin(a)*d,(2.5+Math.random()*6)*size,color,opac);}dirty=true;}
 
 function stepActive(dt){const a=active;if(!a)return;
- if(a.t=='drop'){if(a.hold)a.target=Math.min(340,a.target+dt*0.14*size);
+ if(a.t=='drop'){if(a.hold)a.target=Math.min(Math.min(620,340*Math.max(1,size/2)),a.target+dt*0.14*size*visc);
   if(a.target-a.r>.25){const nr=Math.min(a.target,a.r+Math.max(dt*.02,(a.target-a.r)*Math.min(1,dt*.008)));drop(a.x,a.y,Math.sqrt(nr*nr-a.r*a.r),a.k);a.r=nr;a.k.p=circle(a.x,a.y,nr,a.sd);if(Math.random()<.5)refine();dirty=true;}
   else if(!a.hold){refine();active=null;}}
- else if(a.t=='swirl'){const R=110*size,om=0.0045*dt;rotate(a.x,a.y,d=>d>R*3.2?0:om*Math.exp(-(d*d)/(R*R)));if(Math.random()<.3)refine();dirty=true;}
+ else if(a.t=='swirl'){const R=110*size,om=0.0045*dt*visc;rotate(a.x,a.y,d=>d>R*3.2?0:om*Math.exp(-(d*d)/(R*R)));if(Math.random()<.3)refine();dirty=true;}
  else if(a.t=='stylus'||a.t=='rake'){let n=0;if(a.pts.length)boxes();
-  while(a.pts.length&&n<(a.t=='rake'?16:32)){const [x,y]=a.pts.shift();const dx=x-a.x,dy=y-a.y,L=Math.hypot(dx,dy);if(L<.5)continue;const m=Math.max(1,Math.ceil(L/5));
+  const cap=a.t=='rake'?Math.max(4,Math.round(60/rakeN)):32;
+  while(a.pts.length&&n<cap){const [x,y]=a.pts.shift();const dx=x-a.x,dy=y-a.y,L=Math.hypot(dx,dy);if(L<.5)continue;const m=Math.max(1,Math.ceil(L/5));
    const ux=dx/m,uy=dy/m;
+   if(a.t=='rake'){ // the rake's head turns slowly with the drag, so its tines stay in one straight row instead of jittering
+    let nx=-dy/L,ny=dx/L;if(a.nx==null){a.nx=nx;a.ny=ny;}else{if(nx*a.nx+ny*a.ny<0){nx=-nx;ny=-ny;}const k=Math.min(1,L/60);nx=a.nx+(nx-a.nx)*k;ny=a.ny+(ny-a.ny)*k;const h=Math.hypot(nx,ny)||1;a.nx=nx/h;a.ny=ny/h;}}
    for(let s=0;s<m;s++){const bx=a.x+ux,by=a.y+uy;
-    if(a.t=='stylus')pullMany([[bx,by]],ux,uy,10*size,260*Math.max(1,size));
-    else{const nx=-dy/L,ny=dx/L,sp=26*size,tp=[];for(let t=-2;t<=2;t++)tp.push([bx+nx*sp*t,by+ny*sp*t]);pullMany(tp,ux,uy,5,140);}
+    if(a.t=='stylus')pullMany([[bx,by]],ux,uy,10*size*visc,260*Math.max(1,size)*visc);
+    else{const sp=30*size,tp=[],h=(rakeN-1)/2;for(let t=0;t<rakeN;t++)tp.push([bx+a.nx*sp*(t-h),by+a.ny*sp*(t-h)]);pullMany(tp,ux,uy,6*size*visc,sp*.5,true);}
     a.x=bx;a.y=by;n++;}}
   if(n){refine();for(const k of inks)k.cb=null;dirty=true;}}}
 
 // ---------- render ----------
-const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const RMsys=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let RM=RMsys||cfg.calm; // still water: the device asks for less motion, or Calm water is on
 function makeTexture(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');const im=g.createImageData(256,256);
  for(let i=0;i<im.data.length;i+=4){const v=235+Math.random()*20;im.data[i]=v;im.data[i+1]=v-3;im.data[i+2]=v-10;im.data[i+3]=255;}
  g.putImageData(im,0,0);g.globalAlpha=.05;g.strokeStyle='#7a6240';
@@ -728,29 +859,34 @@ function makeShimmer(){ // tileable caustic network from Worley noise (F2-F1)
   im.data[i]=255;im.data[i+1]=255;im.data[i+2]=246;im.data[i+3]=Math.round(v*130);}
  g.putImageData(im,0,0);return c;}
 const shimmer=makeShimmer();
+function inkShapes(g,list){for(const k of list){const p=k.p;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.closePath();
+ if(k.a<1){g.globalCompositeOperation='destination-out';g.fillStyle='#000';g.fill();g.globalCompositeOperation='source-over';g.globalAlpha=k.a;}
+ g.fillStyle=k.c;g.fill();g.globalAlpha=1;}}
+const layer=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
 function drawPolys(g,sw,sh){g.setTransform(sw/W,0,0,sh/H,0,0);
- for(const k of inks){const p=k.p;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.closePath();g.fillStyle=k.c;g.fill();}
+ inkShapes(g,inks);
  g.setTransform(1,0,0,1,0,0);}
-function paper(g,sw,sh,pc=PAPER[mode]){ // the print: ink transferred to paper
- g.setTransform(1,0,0,1,0,0);g.fillStyle=pc;g.fillRect(0,0,sw,sh);drawPolys(g,sw,sh);
+function paper(g,sw,sh,pc=cfg.paper||PAPER[mode]){ // the print: ink transferred to paper
+ g.setTransform(1,0,0,1,0,0);g.fillStyle=pc;g.fillRect(0,0,sw,sh);const L=layer(sw,sh);drawPolys(L.getContext('2d'),sw,sh);g.drawImage(L,0,0);
  g.globalCompositeOperation='multiply';g.globalAlpha=.55;g.fillStyle=g.createPattern(texture,'repeat');g.fillRect(0,0,sw,sh);
  g.globalAlpha=1;g.globalCompositeOperation='source-over';}
 const inkC=document.createElement('canvas'),inkG=inkC.getContext('2d');
 const baseC=document.createElement('canvas'),baseG=baseC.getContext('2d');
-function makeBase(w,h){baseC.width=w;baseC.height=h;const g=baseG; // pale sea-glass size water
- const lg=g.createLinearGradient(0,0,w*.35,h);lg.addColorStop(0,'#dfe6d8');lg.addColorStop(.45,'#c7d6cb');lg.addColorStop(1,'#a9c0b8');g.fillStyle=lg;g.fillRect(0,0,w,h);
+function makeBase(w,h){baseC.width=w;baseC.height=h;const g=baseG,WA=WATERS[cfg.water]; // the size water, in the tray color from Settings
+ const lg=g.createLinearGradient(0,0,w*.35,h);lg.addColorStop(0,WA.g[0]);lg.addColorStop(.45,WA.g[1]);lg.addColorStop(1,WA.g[2]);g.fillStyle=lg;g.fillRect(0,0,w,h);
+ if(!WA.blot)return;g.globalAlpha=WA.blot;
  for(let k=0;k<22;k++){const x=Math.random()*w,y=Math.random()*h,r=(.18+Math.random()*.35)*w;const gr=g.createRadialGradient(x,y,0,x,y,r);
   const lt=Math.random()<.55;gr.addColorStop(0,lt?'rgba(255,255,245,.10)':'rgba(60,110,105,.07)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);}
- const hl=g.createRadialGradient(w*.25,h*.12,0,w*.25,h*.12,w*.9);hl.addColorStop(0,'rgba(255,255,250,.28)');hl.addColorStop(1,'rgba(255,255,250,0)');g.fillStyle=hl;g.fillRect(0,0,w,h);}
+ const hl=g.createRadialGradient(w*.25,h*.12,0,w*.25,h*.12,w*.9);hl.addColorStop(0,'rgba(255,255,250,.28)');hl.addColorStop(1,'rgba(255,255,250,0)');g.fillStyle=hl;g.fillRect(0,0,w,h);g.globalAlpha=1;}
 const ripples=[];
 function ripple(x,y,r){if(ripples.length<36)ripples.push({x,y,r,t:performance.now()});}
-function water(t){const g=ctx,w=cv.width,h=cv.height,sx=w/W,sy=h/H;
+function water(t){const g=ctx,w=cv.width,h=cv.height,sx=w/W,sy=h/H,WA=WATERS[cfg.water];
  g.globalCompositeOperation='source-over';g.globalAlpha=1;g.drawImage(baseC,0,0);
  g.drawImage(inkC,0,0);
  // light moving on the surface
  g.globalCompositeOperation='screen';const pat=g.createPattern(shimmer,'repeat');const sc=w/330;
  const ph=RM?0:t*0.0026;
- for(const [a,dx,dy,z] of [[.3,1,.35,1],[.22,-.55,1,1.37]]){g.globalAlpha=a;g.save();g.scale(sc*z,sc*z);g.translate((ph*dx)%256,(ph*dy)%256);g.fillStyle=pat;g.fillRect(-256,-256,w/(sc*z)+512,h/(sc*z)+512);g.restore();}
+ if(WA.shim)for(const [a,dx,dy,z] of [[.3,1,.35,1],[.22,-.55,1,1.37]]){g.globalAlpha=a*WA.shim;g.save();g.scale(sc*z,sc*z);g.translate((ph*dx)%256,(ph*dy)%256);g.fillStyle=pat;g.fillRect(-256,-256,w/(sc*z)+512,h/(sc*z)+512);g.restore();}
  g.globalAlpha=1;
  const s=RM?.5:(Math.sin(t*0.0002)+1)/2;const lg=g.createLinearGradient(w*(-.3+s*.4),0,w*(.5+s*.4),h);
  lg.addColorStop(0,'rgba(255,255,245,0)');lg.addColorStop(.45,'rgba(255,255,245,.07)');lg.addColorStop(.6,'rgba(255,255,245,0)');g.fillStyle=lg;g.fillRect(0,0,w,h);
@@ -758,9 +894,10 @@ function water(t){const g=ctx,w=cv.width,h=cv.height,sx=w/W,sy=h/H;
  // ripples
  for(let i=ripples.length-1;i>=0;i--){const R=ripples[i],a=(t-R.t)/1100;if(a>=1||RM){ripples.splice(i,1);continue;}
   for(const k of [0,.28]){const b=a-k;if(b<0)continue;const rad=(R.r+b*130)*sx;g.beginPath();g.ellipse(R.x*sx,R.y*sy,rad,rad*sy/sx,0,0,6.283);
-   g.strokeStyle=`rgba(255,255,248,${(1-b)*.4})`;g.lineWidth=1.4*(w/400);g.stroke();}}
+   g.strokeStyle=`rgba(${WA.rip},${(1-b)*.4})`;g.lineWidth=1.4*(w/400);g.stroke();}}
+ footprint(g,sx,sy,t);
  // wall shadow of the trough
- const gr=g.createRadialGradient(w/2,h/2,Math.min(w,h)*.42,w/2,h/2,Math.max(w,h)*.72);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(25,55,52,.32)');g.fillStyle=gr;g.fillRect(0,0,w,h);
+ const gr=g.createRadialGradient(w/2,h/2,Math.min(w,h)*.42,w/2,h/2,Math.max(w,h)*.72);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,WA.wall);g.fillStyle=gr;g.fillRect(0,0,w,h);
 }
 let dirty=true;
 const stage=$('stage'),tray=$('tray');
@@ -814,12 +951,12 @@ $('prints').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(
  cap.textContent=ONSITE?stamp(p.t):`${stamp(p.t)} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=false;$('delMine').hidden=false;$('liftM').classList.add('on');});
 $('delMine').onclick=()=>{histI=prints.findIndex(x=>x.id==histId);const p=prints[histI];if(!p||!confirm('Remove this print from Yours? This can’t be undone.'))return;
  prints.splice(histI,1);if(!p.auto)mineDo(st=>st.delete(p.id));renderPrints();$('liftM').classList.remove('on');};
-$('restore').onclick=()=>{const p=prints.find(x=>x.id==histId);$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(k=>({c:k.c,p:k.p.slice()}));dirty=true;hideHint();};
+$('restore').onclick=()=>{const p=prints.find(x=>x.id==histId);$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(copyInk);dirty=true;hideHint();};
 // ----- print options -----
 const PAPERS=[["Ivory (polished)","#efe5cf"],["White","#fbfaf5"],["Tea","#e4cfa6"],["Rose","#eed6cf"],["Sky","#dbe3e6"],["Sage","#dfe3cc"]];
 const CROPS={portrait:[0,0,1000,1400],square:[0,200,1000,1000],landscape:[0,343,1000,714],strip:[325,0,350,1400]};
 const po={shape:'portrait',layout:'full',paper:null};let subject=null;
-function paperCol(){return po.paper||PAPER[mode];}
+function paperCol(){return po.paper||cfg.paper||PAPER[mode];}
 // src is either your own ink (an array of shapes) or a shared print from the gallery: {sheet: image of the whole tray, paper}
 function renderPrint(src){const [cx,cy,cw,ch]=CROPS[po.shape],sc=2100/Math.max(cw,ch),w=Math.round(cw*sc),h=Math.round(ch*sc);
  const sheet=src.sheet,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),pc=sheet?src.paper:paperCol(),m=Math.min(w,h),b=Math.round(m*.07);
@@ -827,7 +964,7 @@ function renderPrint(src){const [cx,cy,cw,ch]=CROPS[po.shape],sc=2100/Math.max(c
  const tex=a=>{g.globalCompositeOperation='multiply';g.globalAlpha=a;g.fillStyle=g.createPattern(texture,'repeat');g.fillRect(0,0,w,h);g.globalAlpha=1;g.globalCompositeOperation='source-over';};
  const ink=(x,y,ww,hh)=>{g.save();g.beginPath();g.rect(x,y,ww,hh);g.clip();
   if(sheet){const k=sheet.naturalWidth/W;g.drawImage(sheet,cx*k,cy*k,cw*k,ch*k,0,0,w,h);} // the sheet already carries its paper grain
-  else{g.setTransform(sc,0,0,sc,-cx*sc,-cy*sc);for(const k of src){const p=k.p;g.beginPath();g.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)g.lineTo(p[i],p[i+1]);g.closePath();g.fillStyle=k.c;g.fill();}}
+  else{const L=layer(w,h),lg=L.getContext('2d');lg.setTransform(sc,0,0,sc,-cx*sc,-cy*sc);inkShapes(lg,src);g.drawImage(L,0,0);}
   g.restore();};
  if(po.layout=='mount')ink(b,b,w-2*b,h-2*b);
  else ink(0,0,w,h);
@@ -857,7 +994,7 @@ function lift(){rustle();restorePo();
  $('clearAfter').hidden=false;$('keep').hidden=false;$('closeH').hidden=true;$('restore').hidden=true;$('delMine').hidden=true;
  drawOpts();showPrint();pressEl.style.setProperty('--ar','.714');document.querySelector('.sheetP').style.background=paperCol();$('wsnap').src=cv.toDataURL('image/jpeg',.85);
  printT.forEach(clearTimeout);pressEl.className='press';cap.textContent='';$('liftM').classList.add('on');
- if(RM){pressEl.className='press done';cap.textContent=DONECAP;showPrint();return;}
+ if(RMsys){pressEl.className='press done';cap.textContent=DONECAP;showPrint();return;}
  printT=[setTimeout(()=>pressEl.classList.add('lay'),60),setTimeout(()=>{pressEl.classList.add('done');cap.textContent=DONECAP;showPrint();},1500)];}
 const ONSITE=!/claude|anthropic/i.test(location.hostname);
 const DONECAP=ONSITE?'':'Press and hold to save';
@@ -870,7 +1007,9 @@ try{if(ONSITE&&navigator.canShare&&navigator.canShare({files:[new File([new Blob
 const GALLERY=ONSITE&&/^https?:$/.test(location.protocol);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const when=ms=>new Date(ms).toLocaleString([],{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
-const byline=p=>(p.name?`Made by ${p.name} · `:'')+when(p.createdAt);
+// a shared print's caption: its title and maker when given (older prints only ever had a name)
+const byline=p=>(p.title?`“${p.title}” · `:'')+(p.name?`Made by ${p.name} · `:'')+when(p.createdAt);
+const slug=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 let gal=[],galView='mine',galLoading=false,tabNow='ink';
 const thumb=(p,i)=>`<button class="pthumb" data-i="${i}" aria-label="${esc(byline(p))}" title="${esc(byline(p))}"><img src="${esc(p.url)}" alt="" loading="lazy"></button>`;
 function renderGallery(msg){const el=$('gallery');
@@ -901,7 +1040,7 @@ const loadImg=(im,src)=>{const p=new Promise((res,rej)=>{im.onload=res;im.onerro
 // a shared print opens in the print screen: shape and layout can change, the design and paper stay the maker's
 let poSaved=null;
 function restorePo(){if(poSaved){Object.assign(po,poSaved);poSaved=null;}$('opaper').closest('.prow').hidden=false;}
-function openSimple(p){$('galM').dataset.i=gal.indexOf(p);$('galImg').src=p.url;$('galImg').alt=p.name?`Marbled print made by ${p.name}`:'Marbled print';
+function openSimple(p){$('galM').dataset.i=gal.indexOf(p);$('galImg').src=p.url;$('galImg').alt=(p.title?`Marbled print “${p.title}”`:'Marbled print')+(p.name?`, made by ${p.name}`:'');
  $('galCap').textContent=byline(p);$('galM').classList.add('on');}
 async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
  const im=new Image();try{await loadImg(im,p.sheetUrl);}catch(_){openSimple(p);return;}
@@ -915,10 +1054,11 @@ $('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if
 if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash.slice(7);history.replaceState(null,'',location.pathname+location.search);
  (async()=>{await loadGallery();const p=gal.find(x=>x.id==id);if(p)openShared(p);})();}
 $('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=document.createElement('a');a.href=p.url;
- a.download=`ebru-${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
+ a.download=`ebru-${p.title&&slug(p.title)?slug(p.title)+'-':''}${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
 let sharing=false;
 function resetShare(){if(sharing)return;$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
-$('toGal').onclick=()=>{$('toGal').hidden=true;$('gform').hidden=false;try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gname').focus();};
+$('toGal').onclick=()=>{$('toGal').hidden=true;$('gform').hidden=false;$('gtitle').value='';try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gtitle').focus();};
+$('gtitle').addEventListener('keydown',e=>{if(e.key=='Enter'){e.preventDefault();$('gname').focus();}});
 // JPEG under the server's 700 KB limit: start at good quality, step down for very busy prints
 async function jpegUnder(c){for(const q of [.86,.76,.66,.56]){const b=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(b&&b.size<650*1024)return b;}
  throw new Error('Couldn’t prepare the print.');}
@@ -931,9 +1071,9 @@ async function sheetJpeg(src){const sv={shape:po.shape,layout:po.layout};po.shap
  return jpegUnder(scaled(big,big.width,big.height,1000));}
 $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('gsend'),msg=$('gmsg');if(btn.disabled)return;
  btn.disabled=true;sharing=true;msg.className='gmsg';msg.textContent='Adding…';
- const name=$('gname').value.trim().slice(0,40);try{localStorage.setItem('ebru-name',name);}catch(_){}
+ const name=$('gname').value.trim().slice(0,40),title=$('gtitle').value.trim().slice(0,60);try{localStorage.setItem('ebru-name',name);}catch(_){}
  try{const fd=new FormData();fd.append('image',await galleryJpeg(),'print.jpg');fd.append('sheet',await sheetJpeg(subject),'sheet.jpg');
-  fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);
+  fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);fd.append('title',title);
   const r=await fetch('/api/ebru/prints',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.print)throw new Error(j.error||'Couldn’t add it. Try again.');
   $('gform').hidden=true;msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
@@ -942,7 +1082,7 @@ $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('g
 $('shareB').onclick=()=>printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(()=>{});});
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]')){m.classList.remove('on');printT.forEach(clearTimeout);}}));
 $('float').onclick=()=>{settleNow();if(busy())return;snap();hideHint();const a=18*size,b=46*size,m=(a+b)/2;
- const c=color;queue.push(lazy(()=>sprinkleOp(c,Math.round(Math.min(220,Math.max(20,.45*W*H/(Math.PI*m*m)))),a,b),`Floating ${nameOf(c).toLowerCase()}`));};
+ const c=color,op=opac;queue.push(lazy(()=>sprinkleOp(c,Math.round(Math.min(220,Math.max(20,.45*W*H/(Math.PI*m*m)))),a,b,1,op),`Floating ${nameOf(c).toLowerCase()}`));};
 $('clearAfter').onclick=()=>{$('liftM').classList.remove('on');printT.forEach(clearTimeout);if(inks.length){snap();inks=[];dirty=true;showHint();}};
 $('fresh').onclick=()=>{settleNow();if(busy()||!inks.length)return;snap();inks=[];dirty=true;showHint();};
 // ---------- drawer, sound, drift ----------
@@ -952,19 +1092,14 @@ $('grab').onclick=()=>setCollapsed(!app.classList.contains('collapsed'));
 {let y0=null;const h=document.querySelector('.handle');
  h.addEventListener('pointerdown',e=>{y0=e.clientY;});
  addEventListener('pointerup',e=>{if(y0==null)return;const dy=e.clientY-y0;y0=null;if(dy>30)setCollapsed(true);else if(dy<-30)setCollapsed(false);});}
-// sound steps through off → on → on with water sounds; the button says which
-const SND=['Sound off','Sound on','Sound + water'];
-function sndLabel(){const b=$('snd');b.classList.toggle('on',sound>0);b.classList.toggle('amb',sound==2);$('sndT').textContent=SND[sound];
- b.setAttribute('aria-label',`${SND[sound]}. Tap for ${SND[(sound+1)%3].toLowerCase()}`);}
-$('snd').onclick=()=>{sound=(sound+1)%3;
- try{if(sound){ac();if(sound==1)drip(20);}ambience(sound==2);}catch(_){sound=0;}sndLabel();};
-sndLabel();
+// sound is set in Settings: off, on, or on with water sounds
+function setSound(v){sound=v;try{if(sound){ac();if(sound==1)drip(20);}ambience(sound==2);}catch(_){sound=0;}cfg.sound=sound;saveCfg();}
 // drift: the tray marbles itself, lifts a print into Prints, and starts again
 let drifting=false,driftT=0,driftPlan=[];
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 function planCycle(){const set=SETS[mode][Math.floor(Math.random()*SETS[mode].length)].slice();
  const pal=PALS[mode];if(Math.random()<.5)set[Math.floor(Math.random()*3)]=rnd(pal)[1];
- const plan=battal(set,5),moves=['gel','comb','fine','wave','chev'],n=1+Math.floor(Math.random()*3);
+ const plan=battal(set,PACE[cfg.pace].every),moves=['gel','comb','fine','wave','chev'],n=1+Math.floor(Math.random()*3);
  for(let i=0;i<n;i++){const k=rnd(moves),d=rnd(Object.keys(DIRS)),o={sp:.7+Math.random()*.8,st:.7+Math.random()*.6};plan.push(lazy(()=>PAT[k](d,o)));}
  if(Math.random()<.25){const d=rnd(Object.keys(DIRS)),o={sp:.8+Math.random()*.6,st:.6+Math.random()*.5};plan.push(lazy(()=>PAT.spiral(d,o)));}
  plan.push('rest','lift');return plan;}
@@ -973,24 +1108,53 @@ function driftLift(){ // lay paper, show the print a while, then fresh water
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;paper(tc.getContext('2d'),180,252);
  const big=document.createElement('canvas');big.width=1000;big.height=1400;paper(big.getContext('2d'),1000,1400);
  dSaved=clone();addPrint({id:newId(),t:Date.now(),thumb:tc.toDataURL('image/jpeg',.8),inks:dSaved,auto:true});
- const v=$('veil');v.style.background=PAPER[mode];$('veilImg').src=big.toDataURL('image/jpeg',.9);
+ const v=$('veil');v.style.background=cfg.paper||PAPER[mode];$('veilImg').src=big.toDataURL('image/jpeg',.9);
  rustle();v.classList.add('on');
  dT=[setTimeout(()=>{v.classList.add('show');inks=[];dirty=true;},1500),
-     setTimeout(()=>{v.classList.remove('on','show');dSaved=null;},9500)];}
+     setTimeout(()=>{v.classList.remove('on','show');dSaved=null;},1500+HOLD[cfg.hold])];}
 function driftTick(t){if(!drifting||busy()||t<driftT)return;
  if(!driftPlan.length)driftPlan=planCycle();const op=driftPlan.shift();
- if(op=='rest'){driftT=t+5500;}
- else if(op=='lift'){driftLift();driftT=t+13000;}
- else{queue.push(op);driftT=t+900+Math.random()*1400;}}
+ const gap=PACE[cfg.pace].gap;
+ if(op=='rest'){driftT=t+5500*gap;}
+ else if(op=='lift'){driftLift();driftT=t+5000+HOLD[cfg.hold];}
+ else{queue.push(op);driftT=t+(900+Math.random()*1400)*gap;}}
 function setDrift(on){drifting=on;$('drift').setAttribute('aria-checked',on);$('autoPill').hidden=!on;hideHint();
  if(on){driftPlan=[];driftT=0;if(inks.length){snap();inks=[];dirty=true;}setCollapsed(true);}
  else{driftPlan=[];queue.length=0;dT.forEach(clearTimeout);const v=$('veil');v.classList.remove('on','show');
-  if(dSaved){inks=dSaved.map(k=>({c:k.c,p:k.p.slice()}));dSaved=null;dirty=true;}showHint();}}
-$('drift').onclick=()=>setDrift(!drifting);
+  if(dSaved){inks=dSaved.map(copyInk);dSaved=null;dirty=true;}showHint();}}
+// starting Auto mode is a second step: the tray is cleared, so it asks first
+$('drift').onclick=()=>{if(drifting){setDrift(false);return;}$('autoM').classList.add('on');$('autoGo').focus();};
+$('autoGo').onclick=()=>{$('autoM').classList.remove('on');finishAll();setDrift(true);};
 $('autoPill').onclick=()=>setDrift(false);
 $('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.sw,#float,#go,.slot,#palSeg button,#shuffle,[data-d],.inkpick'))setDrift(false);},true);
-document.querySelector('.top').addEventListener('click',e=>{if(drifting&&!e.target.closest('#aboutB'))setDrift(false);},true);
+document.querySelector('.top').addEventListener('click',e=>{if(drifting&&!e.target.closest('#aboutB,#setB'))setDrift(false);},true);
 $('aboutB').onclick=()=>$('aboutM').classList.add('on');
+// ----- settings -----
+$('waterSeg').innerHTML=Object.entries(WATERS).map(([k,v])=>`<button data-v="${k}"><i style="background:linear-gradient(160deg,${v.g[0]},${v.g[2]})"></i>${v.n}</button>`).join('');
+function drawSet(){$('sndSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v==sound));
+ $('calmT').setAttribute('aria-checked',cfg.calm);$('tipsT').setAttribute('aria-checked',cfg.tips);
+ try{$('setName').value=localStorage.getItem('ebru-name')||'';}catch(_){}
+ $('setPaper').innerHTML=`<button class="auto" data-v="" aria-pressed="${!cfg.paper}" title="Ivory for Period colors, white for the others">Match colors</button>`+PAPERS.map(p=>`<button class="pdot" style="background:${p[1]}" data-v="${p[1]}" aria-label="${p[0]} paper" title="${p[0]}" aria-pressed="${p[1]==cfg.paper}"></button>`).join('');
+ for(const [id,key] of [['paceSeg','pace'],['holdSeg','hold']])$(id).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==cfg[key]));
+ const mine=prints.filter(p=>!p.auto).length;$('clearMine').disabled=!prints.length;
+ $('mineNote').textContent=(mine?`${mine} print${mine==1?'':'s'} kept on this device.`:'None kept on this device yet.')+' Prints you added to the gallery stay there.';
+ $('viscSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==cfg.visc));
+ $('waterSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==cfg.water));
+ document.body.dataset.water=cfg.water;}
+$('setB').onclick=$('setB2').onclick=()=>{drawSet();$('setM').classList.add('on');};
+$('viscSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;cfg.visc=b.dataset.v;visc=VISC[cfg.visc];saveCfg();drawSet();});
+$('waterSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;cfg.water=b.dataset.v;saveCfg();drawSet();if(cv.width)makeBase(cv.width,cv.height);dirty=true;});
+$('sndSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;setSound(+b.dataset.v);drawSet();});
+$('calmT').onclick=()=>{cfg.calm=!cfg.calm;RM=RMsys||cfg.calm;saveCfg();drawSet();dirty=true;};
+$('tipsT').onclick=()=>{cfg.tips=!cfg.tips;saveCfg();drawSet();clearTimeout(hintT);hint.classList.remove('flash');showHint();};
+$('setName').addEventListener('input',e=>{try{localStorage.setItem('ebru-name',e.target.value.trim().slice(0,40));}catch(_){}});
+$('setPaper').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;cfg.paper=b.dataset.v||null;saveCfg();drawSet();
+ document.querySelector('.sheetP').style.background=cfg.paper||PAPER[mode];});
+for(const [id,key] of [['paceSeg','pace'],['holdSeg','hold']])$(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;cfg[key]=b.dataset.v;saveCfg();drawSet();});
+// clears Yours on this device (IndexedDB, plus this visit's Auto mode prints); the shared gallery is untouched
+$('clearMine').onclick=()=>{if(!prints.length||!confirm('Remove all your prints from this device? This can’t be undone. Prints you added to the gallery stay there.'))return;
+ prints.length=0;mineDo(st=>st.clear());renderPrints();drawSet();};
+drawSet();
 $('done').onclick=()=>{if(active&&active.hold)return;finishAll();lift();};
 addEventListener('keydown',e=>{ // Ctrl/Cmd+Z undo; Ctrl/Cmd+Shift+Z or Ctrl+Y redo
  if((e.ctrlKey||e.metaKey)&&!e.altKey&&!document.querySelector('.modal.on,.picker.on')){const k=e.key.toLowerCase();

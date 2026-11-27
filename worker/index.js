@@ -6,7 +6,8 @@
 // else back to the assets (which serves the site's 404 page).
 //
 // Ebru gallery: anyone can share a print from the marbling tray. Only the
-// newest KEEP prints are kept. Each has an optional "made by" name, the time
+// newest KEEP prints are kept. Each has an optional title, an optional "made by"
+// name (prints shared before titles existed only have the name), the time
 // it was shared, and two pictures:
 //   image  the print as its maker framed it (shape, layout, paper)
 //   sheet  the whole uncropped tray (1000x1400 proportions) on the maker's
@@ -17,6 +18,7 @@ const KEEP = 100;
 const MAX_BYTES = 700 * 1024; // per picture; a 1000x1400 JPEG print is ~150-500 KB
 const MAX_SIDE = 1400;
 const MAX_NAME = 40;
+const MAX_TITLE = 60;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 6; // shares per visitor per 10 minutes
 const SHAPES = new Set(['portrait', 'square', 'landscape', 'strip']);
@@ -46,6 +48,7 @@ async function ensureSchema(db) {
         id TEXT PRIMARY KEY,
         created_at INTEGER NOT NULL,
         name TEXT,
+        title TEXT,
         width INTEGER NOT NULL,
         height INTEGER NOT NULL,
         image BLOB NOT NULL,
@@ -61,7 +64,7 @@ async function ensureSchema(db) {
   // A table made by the first version of the gallery lacks the re-cut columns; add any that are missing.
   const { results } = await db.prepare('PRAGMA table_info(ebru_prints)').all();
   const have = new Set(results.map((c) => c.name));
-  const added = [['sheet', 'BLOB'], ['paper', 'TEXT'], ['shape', 'TEXT'], ['layout', 'TEXT']]
+  const added = [['sheet', 'BLOB'], ['paper', 'TEXT'], ['shape', 'TEXT'], ['layout', 'TEXT'], ['title', 'TEXT']]
     .filter(([name]) => !have.has(name))
     .map(([name, type]) => db.prepare(`ALTER TABLE ebru_prints ADD COLUMN ${name} ${type}`));
   if (added.length) {
@@ -109,13 +112,13 @@ async function jpegField(form, key) {
   return { bytes, size };
 }
 
-function cleanName(v) {
+function cleanText(v, max) {
   if (typeof v !== 'string') return null;
   const s = v
     .replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩﻿]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
-  const cut = Array.from(s).slice(0, MAX_NAME).join('').trim();
+  const cut = Array.from(s).slice(0, max).join('').trim();
   return cut || null;
 }
 
@@ -128,6 +131,7 @@ async function ipHash(request) {
 const toItem = (r) => ({
   id: r.id,
   name: r.name || null,
+  title: r.title || null,
   createdAt: r.created_at,
   width: r.width,
   height: r.height,
@@ -142,7 +146,7 @@ async function listPrints(env) {
   await ensureSchema(env.DB);
   const { results } = await env.DB
     .prepare(
-      `SELECT id, created_at, name, width, height, paper, shape, layout, sheet IS NOT NULL AS has_sheet
+      `SELECT id, created_at, name, title, width, height, paper, shape, layout, sheet IS NOT NULL AS has_sheet
        FROM ebru_prints ORDER BY created_at DESC LIMIT ?`
     )
     .bind(KEEP)
@@ -190,7 +194,8 @@ async function sharePrint(request, env) {
   const shape = String(form.get('shape') || '');
   const layout = String(form.get('layout') || '');
   if (!HEX_RE.test(paper) || !SHAPES.has(shape) || !LAYOUTS.has(layout)) return fail(400, 'Not a print from the tray');
-  const name = cleanName(form.get('name'));
+  const name = cleanText(form.get('name'), MAX_NAME);
+  const title = cleanText(form.get('title'), MAX_TITLE);
 
   await ensureSchema(env.DB);
   const now = Date.now();
@@ -205,10 +210,10 @@ async function sharePrint(request, env) {
   await env.DB.batch([
     env.DB
       .prepare(
-        `INSERT INTO ebru_prints (id, created_at, name, width, height, image, sheet, paper, shape, layout, ip_hash)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO ebru_prints (id, created_at, name, title, width, height, image, sheet, paper, shape, layout, ip_hash)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .bind(id, now, name, image.size.width, image.size.height, image.bytes, sheet.bytes, paper.toLowerCase(), shape, layout, who),
+      .bind(id, now, name, title, image.size.width, image.size.height, image.bytes, sheet.bytes, paper.toLowerCase(), shape, layout, who),
     env.DB
       .prepare('DELETE FROM ebru_prints WHERE id NOT IN (SELECT id FROM ebru_prints ORDER BY created_at DESC LIMIT ?)')
       .bind(KEEP),
@@ -216,7 +221,7 @@ async function sharePrint(request, env) {
   return json(
     {
       print: toItem({
-        id, created_at: now, name, width: image.size.width, height: image.size.height,
+        id, created_at: now, name, title, width: image.size.width, height: image.size.height,
         has_sheet: 1, paper: paper.toLowerCase(), shape, layout,
       }),
     },
