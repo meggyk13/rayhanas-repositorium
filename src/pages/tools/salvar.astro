@@ -78,7 +78,7 @@ import Base from '../../layouts/Base.astro';
       <ol class="steps">
         <li>Stitch both gores to each pant leg as shown in the sewn view, lining up the widest
         part of each gore with the start of the diagonal cut, <span class="ci" id="cT"></span> below
-        the waist. The gore will not completely meet the hem at the ankle.</li>
+        the waist. The gore narrows to a point right at the ankle hem.</li>
         <li>Stitch the gores together along seam E (<span class="ci" id="cE"></span>), creating a
         tube for each leg.</li>
         <li>Turn one leg inside out, and insert one leg inside the other, right sides together.</li>
@@ -218,6 +218,8 @@ import Base from '../../layouts/Base.astro';
   ['waist','rise','ease','length','foot','fabricw'].forEach(id => $(id).addEventListener('input', render));
 
   const upHalf = (x) => Math.ceil(x*2 - 1e-9)/2;   // round up to the next ½″
+  // Keep rotated labels readable: never tilt text more than 90° either way.
+  const upright = (deg) => deg > 90 ? deg - 180 : deg < -90 ? deg + 180 : deg;
 
   function dims(){
     const W = +$('waist').value || 0;
@@ -232,9 +234,10 @@ import Base from '../../layouts/Base.astro';
     const D = upHalf((F+1)/2);
     const A = D+G;                         // sums of halves — already exact
     const C = upHalf(L+3);
-    const B = upHalf(Math.hypot(C-T, A-D));
+    const Bexact = Math.hypot(C-T, A-D);   // drawings use the exact length
+    const B = upHalf(Bexact);              // the table shows it rounded up
     const seamE = C-T;                     // the wedge's straight side, freed by the flip
-    return { A, B, C, D, E: seamE, G, T, W };
+    return { A, B, Bexact, C, D, E: seamE, G, T, W };
   }
 
   function cuttingSVG(d){
@@ -246,7 +249,7 @@ import Base from '../../layouts/Base.astro';
     const cap = Math.round(540*vbw/vbh);   // display width that lands the height near 540px
     const T0 = Math.max(T, 0.5);           // drawing position only; table shows the true T
     const midX = (A+D)/2, midY = (T0+C)/2;
-    const ang = Math.atan2(C-T0, D-A)*180/Math.PI;
+    const ang = upright(Math.atan2(C-T0, D-A)*180/Math.PI);
     const dim = (x1,y1,x2,y2,label,tx,ty,anchor='middle',rot=0) => `
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>
       <text x="${tx}" y="${ty}" font-size="${fs}" fill="#26304a" text-anchor="${anchor}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''} font-family="IBM Plex Mono,monospace">${label}</text>`;
@@ -267,7 +270,8 @@ import Base from '../../layouts/Base.astro';
   }
 
   function sewnSVG(d){
-    const {A,B,C,D,E,G,T} = d;
+    const {A,C,D,E,G,T} = d;
+    const B = d.Bexact;
     // Rigid flip: the wedge is a right triangle with legs G and E and hypotenuse B.
     // Sewn diagonal-to-diagonal, its right-angle corner lands at q, outside the leg.
     const ux = (D-A)/B, uy = (C-T)/B;      // unit vector down the leg diagonal
@@ -286,11 +290,11 @@ import Base from '../../layouts/Base.astro';
     // label placement: midpoints of the two gore edges, nudged outward along each edge's perpendicular
     const gdx = qx-A, gdy = qy-T, gl = Math.hypot(gdx,gdy);
     const gpx = gdy/gl, gpy = -gdx/gl;
-    const gAng = Math.atan2(gdy, gdx)*180/Math.PI;
+    const gAng = upright(Math.atan2(gdy, gdx)*180/Math.PI);
     const gtx = (A+qx)/2 + gpx*fs*1.15, gty = (T+qy)/2 + gpy*fs*1.15;
     const edx = D-qx, edy = C-qy, el = Math.hypot(edx,edy);
     const epx = edy/el, epy = -edx/el;
-    const eAng = Math.atan2(edy, edx)*180/Math.PI;
+    const eAng = upright(Math.atan2(edy, edx)*180/Math.PI);
     const etx = (qx+D)/2 + epx*fs*1.15, ety = (qy+C)/2 + epy*fs*1.15;
     const gore = (s)=>`<polygon points="${s*A},${T} ${s*qx},${qy} ${s*D},${C}" fill="rgba(46,140,138,.18)" stroke="#2e8c8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
     const outline = `${-A},0 ${A},0 ${A},${T} ${qx},${qy} ${D},${C} ${-D},${C} ${-qx},${qy} ${-A},${T}`;
