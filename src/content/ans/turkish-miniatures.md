@@ -21,22 +21,22 @@ First I traced the image to create a line drawing of the piece. Then I re-traced
 
 ## Appendix
 
-![Reproduction of a woman in a blue entari with red lining, holding a flower](/images/ans/turkish-miniatures-1.png)
+![Original miniature: a woman in a blue entari with red lining, holding a flower, British Museum, c. 1620](/images/ans/turkish-miniatures-1.png)
 
-*Reproduction 1 — woman in a blue entari*
+*Original 1: woman in a blue entari. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
-![Reproduction of a sergeant in a blue caftan and a turban with a red hat](/images/ans/turkish-miniatures-2.png)
+![Original miniature: a sergeant in a blue caftan and a turban with a red hat, British Museum, c. 1620](/images/ans/turkish-miniatures-2.png)
 
-*Reproduction 2 — sergeant in a blue caftan*
+*Original 2: sergeant in a blue caftan. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
-![Reproduction of a woman pulling a red sash through her salvar](/images/ans/turkish-miniatures-3.png)
+![Original miniature: a woman pulling a red sash through her şalvar, British Museum, c. 1620](/images/ans/turkish-miniatures-3.png)
 
-*Reproduction 3 — woman with a red sash*
+*Original 3: woman with a red sash. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
-![Reproduction of a man in a green caftan holding a small fan, wearing an elaborate turban](/images/ans/turkish-miniatures-4.png)
+![Original miniature: a man in a green caftan holding a small fan, wearing an elaborate turban, British Museum, c. 1620](/images/ans/turkish-miniatures-4.png)
 
-*Reproduction 4 — man in a green caftan with a fan*
+*Original 4: man in a green caftan with a fan. The Habits of the Grand Signor's Court, c. 1620, British Museum*
 
-![The four reproductions set beside the original British Museum miniatures](/images/ans/turkish-miniatures-5.png)
+![The green leather binding of The Habits of the Grand Signor's Court, British Museum](/images/ans/turkish-miniatures-5.png)
 
-*Comparison with the originals*
+*The album itself: green leather binding, c. 1620, British Museum*

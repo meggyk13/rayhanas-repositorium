@@ -102,9 +102,9 @@ export const imageKinds: Record<string, GalleryKind> = {
   'turban-and-hat-adornments-7.png': 'extant',
   'turban-and-hat-adornments-8.png': 'extant',
 
-  'turkish-miniatures-1.png': 'mine',
-  'turkish-miniatures-2.png': 'mine',
-  'turkish-miniatures-3.png': 'mine',
-  'turkish-miniatures-4.png': 'mine',
-  'turkish-miniatures-5.png': 'process',
+  'turkish-miniatures-1.png': 'art',
+  'turkish-miniatures-2.png': 'art',
+  'turkish-miniatures-3.png': 'art',
+  'turkish-miniatures-4.png': 'art',
+  'turkish-miniatures-5.png': 'extant',
 };
