@@ -9,17 +9,7 @@ const [ans, scaLife] = await Promise.all([
   getCollection('sca-life'),
 ]);
 
-// --- Hero image -------------------------------------------------------
-// Drop a file in public/images/ and set the path here to fill the slot.
-// Example: const heroImage = '/images/hero-kaftan.jpg';
-// While it stays null the hero renders text-only — no empty box on the page.
-const heroImage: string | null = null;
-const heroAlt = '';
-// ----------------------------------------------------------------------
-
-// Three doorways into the site. Count-backed sections hide themselves when
-// empty; Brambletally lives on its own site (brambletally.com), so it carries a
-// null count and always shows.
+// Doorways into the site. A section hides itself while it has no entries.
 const sections = [
   {
     href: '/ans/',
@@ -35,14 +25,7 @@ const sections = [
     count: tools.length,
     unit: 'tools',
   },
-  {
-    href: 'https://brambletally.com/',
-    label: 'Brambletally',
-    note: 'A project tracker for A&S, research, and office work — steps, supplies, a timeline, a focus timer, and shared projects. Its own site; sign in with an email link.',
-    count: null,
-    unit: '',
-  },
-].filter((s) => s.count === null || s.count > 0);
+].filter((s) => s.count > 0);
 
 const kindLabel = {
   project: 'A&S Project',
@@ -62,27 +45,40 @@ const recent = [
   .slice(0, 6);
 ---
 <Base
-  title="Home"
-  description="Ottoman research, Arts & Sciences documentation, class handouts, and browser tools from Rayhana bint Estafanos al-Abbas, Kingdom of Caid."
+  title="Rayhana's Repositorium"
+  fullTitle="Rayhana's Repositorium: Ottoman A&S, Garb Patterns, and Class Handouts"
+  description="Documented 16th-century Ottoman A&S projects, printable class handouts, and free garb pattern generators from Rayhana bint Estafanos al-Abbas, SCA Kingdom of Caid."
 >
-  <div class="hero">
-    <div class="hero-panel">
-      <h1>Rayhana&rsquo;s Repositorium</h1>
-      <p class="hero-intro">
-        Rayhana bint Estafanos al-Abbas is a 16th-century Ottoman persona in the
-        Kingdom of Caid. This site holds her Arts &amp; Sciences documentation,
-        class handouts, and research on Ottoman dress, cooking, and performance,
-        along with browser tools for drafting patterns and running events. The
-        focus is pre-1600.
-      </p>
-
-      {heroImage && (
-        <figure class="hero-figure">
-          <img src={heroImage} alt={heroAlt} />
-        </figure>
-      )}
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Rayhana&rsquo;s Repositorium</h1>
+        <p class="hero-intro dropcap">
+          My name is Rayhana bint Estafanos al-Abbas, and I make 16th-century
+          Ottoman things: caftans, hats, face veils, shadow puppets, sweets. This
+          is where I keep the documentation, my class handouts, and the pattern
+          tools I built along the way.
+        </p>
+        <ul class="hero-links">
+          <li><a href="/about/">About me</a></li>
+          <li><a href="/ans/">Arts &amp; Sciences</a></li>
+          <li><a href="/tools/">Tools</a></li>
+        </ul>
+      </div>
+      <figure class="framed">
+        <img
+          src="/images/rayhana-portrait.jpg"
+          width="900"
+          height="1350"
+          alt="Rayhana seated in front of a fan of peacock feathers, wearing a red tarpuş with an embroidered band, a white veil, and a white caftan block-printed in blue and red, tied with a green sash."
+        />
+        <figcaption>
+          In my block-printed <a href="/ans/the-ottoman-caftan/">caftan</a> and
+          <a href="/ans/ottoman-tarpus/">tarpuş</a>.
+        </figcaption>
+      </figure>
     </div>
-  </div>
+  </section>
 
   <div class="wrap">
     <h2 class="section-lead">Start here</h2>
@@ -91,7 +87,7 @@ const recent = [
         <li class="signpost">
           <h3><a href={s.href}>{s.label}</a></h3>
           <p>{s.note}</p>
-          {s.count !== null && <span class="count">{s.count} {s.unit}</span>}
+          <span class="count">{s.count} {s.unit}</span>
         </li>
       ))}
     </ul>
@@ -100,10 +96,11 @@ const recent = [
   {featuredTools.length > 0 && (
     <section class="band">
       <div class="wrap">
-        <h2>Pattern generators</h2>
+        <p class="rubric">Pattern generators</p>
+        <h2>Cut garb to your own measurements</h2>
         <p class="band-note">
-          Enter your own measurements and get a to-scale cutting diagram with
-          every dimension marked. Nothing you type is saved or sent anywhere.
+          Enter your measurements and get a to-scale cutting diagram with every
+          dimension marked. Nothing you type is saved or sent anywhere.
         </p>
         <ul class="feature-grid">
           {featuredTools.map((t) => (

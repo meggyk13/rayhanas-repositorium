@@ -2,7 +2,8 @@
 title: "Ottoman Spiced Şerbat"
 summary: "A spiced pomegranate şerbet syrup built from a 13th-century Andalusian recipe and 16th-century eyewitness accounts of what Ottomans were actually drinking."
 date: 2026-07-19
-tags: [ottoman, culinary, redaction, "a&s"]
+tags: [food]
+description: "A spiced pomegranate şerbet (sherbet) syrup built from a 13th-century Andalusian recipe and 16th-century eyewitness accounts of what Ottomans drank."
 kind: project
 ---
 
