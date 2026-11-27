@@ -256,6 +256,33 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:var(--gold);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;cursor:pointer}
 @keyframes lift{from{transform:perspective(900px) rotateX(28deg) translateY(40px);opacity:0}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.press.done #out{animation:none}.sheetP{transition:none}}
+/* phones: a slimmer drawer and narrower bench edges, so the water gets the room */
+@media (max-aspect-ratio:1/1),(max-width:559px){
+ .top{padding:3px 8px 5px}
+ .stage{margin:0 5px;border-radius:12px}
+ .dock{padding:4px 8px 4px}
+ .handle{height:34px;margin:0 0 3px}
+ .tog,.grab{min-height:34px;height:34px}
+ .tabs button{min-height:34px}
+ .panel{height:138px;padding-top:6px;gap:6px}
+ .tile{width:60px;height:56px;gap:2px;font-size:12px;border-radius:10px}
+ .tile svg{width:22px;height:22px}
+ .sw{width:38px;height:38px}
+ .swrow{padding:5px 7px}
+ .meta{min-height:28px}
+ input[type=range]{height:28px}
+ .float{min-height:34px}
+ .seg button{min-height:34px}
+ .seg.palseg button{min-height:30px}
+ .dpad .ib{height:34px;width:40px}
+ .inkpick{min-height:32px}
+ .slot{width:38px;height:38px}
+ .slots .ib{height:38px}
+ .go{min-height:38px}
+ .pview .seg button{min-height:32px}
+ .galllink{padding:4px 2px}
+ .pthumb{width:52px;height:73px}
+ .app.collapsed .handle{margin-bottom:0}}
 </style>
 </head>
 <body>
@@ -737,7 +764,7 @@ function water(t){const g=ctx,w=cv.width,h=cv.height,sx=w/W,sy=h/H;
 }
 let dirty=true;
 const stage=$('stage'),tray=$('tray');
-function fit(){const r=stage.getBoundingClientRect(),pad=8;let w=r.width-pad*2,h=r.height-pad*2;
+function fit(){const r=stage.getBoundingClientRect(),pad=innerWidth<560||innerWidth<=innerHeight?5:8;let w=r.width-pad*2,h=r.height-pad*2;
  if(w/h>W/H)w=h*W/H;else h=w*H/W;w=Math.max(40,w);h=Math.max(56,h);
  Object.assign(tray.style,{width:w+'px',height:h+'px',left:(r.width-w)/2+'px',top:(r.height-h)/2+'px'});
  const d=Math.min(2,devicePixelRatio||1);cv.width=inkC.width=Math.round(w*d);cv.height=inkC.height=Math.round(h*d);makeBase(cv.width,cv.height);dirty=true;}
