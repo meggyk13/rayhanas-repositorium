@@ -689,16 +689,31 @@ function drop(cx,cy,r,skip){const r2=r*r;
    const s=Math.sqrt(1+r2/d2);p[i]=cx+dx*s;p[i+1]=cy+dy*s;}}}
 function addDrop(x,y,r,c,a=1){drop(x,y,r);inks.push({c,a,p:circle(x,y,r)});if(Math.random()<.35){ripple(x,y,r);drip(r,.7);}}
 function totalVerts(){let t=0;for(const k of inks)t+=k.p.length/2;return t;}
+// Ink pushed off the edge of the tray can't be seen, so it is kept coarse there instead of a point every few units.
+// offTray() is how far a point lies outside the tray (a lower bound on its true distance). Distance to the tray changes
+// no faster than distance along an edge, so an edge of length L between points o1 and o2 outside never comes nearer
+// than (o1+o2-L)/2. Keeping L under o1+o2-2*FAR_SAFE means a coarse outline never cuts across the visible tray,
+// and the farther out ink is pushed, the fewer points it needs. If it is swirled or combed back in, it is refined again.
+const FAR_M=40,FAR_SAFE=15,FAR_MAX=600;
+const offTray=(x,y)=>Math.max(-x,x-W,-y,y-H);
+const farLim=(o1,o2)=>Math.min(FAR_MAX,o1+o2-2*FAR_SAFE);
 function refine(){ // keep edges short enough to look smooth, and the total point count within a budget
  const tv=totalVerts(),base=3.2*Math.max(1,(tv/170000)**1.5);
  for(const k of inks){const p=k.p,n=p.length/2;let ml=base;
-  let need=false;const mx2=ml*ml,mn2=(ml*.35)**2;for(let i=0;i<n;i++){const j=(i+1)%n,dx=p[2*j]-p[2*i],dy=p[2*j+1]-p[2*i+1],L=dx*dx+dy*dy;if(L>mx2||L<mn2){need=true;break;}}
+  let need=false;const mx2=ml*ml,mn2=(ml*.35)**2;
+  for(let i=0;i<n;i++){const j=(i+1)%n,ax=p[2*i],ay=p[2*i+1],bx=p[2*j],by=p[2*j+1],dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy,o1=offTray(ax,ay),o2=offTray(bx,by);
+   if(o1>FAR_M&&o2>FAR_M){const lim=farLim(o1,o2);if(L>lim*lim||L<lim*lim*.0625){need=true;break;}}
+   else if(L>mx2||L<mn2){need=true;break;}}
   if(!need&&n<30000)continue;
-  for(let tries=0;tries<5;tries++){const maxL2=ml*ml,minL2=(ml*.35)**2,buf=[];let lx=p[0],ly=p[1];buf.push(lx,ly);
-   for(let i=1;i<=n;i++){const x=p[2*(i%n)],y=p[2*(i%n)+1],dx=x-lx,dy=y-ly,L2=dx*dx+dy*dy;
-    if(L2<minL2&&i<n)continue;
-    if(L2>maxL2){const m=Math.min(64,Math.ceil(Math.sqrt(L2)/ml));for(let s=1;s<m;s++)buf.push(lx+dx*s/m,ly+dy*s/m);}
-    if(i<n)buf.push(x,y);lx=x;ly=y;}
+  for(let tries=0;tries<5;tries++){const maxL2=ml*ml,minL2=(ml*.35)**2,buf=[];let lx=p[0],ly=p[1],lo=offTray(lx,ly);buf.push(lx,ly);
+   for(let i=1;i<=n;i++){const x=p[2*(i%n)],y=p[2*(i%n)+1],dx=x-lx,dy=y-ly,L2=dx*dx+dy*dy,o=offTray(x,y),both=lo>FAR_M&&o>FAR_M;
+    const cap=both?farLim(lo,o):ml;
+    if(L2<(both?cap*cap*.25:minL2)&&i<n)continue;
+    if(L2>cap*cap){const m=Math.min(64,Math.ceil(Math.sqrt(L2)/cap));let px=lx,py=ly,pq=lo;
+     // an edge running out past the margin is split finely only where it can still be seen
+     for(let s=1;s<m;s++){const sx=lx+dx*s/m,sy=ly+dy*s/m,so=offTray(sx,sy);
+      if(!both&&so>FAR_M&&pq>FAR_M&&(sx-px)**2+(sy-py)**2<farLim(pq,so)**2*.25)continue;buf.push(sx,sy);px=sx;py=sy;pq=so;}}
+    if(i<n)buf.push(x,y);lx=x;ly=y;lo=o;}
    if(buf.length<60000){if(buf.length>=6)k.p=new Float32Array(buf);break;}
    ml*=1.6;}}
  inks=inks.filter(k=>k.p.length>=6);
@@ -715,8 +730,9 @@ function wave(axis,amp,period){const w=2*Math.PI/period;
 function chevron(axis,amp,period){ // triangle-wave shear, area-preserving
  const o=axis=='v'?0:1;
  for(const k of inks){const p=k.p;for(let i=0;i<p.length;i+=2){const t=p[i+o]/period;const tri=2*Math.abs(2*(t-Math.floor(t+.5)))-1;p[i+1-o]+=amp*tri;}}}
-function rotate(cx,cy,fn){ // angle depends only on distance: area-preserving
- for(const k of inks){const p=k.p;for(let i=0;i<p.length;i+=2){const dx=p[i]-cx,dy=p[i+1]-cy,d=Math.sqrt(dx*dx+dy*dy);const th=fn(d);if(!th)continue;
+function rotate(cx,cy,fn,reach=Infinity){ // angle depends only on distance: area-preserving; points beyond reach don't turn, so skip them cheaply
+ const r2=reach*reach;
+ for(const k of inks){const p=k.p;for(let i=0;i<p.length;i+=2){const dx=p[i]-cx,dy=p[i+1]-cy,q=dx*dx+dy*dy;if(q>r2)continue;const d=Math.sqrt(q);const th=fn(d);if(!th)continue;
   const c=Math.cos(th),s=Math.sin(th);p[i]=cx+dx*c-dy*s;p[i+1]=cy+dx*s+dy*c;}}}
 const CH=48; // vertices per chunk for spatial culling of needle strokes
 function boxes(){travel=0;for(const k of inks){const p=k.p,n=p.length/2,nc=Math.ceil(n/CH),cb=new Float32Array(nc*4);
@@ -872,7 +888,7 @@ function stepActive(dt){const a=active;if(!a)return;
  if(a.t=='drop'){if(a.hold)a.target=Math.min(Math.min(620,340*Math.max(1,size/2)),a.target+dt*0.14*size*visc);
   if(a.target-a.r>.25){const nr=Math.min(a.target,a.r+Math.max(dt*.02,(a.target-a.r)*Math.min(1,dt*.008)));drop(a.x,a.y,Math.sqrt(nr*nr-a.r*a.r),a.k);a.r=nr;a.k.p=circle(a.x,a.y,nr,a.sd);if(Math.random()<.5)refine();dirty=true;}
   else if(!a.hold){refine();active=null;}}
- else if(a.t=='swirl'){const R=110*size,om=swirlDir*0.0045*dt*visc;rotate(a.x,a.y,d=>d>R*3.2?0:om*Math.exp(-(d*d)/(R*R)));if(Math.random()<.3)refine();dirty=true;}
+ else if(a.t=='swirl'){const R=110*size,om=swirlDir*0.0045*dt*visc;rotate(a.x,a.y,d=>om*Math.exp(-(d*d)/(R*R)),R*3.2);if(Math.random()<.3)refine();dirty=true;}
  else if(a.t=='stylus'||a.t=='rake'){let n=0;if(a.pts.length)boxes();
   const cap=a.t=='rake'?Math.max(4,Math.round(60/rakeN)):32;
   while(a.pts.length&&n<cap){const [x,y]=a.pts.shift();const dx=x-a.x,dy=y-a.y,L=Math.hypot(dx,dy);if(L<.5)continue;const m=Math.max(1,Math.ceil(L/5));
