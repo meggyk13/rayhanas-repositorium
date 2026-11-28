@@ -79,7 +79,8 @@ async function ensureSchema(db) {
         ip_hash TEXT,
         hearts INTEGER NOT NULL DEFAULT 0,
         color TEXT,
-        color2 TEXT
+        color2 TEXT,
+        color_v INTEGER
       )`
     ),
     db.prepare('CREATE INDEX IF NOT EXISTS ebru_prints_created ON ebru_prints (created_at)'),
@@ -99,7 +100,7 @@ async function ensureSchema(db) {
   const have = new Set(results.map((c) => c.name));
   const added = [
     ['sheet', 'BLOB'], ['paper', 'TEXT'], ['shape', 'TEXT'], ['layout', 'TEXT'], ['title', 'TEXT'],
-    ['hearts', 'INTEGER NOT NULL DEFAULT 0'], ['color', 'TEXT'], ['color2', 'TEXT'],
+    ['hearts', 'INTEGER NOT NULL DEFAULT 0'], ['color', 'TEXT'], ['color2', 'TEXT'], ['color_v', 'INTEGER'],
   ]
     .filter(([name]) => !have.has(name))
     .map(([name, type]) => db.prepare(`ALTER TABLE ebru_prints ADD COLUMN ${name} ${type}`));
@@ -190,17 +191,24 @@ const toItem = (r) => ({
   hearts: r.hearts || 0,
   color: r.color || null,
   color2: r.color2 || null,
+  colorV: r.color ? r.color_v || 1 : null,
 });
 
-const COLS = 'id, created_at, name, title, width, height, paper, shape, layout, hearts, color, color2, sheet IS NOT NULL AS has_sheet';
+const COLS = 'id, created_at, name, title, width, height, paper, shape, layout, hearts, color, color2, color_v, sheet IS NOT NULL AS has_sheet';
 
 // Color families, for the gallery's filter: `color` is the family most of a
 // print's ink belongs to (paper left out), and `color2` the next most, when there
-// is enough of it to notice. The tray works both out from the print as it is
-// shared; prints from before then get theirs from the gallery page, which works
-// them out from the picture it has shown (only a print with no family yet can be
-// given them, so families once set stay).
-const COLORS = new Set(['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'neutral']);
+// is enough of it to notice. A print in several strong colors with none leading is
+// 'rainbow', with its biggest color second. The tray works both out from the print
+// as it is shared; prints from before then get theirs from the gallery page, which
+// works them out from the picture it has shown.
+// COLOR_V is the version of that sorting rule (1: families only; 2: rainbow too).
+// A print's colors can be set once per version: a print sorted by an older rule
+// (color_v below COLOR_V, or none, which is 1) can be sorted again, and the gallery
+// page does so as it shows it. Prints waiting for that count as unsorted.
+const COLORS = new Set(['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'rainbow', 'neutral']);
+const COLOR_V = 2;
+const UNSORTED = `(color IS NULL OR COALESCE(color_v, 1) < ${COLOR_V})`;
 
 // The sorts: newest first, oldest first, or most hearts (newest first among equals).
 // Each pages on a cursor of the sort's own keys, so ?before=<next> picks up after
@@ -228,11 +236,14 @@ const SORTS = {
 
 // A page at a time: ?limit=24&sort=new|old|hearts&colors=<family>[,<family>], then
 // add &before=<next> (from the previous answer) for the page after it.
-//   one family    prints whose main family it is
-//   two families  prints whose main and second families are those two, either way round
-// The answer also counts prints by main family (for the filter's chips) and, with
-// one family chosen, how many of its prints have each other family second, so the
-// page can show which pairs exist. ?uncolored=1 lists only prints with no family yet.
+// A print's colors are its two main families (color and color2); choosing families
+// shows the prints that have all of them:
+//   one family    prints with it as either of their two main colors
+//   two families  prints whose two main colors are those two, either way round
+// The answer counts, for the filter's chips, how many prints have each family
+// (`families`) and, with one family chosen, how many of those also have each other
+// family (`pairs`): each chip's number is what tapping it would show.
+// ?uncolored=1 lists only prints with no family yet.
 async function listPrints(env, url) {
   await ensureSchema(env.DB);
   const q = url.searchParams;
@@ -246,16 +257,23 @@ async function listPrints(env, url) {
   // ?1 created_at, ?2 id, ?3 hearts (from the cursor), ?4 and ?6 the families, ?5 the limit;
   // a value is bound only if its number appears (?6 only when two families are chosen)
   const cur = m ? (sort === 'hearts' ? [+m[2], m[3], +m[1]] : [+m[1], m[2], 0]) : [0, '', 0];
-  const match = c2 ? '((color = ?4 AND color2 = ?6) OR (color = ?6 AND color2 = ?4))' : c1 ? 'color = ?4' : null;
-  const where = [m ? `(${S.after})` : null, match, uncolored ? 'color IS NULL' : null].filter(Boolean);
+  const match = c2 ? '((color = ?4 AND color2 = ?6) OR (color = ?6 AND color2 = ?4))' : c1 ? '(color = ?4 OR color2 = ?4)' : null;
+  const where = [m ? `(${S.after})` : null, match, uncolored ? UNSORTED : null].filter(Boolean);
   const W = where.length ? ' WHERE ' + where.join(' AND ') : '';
-  const countW = [match, uncolored ? 'color IS NULL' : null].filter(Boolean);
+  const countW = [match, uncolored ? UNSORTED : null].filter(Boolean);
   const queries = [
     env.DB.prepare(`SELECT ${COLS} FROM ebru_prints${W} ORDER BY ${S.order} LIMIT ?5`).bind(...[...cur, c1 || '', limit + 1, c2 || ''].slice(0, c2 ? 6 : 5)),
     // the count has no cursor; ?1-?3 are bound only so ?4-?6 line up
     env.DB.prepare(`SELECT COUNT(*) AS n FROM ebru_prints${countW.length ? ' WHERE ' + countW.join(' AND ') : ''} LIMIT ?5`)
       .bind(...[0, '', 0, c1 || '', 1, c2 || ''].slice(0, c2 ? 6 : 5)),
-    env.DB.prepare("SELECT COALESCE(color, '') AS color, COUNT(*) AS n FROM ebru_prints GROUP BY color"),
+    // a print's two families are always different, so it counts once under each
+    env.DB.prepare(
+      `SELECT f, COUNT(*) AS n FROM (
+         SELECT color AS f FROM ebru_prints WHERE color IS NOT NULL
+         UNION ALL SELECT color2 AS f FROM ebru_prints WHERE color2 IS NOT NULL
+       ) GROUP BY f`
+    ),
+    env.DB.prepare(`SELECT COUNT(*) AS n FROM ebru_prints WHERE ${UNSORTED}`),
   ];
   if (c1 && !c2) {
     queries.push(
@@ -269,22 +287,21 @@ async function listPrints(env, url) {
         .bind(c1)
     );
   }
-  const [{ results }, count, fams, pairs] = await env.DB.batch(queries);
+  const [{ results }, count, fams, unknown, pairs] = await env.DB.batch(queries);
   const rows = results.slice(0, limit);
   const last = rows[rows.length - 1];
-  const known = fams.results.filter((r) => r.color);
-  const unknown = fams.results.find((r) => !r.color);
   return json({
     prints: rows.map(toItem),
     total: count.results[0].n,
-    colors: Object.fromEntries(known.map((r) => [r.color, r.n])),
+    families: Object.fromEntries(fams.results.map((r) => [r.f, r.n])),
     pairs: pairs ? Object.fromEntries(pairs.results.map((r) => [r.other, r.n])) : null,
-    uncolored: unknown ? unknown.n : 0,
+    uncolored: unknown.results[0].n,
     next: results.length > limit && last ? S.key(last) : null,
   });
 }
 
-// POST {color, color2}: give a print from before color families its families.
+// POST {color, color2, v}: sort a print into its color families by rule version v.
+// Taken only if the print has none yet, or was sorted by an older rule.
 // color2 may be null (one family covers nearly all of its ink).
 async function colorPrint(request, env, id) {
   if (!sameOrigin(request)) return fail(403, 'Only from the gallery');
@@ -298,10 +315,12 @@ async function colorPrint(request, env, id) {
   const color = body && typeof body.color === 'string' ? body.color : '';
   const color2 = body && typeof body.color2 === 'string' && COLORS.has(body.color2) && body.color2 !== color ? body.color2 : null;
   if (!COLORS.has(color)) return fail(400, 'Not a color family');
+  const v = body.v === undefined ? 1 : body.v;
+  if (!Number.isInteger(v) || v < 1 || v > COLOR_V) return fail(400, 'Unknown sorting rule');
   await ensureSchema(env.DB);
   const res = await env.DB
-    .prepare('UPDATE ebru_prints SET color = ?, color2 = ? WHERE id = ? AND color IS NULL')
-    .bind(color, color2, id)
+    .prepare('UPDATE ebru_prints SET color = ?, color2 = ?, color_v = ? WHERE id = ? AND (color IS NULL OR COALESCE(color_v, 1) < ?)')
+    .bind(color, color2, v, id, v)
     .run();
   return json({ ok: true, set: !!(res.meta && res.meta.changes) });
 }
@@ -399,6 +418,8 @@ async function sharePrint(request, env) {
   const color = COLORS.has(fam) ? fam : null;
   const fam2 = String(form.get('color2') || '');
   const color2 = color && COLORS.has(fam2) && fam2 !== color ? fam2 : null;
+  const cv = parseInt(form.get('colorv'), 10);
+  const colorV = color ? (cv >= 1 && cv <= COLOR_V ? cv : 1) : null;
 
   await ensureSchema(env.DB);
   const now = Date.now();
@@ -412,17 +433,17 @@ async function sharePrint(request, env) {
   const id = crypto.randomUUID();
   await env.DB
     .prepare(
-      `INSERT INTO ebru_prints (id, created_at, name, title, width, height, image, sheet, paper, shape, layout, ip_hash, color, color2)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO ebru_prints (id, created_at, name, title, width, height, image, sheet, paper, shape, layout, ip_hash, color, color2, color_v)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .bind(id, now, name, title, image.size.width, image.size.height, image.bytes, sheet.bytes, paper.toLowerCase(), shape, layout, who, color, color2)
+    .bind(id, now, name, title, image.size.width, image.size.height, image.bytes, sheet.bytes, paper.toLowerCase(), shape, layout, who, color, color2, colorV)
     .run();
   await makeRoom(env);
   return json(
     {
       print: toItem({
         id, created_at: now, name, title, width: image.size.width, height: image.size.height,
-        has_sheet: 1, paper: paper.toLowerCase(), shape, layout, hearts: 0, color, color2,
+        has_sheet: 1, paper: paper.toLowerCase(), shape, layout, hearts: 0, color, color2, color_v: colorV,
       }),
     },
     201
