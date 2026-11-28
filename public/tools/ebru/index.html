@@ -208,6 +208,10 @@ input[type=range]{flex:1;accent-color:var(--gold);height:30px;margin:0}
 .inkpick:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 @media(hover:hover){.inkpick:hover{border-color:rgba(210,172,85,.7)}}
 .inknote{font-size:14px;color:var(--mute);font-style:italic;line-height:1.2}
+.turnseg{margin-left:auto}
+.turnseg button{display:inline-flex;align-items:center;gap:5px;min-height:36px}
+.turnseg svg{width:18px;height:18px;flex:none}
+@media(max-width:400px){.turnseg span{display:none}.turnseg button{padding:0 12px}}
 .galchip{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 16px 0 13px;border:1px solid rgba(210,172,85,.75);border-radius:21px;background:rgba(33,24,19,.74);color:#f1d48d;font:500 15px "Alegreya Sans",sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .galchip svg{width:18px;height:18px;flex:none}
 body:not([data-fresh]) .galchip:not(.autopill){display:none}
@@ -244,8 +248,35 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:10px;justify-items:center}
 .pgrid .sw{width:46px;height:46px}
 .pgrid .nonec{width:46px;height:46px;border-radius:50%;border:1.5px dashed var(--mute);background:none;color:var(--mute);font:500 12px "Alegreya Sans",sans-serif;cursor:pointer}
-.popts{display:grid;gap:8px;width:100%;transition:opacity .3s}
-.press:not(.done)~.popts{opacity:.35;pointer-events:none}
+.popts{display:grid;gap:8px;width:100%;padding-top:10px}
+.press:not(.done)~.pfmt{opacity:.35;pointer-events:none}
+/* the print screen: format options fold away under one line, the main actions sit in one row, the rest are quiet links */
+#liftM{place-items:start center}
+#liftM figure{position:relative;margin:auto 0}
+.xb{position:absolute;top:-6px;right:-6px;z-index:2;width:40px;height:40px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:50%;background:rgba(33,24,19,.9);color:var(--ink);cursor:pointer}
+.xb svg{width:20px;height:20px}
+.xb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pfmt{width:100%;border:1px solid var(--line);border-radius:12px;padding:0 12px;transition:opacity .3s}
+.pfmt[open]{padding-bottom:10px}
+.pfmt summary{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;list-style:none;font-size:15px;color:var(--ink)}
+.pfmt summary::-webkit-details-marker{display:none}
+.pfmt summary::after{content:"";width:8px;height:8px;margin-left:auto;flex:none;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.pfmt[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+.pfmt summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+.pfv{color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plinks{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px}
+.lnk{min-height:40px;padding:0 10px;border:0;background:none;color:var(--mute);font:500 15px "Alegreya Sans",sans-serif;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.25);cursor:pointer}
+.lnk.warn{color:#e79a8a}
+.lnk:focus-visible{outline:2px solid var(--gold);outline-offset:1px;border-radius:6px}
+@media(hover:hover){.lnk:hover{color:var(--ink)}.lnk.warn:hover{color:#f0b3a5}}
+#saveRow .btn{padding:0 14px}
+.popts .pdots{flex-wrap:nowrap;gap:7px}.popts .pdot{width:34px;height:34px}
+#liftF .gmsg:empty,#liftF .pact:not(:has(>:not([hidden]))){display:none}
+.gbtns{display:flex;gap:10px;width:100%}.gbtns .btn{flex:1}.gbtns .ghost{flex:0 0 auto}
+/* adding to the gallery: the print shrinks and everything else steps aside, so the form and its button stay in reach */
+#liftF.adding{margin-top:8px}
+#liftF.adding .press{width:min(100%,calc(26dvh*var(--ar)))}
+#liftF.adding .pfmt,#liftF.adding #saveRow,#liftF.adding .plinks,#liftF.adding figcaption{display:none}
 .prow{display:flex;align-items:center;gap:10px}
 .prow>span{width:52px;flex:none;font-size:14px;color:var(--mute)}
 .prow .seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
@@ -373,7 +404,7 @@ body.cb .pgrid .nonec{align-self:start}
 
     <div class="panel" id="p-hand" role="tabpanel">
       <div class="strip" id="hand"></div>
-      <div class="meta inkrow"><button class="inkpick" id="inkPick"><span class="inkdot"></span><span id="inkName"></span></button><button class="inkpick" id="ring2B" hidden>with<span class="inkdot r2"></span><span id="ring2Name">Auto</span></button><span class="inknote" id="inkNote" hidden>This tool moves the water; it adds no ink.</span></div>
+      <div class="meta inkrow"><button class="inkpick" id="inkPick"><span class="inkdot"></span><span id="inkName"></span></button><button class="inkpick" id="ring2B" hidden>with<span class="inkdot r2"></span><span id="ring2Name">Auto</span></button><span class="inknote" id="inkNote" hidden>This tool moves the water; it adds no ink.</span><div class="seg turnseg" id="turnSeg" role="group" aria-label="Swirl direction" hidden><button data-v="1" aria-pressed="true" aria-label="Turn clockwise" title="Turn clockwise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4.5h-4.5"/></svg><span>Clockwise</span></button><button data-v="-1" aria-pressed="false" aria-label="Turn counter-clockwise" title="Turn counter-clockwise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v4.5h4.5"/></svg><span>Counter</span></button></div></div>
       <div class="meta csl"><label>Size <input type="range" id="size2" min="0.5" max="4" step="0.05" value="1" aria-label="Tool size"></label><label class="cnt" id="cntL" hidden><span id="cntT">Rings</span> <input type="range" id="cnt" min="2" max="24" step="1" value="8"><output id="cntV" for="cnt">8</output></label></div>
     </div>
 
@@ -400,19 +431,22 @@ body.cb .pgrid .nonec{align-self:start}
 </div>
 
 <div class="modal" id="liftM" role="dialog" aria-modal="true" aria-label="Your marbled print">
-  <figure>
+  <figure id="liftF">
+    <button class="xb" data-close aria-label="Close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <div class="press" id="press"><img id="wsnap" alt=""><div class="sheetP"></div><img id="out" alt="Your marbled print"></div>
     <figcaption id="cap"></figcaption>
+    <details class="pfmt" id="pfmt"><summary><span class="pfl" id="pfl">Shape, layout &amp; paper</span><span class="pfv" id="pfv"></span></summary>
     <div class="popts" id="popts">
       <div class="prow"><span>Shape</span><div class="seg" id="oshape"><button data-v="portrait">Portrait</button><button data-v="square">Square</button><button data-v="landscape">Wide</button><button data-v="strip">Strip</button></div></div>
-      <div class="prow"><span>Layout</span><div class="seg" id="olayout"><button data-v="full">Full</button><button data-v="album">Album page</button><button data-v="mount">Mounted</button></div></div>
+      <div class="prow"><span>Layout</span><div class="seg" id="olayout"><button data-v="full">Full</button><button data-v="album">Album</button><button data-v="mount">Mounted</button></div></div>
       <div class="prow"><span>Paper</span><div class="pdots" id="opaper"></div></div>
     </div>
-    <div class="pact"><button class="btn ghost" id="clearAfter" title="Clear the tray and start a new design">Start over</button><button class="btn ghost" id="closeH" data-close hidden>Close</button><button class="btn" id="keep" data-close>Keep editing</button><button class="btn" id="restore" hidden>Edit this design</button></div>
-    <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Download</button><button class="btn ghost" id="shareB" hidden>Share</button><button class="btn ghost" id="delMine" hidden>Remove</button></div>
-    <form class="gform" id="gform" hidden><label>Title (optional)<input id="gtitle" maxlength="60" autocomplete="off" placeholder="Name your print" enterkeyhint="next"></label><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><button class="btn" id="gsend" type="submit">Add</button></form>
+    </details>
+    <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Download</button></div>
+    <form class="gform" id="gform" hidden><label>Title (optional)<input id="gtitle" maxlength="60" autocomplete="off" placeholder="Name your print" enterkeyhint="next"></label><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><div class="gbtns"><button class="btn ghost" id="gcancel" type="button">Cancel</button><button class="btn" id="gsend" type="submit">Add to gallery</button></div></form>
     <p class="gmsg" id="gmsg" role="status"></p>
     <div class="pact"><button class="btn ghost" id="seeGal" hidden>See it in the gallery</button></div>
+    <div class="plinks" id="plinks"><button class="lnk" id="keep" data-close>Keep editing</button><button class="lnk" id="clearAfter" title="Clear the tray and start a new design">Start over</button><button class="lnk" id="restore" hidden>Edit this design</button><button class="lnk warn" id="delMine" hidden>Remove</button></div>
   </figure>
 </div>
 
@@ -465,11 +499,11 @@ body.cb .pgrid .nonec{align-self:start}
     <p><b>Top bar.</b> Undo and Redo step back and forward (Ctrl+Z and Ctrl+Shift+Z on a computer). Clear empties the tray to fresh water; you can undo it. Done, lift paper (Lift print on a phone) makes a print.</p>
     <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. Period, Modern and Colorblind switch between historical pigments, bright modern colors, and a colorblind-friendly set whose colors stay easy to tell apart (with each color named in the color sheet); + mixes your own. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
     <p><b>Settings</b> (the gear). Sound: off, on, or on with gentle water sounds. Water sets how thin or thick the size is: thin water spreads drops wider and lets tools pull further. Tray color changes the water behind the ink: sea glass, pale, plain white or black. Calm water stills the moving light and ripples, and Tips on the tray hides the hints. Your name is filled in when you share, Paper sets the paper new prints start on, and Clear all removes the prints kept on this device. Auto mode has its own pace and timing.</p>
-    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag a row of tines, each drawing its own line; set how many beside Size. Swirl: hold to turn the water. Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto), and set how many rings a tap lays (up to 24) beside Size; pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
+    <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag a row of tines, each drawing its own line; set how many beside Size. Swirl: hold to turn the water, clockwise or counter-clockwise (pick beside the ink). Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto), and set how many rings a tap lays (up to 24) beside Size; pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
     <p><b>Combs.</b> Pick a direction, set the tine spacing and strength, then tap a comb to draw it through the whole tray.</p>
     <p><b>Recipes.</b> Choose a pattern, set the four layer colors (layer 1 is the largest drops; tap a color to change it, or Shuffle for another set), and tap Make it. It starts on a fresh tray.</p>
     <p><b>Auto mode.</b> Switch it on, confirm that the water can be cleared, and the tray marbles itself: it sprinkles, combs, lifts a print into Gallery &rsaquo; Yours for this visit, and starts again. Tap the tray or the switch to stop. Settings sets its pace and how long each print shows.</p>
-    <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Choose shape, layout (full, album page with a ruled center panel, or mounted) and paper color, then Download (or press and hold the print to save it). Start over clears the tray; Keep editing goes back to it. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
+    <p><b>Printing.</b> Done, lift paper lays a sheet on the water and shows the print. Under Shape, layout &amp; paper, choose a shape, a layout (full, album page with a ruled center panel, or mounted) and a paper color, then Download (Save or share on a phone), or press and hold the print to save it. Start over clears the tray; Keep editing goes back to it. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
     <p><b>Gallery.</b> Add to gallery shares a print with everyone. You can give it a title and your name; both are optional. The newest 100 are kept, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
     <p class="fn">1. Shufang Lu, Aubrey Jaffer, Xiaogang Jin, Hanli Zhao, and Xiaoyang Mao, &ldquo;Mathematical Marbling,&rdquo; <i>IEEE Computer Graphics and Applications</i> 32, no. 6 (2012): 26&ndash;35, <a href="https://doi.org/10.1109/MCG.2011.51">https://doi.org/10.1109/MCG.2011.51</a>.</p>
     <p style="text-align:center"><button class="btn" data-close>Back to the tray</button></p>
@@ -562,7 +596,11 @@ const CNT={rings:{t:'Rings',min:2,max:24,get:()=>ringN,set:v=>ringN=v},rake:{t:'
 function syncCnt(){const c=CNT[tool];$('cntL').hidden=!c;if(!c)return;const s=$('cnt');s.min=c.min;s.max=c.max;s.value=c.get();
  $('cntT').textContent=c.t;$('cntV').textContent=c.get();s.setAttribute('aria-label',tool=='rings'?'Rings per tap':'Number of tines');}
 $('cnt').addEventListener('input',e=>{const c=CNT[tool];if(!c)return;const v=Math.round(+e.target.value);c.set(v);$('cntV').textContent=v;peek();});
-function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool];syncCnt();}
+function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool]||tool=='swirl';$('turnSeg').hidden=tool!='swirl';syncCnt();}
+// which way Swirl turns the water: 1 clockwise, -1 counter-clockwise
+let swirlDir=1;
+$('turnSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;swirlDir=+b.dataset.v;
+ $('turnSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));peek();});
 const COMBS=[["gel","Gelgit","gelV"],["comb","Comb","combV"],["fine","Fine","fineV"],["wave","Wave","waveV"],["chev","Chevron","chev"],["spiral","Spiral","spiral"]];
 $('combs').innerHTML=COMBS.map(c=>tile(c[0],c[1],c[2])).join('');
 $('combs').dataset.dir='down';
@@ -814,7 +852,8 @@ function footprint(g,sx,sy,t){if(drifting||active||(!ghost.hover&&t>ghost.until)
  if(tool=='drop')ring(34*size*visc);
  else if(tool=='rings'){const r0=15*size;ring(r0);ring(r0*Math.sqrt(ringN));} // the first ring and the outer edge of the set
  else if(tool=='mist')ring(50*size*Math.sqrt(visc)+6*size);
- else if(tool=='swirl')ring(110*size);
+ else if(tool=='swirl'){const r=110*size*k,a=Math.max(7,r*.16);ring(110*size); // and an arrowhead on top showing which way it turns
+  g.moveTo(x-swirlDir*a*.2,y-r-a*.8);g.lineTo(x+swirlDir*a*.6,y-r);g.lineTo(x-swirlDir*a*.2,y-r+a*.8);}
  else if(tool=='stylus')dot(x,y,Math.max(3,4*size*k));
  else if(tool=='rake'){const sp=30*size,h=(rakeN-1)/2;for(let i=0;i<rakeN;i++)dot(x+(i-h)*sp*k,y,Math.max(2.5,3*size*k));}
  const lw=Math.max(1.5,cv.width/450),dark=cfg.water=='white'||cfg.water=='pale';
@@ -827,7 +866,7 @@ function stepActive(dt){const a=active;if(!a)return;
  if(a.t=='drop'){if(a.hold)a.target=Math.min(Math.min(620,340*Math.max(1,size/2)),a.target+dt*0.14*size*visc);
   if(a.target-a.r>.25){const nr=Math.min(a.target,a.r+Math.max(dt*.02,(a.target-a.r)*Math.min(1,dt*.008)));drop(a.x,a.y,Math.sqrt(nr*nr-a.r*a.r),a.k);a.r=nr;a.k.p=circle(a.x,a.y,nr,a.sd);if(Math.random()<.5)refine();dirty=true;}
   else if(!a.hold){refine();active=null;}}
- else if(a.t=='swirl'){const R=110*size,om=0.0045*dt*visc;rotate(a.x,a.y,d=>d>R*3.2?0:om*Math.exp(-(d*d)/(R*R)));if(Math.random()<.3)refine();dirty=true;}
+ else if(a.t=='swirl'){const R=110*size,om=swirlDir*0.0045*dt*visc;rotate(a.x,a.y,d=>d>R*3.2?0:om*Math.exp(-(d*d)/(R*R)));if(Math.random()<.3)refine();dirty=true;}
  else if(a.t=='stylus'||a.t=='rake'){let n=0;if(a.pts.length)boxes();
   const cap=a.t=='rake'?Math.max(4,Math.round(60/rakeN)):32;
   while(a.pts.length&&n<cap){const [x,y]=a.pts.shift();const dx=x-a.x,dy=y-a.y,L=Math.hypot(dx,dy);if(L<.5)continue;const m=Math.max(1,Math.ceil(L/5));
@@ -947,8 +986,8 @@ function renderPrints(){const el=$('prints');
  el.innerHTML=prints.length?prints.map((p,i)=>`<button class="pthumb" data-i="${i}" aria-label="Your print from ${stamp(p.t)}"><img src="${p.thumb}" alt=""></button>`).join(''):'<div class="pempty">No prints yet. Lift one and it&rsquo;ll be kept here.</div>';}
 renderPrints();loadMine();
 $('prints').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=prints[+b.dataset.i];histI=+b.dataset.i;histId=p.id;
- printT.forEach(clearTimeout);restorePo();subject=p.inks;drawOpts();showPrint();pressEl.className='press done';
- cap.textContent=ONSITE?stamp(p.t):`${stamp(p.t)} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=false;$('delMine').hidden=false;$('liftM').classList.add('on');});
+ printT.forEach(clearTimeout);restorePo();subject=p.inks;fmtOpen();drawOpts();showPrint();pressEl.className='press done';
+ cap.textContent=ONSITE?stamp(p.t):`${stamp(p.t)} · press and hold to save`;$('clearAfter').hidden=true;$('keep').hidden=true;$('restore').hidden=false;$('delMine').hidden=false;$('liftM').classList.add('on');});
 $('delMine').onclick=()=>{histI=prints.findIndex(x=>x.id==histId);const p=prints[histI];if(!p||!confirm('Remove this print from Yours? This can’t be undone.'))return;
  prints.splice(histI,1);if(!p.auto)mineDo(st=>st.delete(p.id));renderPrints();$('liftM').classList.remove('on');};
 $('restore').onclick=()=>{const p=prints.find(x=>x.id==histId);$('liftM').classList.remove('on');if(!p)return;if(drifting)setDrift(false);finishAll();snap();inks=p.inks.map(copyInk);dirty=true;hideHint();};
@@ -983,15 +1022,21 @@ function renderPrint(src){const [cx,cy,cw,ch]=CROPS[po.shape],sc=2100/Math.max(c
 function showPrint(){if(!subject)return;resetShare();const c=renderPrint(subject);$('out').src=c.toDataURL('image/jpeg',.92);
  const [, ,cw,ch]=CROPS[po.shape];pressEl.style.setProperty('--ar',(cw/ch).toFixed(4));}
 function drawOpts(){for(const [id,key] of [['oshape','shape'],['olayout','layout']])$(id).querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==po[key]));
- $('opaper').innerHTML=PAPERS.map(p=>`<button class="pdot" style="background:${p[1]}" data-v="${p[1]}" aria-label="${p[0]} paper" aria-pressed="${p[1]==paperCol()}"></button>`).join('');}
+ $('opaper').innerHTML=PAPERS.map(p=>`<button class="pdot" style="background:${p[1]}" data-v="${p[1]}" aria-label="${p[0]} paper" aria-pressed="${p[1]==paperCol()}"></button>`).join('');
+ // the folded summary line says what is chosen now; a shared print keeps its maker's paper, so only shape and layout show
+ const shared=!!(subject&&subject.sheet),pick=id=>($(id).querySelector('[aria-pressed=true]')||{}).textContent||'',pp=PAPERS.find(p=>p[1]==paperCol());
+ $('pfl').textContent=shared?'Shape & layout':'Shape, layout & paper';
+ $('pfv').textContent=[pick('oshape'),pick('olayout'),shared||!pp?'':pp[0].replace(/ (.*)/,'')].filter(Boolean).join(' · ');}
+// the format options start open only where there is room for them (or when a shared print is opened to re-cut)
+function fmtOpen(force){$('pfmt').open=!!force||(innerHeight>=820&&innerWidth>=560);}
 for(const [id,key] of [['oshape','shape'],['olayout','layout'],['opaper','paper']])
  $(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;po[key]=b.dataset.v;drawOpts();showPrint();});
 function lift(){rustle();restorePo();
  const c=document.createElement('canvas');c.width=600;c.height=840;paper(c.getContext('2d'),c.width,c.height,paperCol());
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;tc.getContext('2d').drawImage(c,0,0,180,252);
- subject=clone();
+ subject=clone();fmtOpen();
  addPrint({id:newId(),t:Date.now(),thumb:tc.toDataURL('image/jpeg',.8),inks:subject});
- $('clearAfter').hidden=false;$('keep').hidden=false;$('closeH').hidden=true;$('restore').hidden=true;$('delMine').hidden=true;
+ $('clearAfter').hidden=false;$('keep').hidden=false;$('restore').hidden=true;$('delMine').hidden=true;
  drawOpts();showPrint();pressEl.style.setProperty('--ar','.714');document.querySelector('.sheetP').style.background=paperCol();$('wsnap').src=cv.toDataURL('image/jpeg',.85);
  printT.forEach(clearTimeout);pressEl.className='press';cap.textContent='';$('liftM').classList.add('on');
  if(RMsys){pressEl.className='press done';cap.textContent=DONECAP;showPrint();return;}
@@ -1001,8 +1046,12 @@ const DONECAP=ONSITE?'':'Press and hold to save';
 if(ONSITE){$('saveRow').hidden=false;}
 function printBlob(cb){fetch($('out').src).then(r=>r.blob()).then(cb).catch(()=>{});}
 const fname=()=>`ebru-${new Date().toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;
-$('dl').onclick=()=>{const a=document.createElement('a');a.href=$('out').src;a.download=fname();document.body.appendChild(a);a.click();a.remove();};
-try{if(ONSITE&&navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]}))$('shareB').hidden=false;}catch(_){}
+// one button: where the device can share files (phones), it opens the share sheet, which also offers Save Image; elsewhere it downloads
+function download(){const a=document.createElement('a');a.href=$('out').src;a.download=fname();document.body.appendChild(a);a.click();a.remove();}
+let canShareFiles=false;try{canShareFiles=ONSITE&&!!navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]});}catch(_){}
+if(canShareFiles)$('dl').textContent='Save or share';
+$('dl').onclick=()=>{if(!canShareFiles){download();return;}
+ printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(e=>{if(e&&e.name!='AbortError')download();});});};
 // ----- shared gallery: the newest 100 prints anyone has added (needs the site's /api, so only on the real site) -----
 const GALLERY=ONSITE&&/^https?:$/.test(location.protocol);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1047,8 +1096,8 @@ async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
  if(!poSaved)poSaved={...po};
  po.shape=CROPS[p.shape]?p.shape:'portrait';po.layout=['full','album','mount'].includes(p.layout)?p.layout:'full';
  subject={sheet:im,paper:/^#[0-9a-f]{6}$/i.test(p.paper||'')?p.paper:PAPER.period};
- printT.forEach(clearTimeout);drawOpts();$('opaper').closest('.prow').hidden=true;showPrint();pressEl.className='press done';
- cap.textContent=byline(p);$('clearAfter').hidden=true;$('keep').hidden=true;$('closeH').hidden=false;$('restore').hidden=true;$('delMine').hidden=true;$('liftM').classList.add('on');}
+ printT.forEach(clearTimeout);fmtOpen(true);drawOpts();$('opaper').closest('.prow').hidden=true;showPrint();pressEl.className='press done';
+ cap.textContent=byline(p);$('clearAfter').hidden=true;$('keep').hidden=true;$('restore').hidden=true;$('delMine').hidden=true;$('liftM').classList.add('on');}
 $('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(p)openShared(p);});
 // the gallery page links here as /tools/ebru/#print=<id> to change a print's format
 if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash.slice(7);history.replaceState(null,'',location.pathname+location.search);
@@ -1056,8 +1105,17 @@ if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash
 $('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=document.createElement('a');a.href=p.url;
  a.download=`ebru-${p.title&&slug(p.title)?slug(p.title)+'-':''}${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
 let sharing=false;
-function resetShare(){if(sharing)return;$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
-$('toGal').onclick=()=>{$('toGal').hidden=true;$('gform').hidden=false;$('gtitle').value='';try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gtitle').focus();};
+function resetShare(){if(sharing)return;$('liftF').classList.remove('adding');$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
+$('toGal').onclick=()=>{$('toGal').hidden=true;$('liftF').classList.add('adding');$('gform').hidden=false;$('liftM').scrollTop=0;$('gtitle').value='';try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gtitle').focus();};
+$('gcancel').onclick=()=>{if(sharing)return;$('liftF').classList.remove('adding');$('gform').hidden=true;$('toGal').hidden=false;$('gmsg').textContent='';};
+// phones: while the keyboard is up, fit the print screen to the part of the window still showing, and keep the Add button in view
+const vv=window.visualViewport;
+function fitKeys(){const m=$('liftM'),typing=!!vv&&m.classList.contains('on')&&$('gform').contains(document.activeElement);
+ m.style.top=typing?vv.offsetTop+'px':'';m.style.bottom=typing?'auto':'';m.style.height=typing?vv.height+'px':'';
+ if(typing)$('gsend').scrollIntoView({block:'nearest'});}
+if(vv){vv.addEventListener('resize',fitKeys);vv.addEventListener('scroll',fitKeys);}
+$('gform').addEventListener('focusin',()=>setTimeout(fitKeys,350));
+$('gform').addEventListener('focusout',()=>setTimeout(fitKeys,50));
 $('gtitle').addEventListener('keydown',e=>{if(e.key=='Enter'){e.preventDefault();$('gname').focus();}});
 // JPEG under the server's 700 KB limit: start at good quality, step down for very busy prints
 async function jpegUnder(c){for(const q of [.86,.76,.66,.56]){const b=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(b&&b.size<650*1024)return b;}
@@ -1076,10 +1134,9 @@ $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('g
   fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);fd.append('title',title);
   const r=await fetch('/api/ebru/prints',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.print)throw new Error(j.error||'Couldn’t add it. Try again.');
-  $('gform').hidden=true;msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
+  $('gform').hidden=true;$('liftF').classList.remove('adding');if(document.activeElement)document.activeElement.blur();msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
  catch(err){msg.className='gmsg err';msg.textContent=err.message||'Couldn’t add it. Try again.';}
  finally{btn.disabled=false;sharing=false;}});
-$('shareB').onclick=()=>printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(()=>{});});
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]')){m.classList.remove('on');printT.forEach(clearTimeout);}}));
 $('float').onclick=()=>{settleNow();if(busy())return;snap();hideHint();const a=18*size,b=46*size,m=(a+b)/2;
  const c=color,op=opac;queue.push(lazy(()=>sprinkleOp(c,Math.round(Math.min(220,Math.max(20,.45*W*H/(Math.PI*m*m)))),a,b,1,op),`Floating ${nameOf(c).toLowerCase()}`));};
@@ -1126,7 +1183,7 @@ function setDrift(on){drifting=on;$('drift').setAttribute('aria-checked',on);$('
 $('drift').onclick=()=>{if(drifting){setDrift(false);return;}$('autoM').classList.add('on');$('autoGo').focus();};
 $('autoGo').onclick=()=>{$('autoM').classList.remove('on');finishAll();setDrift(true);};
 $('autoPill').onclick=()=>setDrift(false);
-$('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.sw,#float,#go,.slot,#palSeg button,#shuffle,[data-d],.inkpick'))setDrift(false);},true);
+$('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.sw,#float,#go,.slot,#palSeg button,#shuffle,[data-d],.inkpick,#turnSeg button'))setDrift(false);},true);
 document.querySelector('.top').addEventListener('click',e=>{if(drifting&&!e.target.closest('#aboutB,#setB'))setDrift(false);},true);
 $('aboutB').onclick=()=>$('aboutM').classList.add('on');
 // ----- settings -----
