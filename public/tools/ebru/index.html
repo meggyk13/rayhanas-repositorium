@@ -623,6 +623,9 @@ $('palSeg').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if
 $('sw').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b||b.classList.contains('addc'))return;
  $('sw').querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');
  const p=allInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];syncInk(p[0]);});
+// the mixer opens on the ink in use now, so a custom color can start from it
+const cpickNow=e=>{if(e.target.id=='cpick'&&/^#[0-9a-f]{6}$/i.test(color))e.target.value=color.toLowerCase();};
+for(const ev of ['pointerdown','keydown','focusin'])$('sw').addEventListener(ev,cpickNow,true);
 $('sw').addEventListener('change',e=>{if(e.target.id!='cpick')return;const c=e.target.value.toLowerCase();if(!/^#[0-9a-f]{6}$/.test(c))return;
  customs=[c,...customs.filter(x=>x!=c)].slice(0,6);try{localStorage.setItem('ebru-custom',JSON.stringify(customs));}catch(_){}
  color=c;drawSw(c);$('cname').textContent='Your color';syncInk('Your color');const s=$('sw');s.scrollLeft=s.scrollWidth;});
