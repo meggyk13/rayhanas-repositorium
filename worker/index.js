@@ -228,11 +228,14 @@ const SORTS = {
 
 // A page at a time: ?limit=24&sort=new|old|hearts&colors=<family>[,<family>], then
 // add &before=<next> (from the previous answer) for the page after it.
-//   one family    prints whose main family it is
-//   two families  prints whose main and second families are those two, either way round
-// The answer also counts prints by main family (for the filter's chips) and, with
-// one family chosen, how many of its prints have each other family second, so the
-// page can show which pairs exist. ?uncolored=1 lists only prints with no family yet.
+// A print's colors are its two main families (color and color2); choosing families
+// shows the prints that have all of them:
+//   one family    prints with it as either of their two main colors
+//   two families  prints whose two main colors are those two, either way round
+// The answer counts, for the filter's chips, how many prints have each family
+// (`families`) and, with one family chosen, how many of those also have each other
+// family (`pairs`): each chip's number is what tapping it would show.
+// ?uncolored=1 lists only prints with no family yet.
 async function listPrints(env, url) {
   await ensureSchema(env.DB);
   const q = url.searchParams;
@@ -246,7 +249,7 @@ async function listPrints(env, url) {
   // ?1 created_at, ?2 id, ?3 hearts (from the cursor), ?4 and ?6 the families, ?5 the limit;
   // a value is bound only if its number appears (?6 only when two families are chosen)
   const cur = m ? (sort === 'hearts' ? [+m[2], m[3], +m[1]] : [+m[1], m[2], 0]) : [0, '', 0];
-  const match = c2 ? '((color = ?4 AND color2 = ?6) OR (color = ?6 AND color2 = ?4))' : c1 ? 'color = ?4' : null;
+  const match = c2 ? '((color = ?4 AND color2 = ?6) OR (color = ?6 AND color2 = ?4))' : c1 ? '(color = ?4 OR color2 = ?4)' : null;
   const where = [m ? `(${S.after})` : null, match, uncolored ? 'color IS NULL' : null].filter(Boolean);
   const W = where.length ? ' WHERE ' + where.join(' AND ') : '';
   const countW = [match, uncolored ? 'color IS NULL' : null].filter(Boolean);
@@ -255,7 +258,14 @@ async function listPrints(env, url) {
     // the count has no cursor; ?1-?3 are bound only so ?4-?6 line up
     env.DB.prepare(`SELECT COUNT(*) AS n FROM ebru_prints${countW.length ? ' WHERE ' + countW.join(' AND ') : ''} LIMIT ?5`)
       .bind(...[0, '', 0, c1 || '', 1, c2 || ''].slice(0, c2 ? 6 : 5)),
-    env.DB.prepare("SELECT COALESCE(color, '') AS color, COUNT(*) AS n FROM ebru_prints GROUP BY color"),
+    // a print's two families are always different, so it counts once under each
+    env.DB.prepare(
+      `SELECT f, COUNT(*) AS n FROM (
+         SELECT color AS f FROM ebru_prints WHERE color IS NOT NULL
+         UNION ALL SELECT color2 AS f FROM ebru_prints WHERE color2 IS NOT NULL
+       ) GROUP BY f`
+    ),
+    env.DB.prepare('SELECT COUNT(*) AS n FROM ebru_prints WHERE color IS NULL'),
   ];
   if (c1 && !c2) {
     queries.push(
@@ -269,17 +279,15 @@ async function listPrints(env, url) {
         .bind(c1)
     );
   }
-  const [{ results }, count, fams, pairs] = await env.DB.batch(queries);
+  const [{ results }, count, fams, unknown, pairs] = await env.DB.batch(queries);
   const rows = results.slice(0, limit);
   const last = rows[rows.length - 1];
-  const known = fams.results.filter((r) => r.color);
-  const unknown = fams.results.find((r) => !r.color);
   return json({
     prints: rows.map(toItem),
     total: count.results[0].n,
-    colors: Object.fromEntries(known.map((r) => [r.color, r.n])),
+    families: Object.fromEntries(fams.results.map((r) => [r.f, r.n])),
     pairs: pairs ? Object.fromEntries(pairs.results.map((r) => [r.other, r.n])) : null,
-    uncolored: unknown ? unknown.n : 0,
+    uncolored: unknown.results[0].n,
     next: results.length > limit && last ? S.key(last) : null,
   });
 }

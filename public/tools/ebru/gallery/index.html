@@ -67,6 +67,7 @@ h1 span{display:block;font:italic 400 20px/1.3 Amiri,serif;color:var(--mute);mar
 .chip i{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.4);box-shadow:inset 0 -3px 5px rgba(0,0,0,.2)}
 .chip.all{padding-left:12px}
 .chip small{color:var(--mute);font-size:13px}
+.chip .x{color:var(--gold);font-size:17px;line-height:1;margin-left:1px}
 .chip[aria-pressed=true]{border-color:var(--gold);background:rgba(210,172,85,.18)}
 .chip:disabled{opacity:.4;cursor:default}
 .fnote{flex-basis:100%;margin:0;color:var(--mute);font-size:14px}
@@ -170,30 +171,36 @@ const FAMINFO={red:['Reds','#d23a2c'],orange:['Oranges','#f07a1c'],yellow:['Yell
  neutral:['Black & white','linear-gradient(135deg,#1a1a1a 50%,#f4f0e6 50%)']};
 const ADJ={red:'red',orange:'orange',yellow:'yellow',green:'green',blue:'blue',purple:'purple',pink:'pink',brown:'brown',neutral:'black, white or grey'};
 const SORTS=['new','old','hearts'];
-let sort='new',picked=[],counts={},pairs=null,uncolored=0;
+let sort='new',picked=[],counts={},pairs=null,uncolored=0,ready=false;
 {const q=new URLSearchParams(location.search);if(SORTS.includes(q.get('sort')))sort=q.get('sort');
  picked=[...new Set((q.get('colors')||'').split(','))].filter(c=>FAMS.includes(c)).slice(0,2);}
+// A print's colors are its two main color families. Picking colors shows the prints that have all of them (one, or
+// two, since two are kept per print), and every chip's number is how many prints tapping it would show: with nothing
+// picked, the prints that have that color; with one picked, the ones that have both. Picked chips show an x.
 function drawBar(){
  $('sortSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==sort));
- // with one family picked, the others count the prints that mix it with them
- const one=picked.length==1,num=f=>one&&f!=picked[0]?(pairs&&pairs[f])||0:counts[f]||0;
- $('chips').innerHTML=`<button class="chip all" data-f="" aria-pressed="${!picked.length}">All colors</button>`+
-  FAMS.filter(f=>num(f)>0||picked.includes(f)).map(f=>{const n=num(f),on=picked.includes(f);
-   return `<button class="chip" data-f="${f}" aria-pressed="${on}" ${!on&&!n?'disabled':''} aria-label="${FAMINFO[f][0]}${one&&!on?' with '+FAMINFO[picked[0]][0]:''}, ${n} print${n==1?'':'s'}"><i style="background:${FAMINFO[f][1]}"></i>${FAMINFO[f][0]} <small>${n}</small></button>`;}).join('');
+ const n=picked.length,num=f=>n==0?counts[f]||0:n==1?(pairs&&pairs[f])||0:0;
+ const both=f=>`${ADJ[picked[0]]} and ${ADJ[f]}`;
+ $('chips').innerHTML=`<button class="chip all" data-f="" aria-pressed="${!n}">All colors</button>`+
+  FAMS.filter(f=>(counts[f]||0)>0||picked.includes(f)).map(f=>{const on=picked.includes(f),c=num(f),off=!on&&(n>=2||!c);
+   const label=on?`${FAMINFO[f][0]}, picked. Tap to remove it`:n==1?`${FAMINFO[f][0]}: ${c} print${c==1?'':'s'} with ${both(f)}`:n>=2?`${FAMINFO[f][0]}: remove a picked color first`:`${FAMINFO[f][0]}: ${c} print${c==1?'':'s'}`;
+   return `<button class="chip" data-f="${f}" aria-pressed="${on}" ${off?'disabled':''} aria-label="${label}"><i style="background:${FAMINFO[f][1]}"></i>${FAMINFO[f][0]} `+
+    (on?'<span class="x" aria-hidden="true">×</span>':n>=2?'':`<small>${c}</small>`)+'</button>';}).join('');
+ // what is showing, in words
  const notes=[];
- if(one)notes.push(`Showing prints that are mostly ${ADJ[picked[0]]}. Pick a second color for prints that mix the two; the counts beside the others are how many do.`);
- if(picked.length==2)notes.push(`Showing prints that are mostly ${ADJ[picked[0]]} and ${ADJ[picked[1]]}.`);
- if(picked.length&&uncolored)notes.push('Older prints are sorted into colors as they’re viewed, so a few may not show here yet.');
+ if(ready&&n==1)notes.push(`${total} print${total==1?'':'s'} with ${ADJ[picked[0]]} as one of ${total==1?'its':'their'} two main colors. Add another color to narrow it down.`);
+ if(ready&&n==2)notes.push(`${total} print${total==1?'':'s'} with ${ADJ[picked[0]]} and ${ADJ[picked[1]]} as ${total==1?'its':'their'} two main colors. Tap a picked color to remove it.`);
+ if(ready&&n&&uncolored)notes.push('Older prints are sorted into colors as they’re viewed, so a few may not show here yet.');
  $('fnote').hidden=!notes.length;$('fnote').textContent=notes.join(' ');
  // on a phone the chips scroll sideways: bring the picked one into view
  const on=$('chips').querySelector('.chip[aria-pressed=true]:not(.all)'),row=$('chips');
  if(on&&row.scrollWidth>row.clientWidth){const a=on.getBoundingClientRect(),b=row.getBoundingClientRect();if(a.right>b.right-8||a.left<b.left+8)row.scrollLeft+=a.left-b.left-row.clientWidth/2+a.width/2;}}
 function setView(){const q=new URLSearchParams();if(sort!='new')q.set('sort',sort);if(picked.length)q.set('colors',picked.join(','));
  history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);
- prints=[];next=null;total=0;$('grid').textContent='';$('more').hidden=true;$('note').hidden=false;$('note').textContent='Loading…';drawBar();load();}
+ prints=[];next=null;total=0;ready=false;$('grid').textContent='';$('more').hidden=true;$('note').hidden=false;$('note').textContent='Loading…';drawBar();load();}
 $('sortSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b||b.dataset.v==sort)return;sort=b.dataset.v;setView();});
 $('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||b.disabled)return;const f=b.dataset.f;
- picked=!f?[]:picked.includes(f)?picked.filter(x=>x!=f):[...picked,f].slice(-2);setView();});
+ picked=!f?[]:picked.includes(f)?picked.filter(x=>x!=f):picked.length<2?[...picked,f]:picked;setView();});
 
 // prints from before color families get theirs from the picture already showing (no extra download), and a few more each visit
 const filled=new Set();
@@ -236,7 +243,7 @@ function tail(){$('note').hidden=prints.length>0;
  if(!prints.length)$('note').innerHTML=picked.length?'No prints in those colors yet. <a href="/tools/ebru/">Make one</a>.':'No prints yet. <a href="/tools/ebru/">Make the first one</a>.';
  const left=total-prints.length;$('more').hidden=!next;if(next)$('more').textContent=left>0?`Show more (${left} older)`:'Show more';}
 const page=before=>fetch('/api/ebru/prints?limit='+PAGE+(sort!='new'?'&sort='+sort:'')+(picked.length?'&colors='+picked.join(','):'')+(before?'&before='+encodeURIComponent(before):''),{cache:'no-store'})
- .then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{counts=j.colors||{};pairs=j.pairs||null;uncolored=j.uncolored||0;drawBar();return j;});
+ .then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{counts=j.families||{};pairs=j.pairs||null;uncolored=j.uncolored||0;total=j.total||0;ready=true;drawBar();return j;});
 async function load(){if(loading)return;loading=true;
  try{const j=await page();total=j.total||0;
   if(!prints.length){prints=j.prints||[];next=j.next;render();}
