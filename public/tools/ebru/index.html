@@ -3,22 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ebru Marbling Tray</title>
-<meta name="description" content="A playable Ottoman ebru (paper marbling) tray: float pigment on water, comb it, and lift a print.">
+<title>Ebru Marbling Tray: make marbled paper online</title>
+<meta name="description" content="Make your own marbled paper, free on your phone or computer. Float ink on water, swirl and comb it into Turkish ebru patterns, then lift a print.">
 <meta name="theme-color" content="#211813">
 <link rel="canonical" href="https://rayhanasrepositorium.com/tools/ebru/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Rayhana's Repositorium">
-<meta property="og:title" content="Ebru Marbling Tray">
-<meta property="og:description" content="Float pigment on water, comb it, and lift a print. A playable Ottoman paper-marbling tray.">
+<meta property="og:title" content="Ebru Marbling Tray: make your own marbled paper">
+<meta property="og:description" content="Float ink on water, swirl and comb it, and lift a print. Traditional Turkish paper marbling, free on your phone or computer.">
 <meta property="og:url" content="https://rayhanasrepositorium.com/tools/ebru/">
-<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg">
+<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg?v=2">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A combed marbled print in ochre, lapis blue, rose and ivory, beside the words Ebru, Marbling Tray.">
+<meta property="og:image:alt" content="A phone showing the Ebru Marbling Tray, its sea-green water marbled with cobalt, pink, yellow and white waves and three turquoise tulips, beside the same design lifted onto paper, and the words Make your own marbled paper, free on your phone or computer.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c7d6cb'/%3E%3Ccircle cx='12' cy='13' r='7' fill='%232c4d8e'/%3E%3Ccircle cx='12' cy='13' r='3.5' fill='%23f4ecda'/%3E%3Ccircle cx='22' cy='21' r='6' fill='%23b4475a'/%3E%3Ccircle cx='22' cy='21' r='2.5' fill='%23e1bf4c'/%3E%3C/svg%3E">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Ebru Marbling Tray","url":"https://rayhanasrepositorium.com/tools/ebru/","description":"Make your own marbled paper in your browser. Float ink on water, swirl and comb it into traditional Turkish ebru patterns like battal, gelgit and tulips, then lift a print to save, share or add to the gallery.","image":"https://rayhanasrepositorium.com/images/ebru-og.jpg?v=2","applicationCategory":"DesignApplication","operatingSystem":"Any (runs in a web browser)","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"inLanguage":"en","about":{"@type":"Thing","name":"Paper marbling (ebru)","sameAs":"https://en.wikipedia.org/wiki/Paper_marbling"},"publisher":{"@type":"Organization","name":"Rayhana's Repositorium","url":"https://rayhanasrepositorium.com/"}}</script>
+<link rel="icon" href="/tools/ebru/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/tools/ebru/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/tools/ebru/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/tools/ebru/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -160,6 +164,12 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .addc{position:relative;display:grid;place-items:center;background:conic-gradient(#e0574b,#e1bf4c,#3f9a6b,#3f6fae,#8a4fb0,#e0574b);color:#fff;overflow:hidden}
 .addc svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .addc input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+/* Your colors: the pencil turns on removing, and each dot shows an x */
+.swedit{display:grid;place-items:center;background:rgba(255,255,255,.08);border-color:var(--line);color:var(--ink);box-shadow:none}
+.swedit svg{width:20px;height:20px}
+.swedit[aria-pressed=true]{background:var(--gold);color:#2a1d12;border-color:var(--gold);outline:0}
+.swrow.editing .sw[data-i]{position:relative}
+.swrow.editing .sw[data-i]::after{content:"";position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;background:#2a1d12 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7 7 17'/%3E%3C/svg%3E") center/12px no-repeat;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.5)}
 .csl{gap:14px}.csl label{gap:6px}.csl input{height:26px}
 .seg{display:flex;background:rgba(0,0,0,.3);border-radius:11px;padding:2px;flex:none}
 .seg button{min-height:40px;padding:0 11px;border:0;border-radius:9px;background:none;color:var(--mute);font:500 14px "Alegreya Sans",sans-serif;cursor:pointer}
@@ -336,6 +346,19 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .srow .pdots .auto:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .btn.warn{border-color:#e79a8a;color:#e79a8a;background:none}
 .btn:disabled{opacity:.4;cursor:default}
+/* Share to: a short list of the likely places, instead of the phone's list of every app */
+.sharebox{z-index:7}
+.scard{width:min(92vw,420px);background:linear-gradient(170deg,#3a2a21,#2a1e17);border:1px solid var(--line);border-radius:16px;padding:18px 16px 14px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.scard h2{margin:0 0 12px;font:700 24px Amiri,serif;text-align:center;color:var(--ink)}
+.sgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 6px}
+.stile{all:unset;box-sizing:border-box;display:grid;justify-items:center;gap:5px;padding:4px 0;cursor:pointer;color:var(--ink);font:500 13px/1.15 "Alegreya Sans",sans-serif;text-align:center;text-decoration:none;border-radius:10px}
+.stile i{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:rgba(243,234,217,.09);border:1px solid var(--line)}
+.stile svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stile.main i{background:var(--gold);border-color:var(--gold);color:#2a1d12}
+.stile:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(hover:hover){.stile:hover i{border-color:var(--gold)}}
+.snote{margin:12px 2px 0;color:var(--mute);font-size:14px;text-align:center}
+.scard .close{display:block;margin:12px auto 0}
 /* light water: dark hint text so it stays readable */
 body[data-water=white] .hint,body[data-water=grid] .hint,body[data-water=pale] .hint{color:#3a2a21;text-shadow:0 1px 4px rgba(255,255,255,.7)}
 body[data-water=white] .hint.flash span,body[data-water=grid] .hint.flash span,body[data-water=pale] .hint.flash span{color:#f6f1e4}
@@ -457,7 +480,7 @@ body.cb .pgrid .nonec{align-self:start}
       <div class="prow"><span>Paper</span><div class="pdots" id="opaper"></div></div>
     </div>
     </details>
-    <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Download</button></div>
+    <div class="pact" id="saveRow" hidden><button class="btn" id="toGal" hidden>Add to gallery</button><button class="btn ghost" id="dl">Share</button></div>
     <form class="gform" id="gform" hidden><label>Title (optional)<input id="gtitle" maxlength="60" autocomplete="off" placeholder="Name your print" enterkeyhint="next"></label><label>Made by (optional)<input id="gname" maxlength="40" autocomplete="nickname" placeholder="Your name" enterkeyhint="send"></label><div class="gbtns"><button class="btn ghost" id="gcancel" type="button">Cancel</button><button class="btn" id="gsend" type="submit">Add to gallery</button></div></form>
     <p class="gmsg" id="gmsg" role="status"></p>
     <div class="pact"><button class="btn ghost" id="seeGal" hidden>See it in the gallery</button></div>
@@ -465,11 +488,15 @@ body.cb .pgrid .nonec{align-self:start}
   </figure>
 </div>
 
+<div class="modal sharebox" id="shareM" role="dialog" aria-modal="true" aria-labelledby="shareT">
+  <div class="scard"><h2 id="shareT">Share to:</h2><div class="sgrid" id="sgrid"></div><p class="snote" id="snote" hidden></p><button class="btn ghost close" data-close>Cancel</button></div>
+</div>
+
 <div class="modal" id="galM" role="dialog" aria-modal="true" aria-label="A print from the gallery">
   <figure>
     <img class="galimg" id="galImg" alt="">
     <figcaption id="galCap"></figcaption>
-    <div class="pact"><button class="btn ghost" id="galDl">Download</button><button class="btn" data-close>Close</button></div>
+    <div class="pact"><button class="btn ghost" id="galDl">Share</button><button class="btn" data-close>Close</button></div>
   </figure>
 </div>
 
@@ -512,14 +539,14 @@ body.cb .pgrid .nonec{align-self:start}
     <p>Ebru (the name is usually traced to Persian) was part of the Ottoman book arts by the 1500s: marbled sheets for album pages, borders and bindings, and sometimes as the ground under calligraphy. <b>Battal</b>, plain "stone" ebru made by sprinkling color after color, is the base every other pattern is built on. Combed forms like <b>gelgit</b> (back and forth) and <b>tarak</b> (comb) are drawn through a battal ground.</p>
     <p>The physics is the mathematical marbling of Lu, Jaffer and colleagues: every drop, tine and swirl is an exact, area-preserving deformation, so colors never blend. They only stretch, as they do on sized water.<sup>1</sup></p>
     <p><b>Top bar.</b> Undo and Redo step back and forward (Ctrl+Z and Ctrl+Shift+Z on a computer). Clear empties the tray to fresh water; you can undo it. Lift print makes a print.</p>
-    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. The palette button beside Size switches between Period (historical pigments), Modern (bright colors), Colorblind (colors that stay easy to tell apart, each named in the color sheet) and Your colors. + mixes your own: each one goes first in Your colors, which keeps your last 12; you can clear them from the palette list. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
+    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. The palette button beside Size switches between Period (historical pigments), Modern (bright colors), Primary (bold red, yellow, blue and friends), Colorblind (colors that stay easy to tell apart, each named in the color sheet) and Your colors. + mixes your own: each one goes first in Your colors, which keeps your last 12. To remove some, tap the pencil after + and tap each color with an &times;, then the check; or clear them all from the palette list. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
     <p><b>Settings</b> (the gear). Sound: off, on, or on with gentle water sounds. Water sets how thin or thick the size is: thin water spreads drops wider and lets tools pull further. Tray color changes the water behind the ink: sea glass, pale, plain white, white with grey grid lines to help place your drops (the grid never shows on a print), or black. Calm water stills the moving light and ripples, and Tips on the tray hides the hints. Your name is filled in when you share, Paper sets the paper new prints start on, and Clear all removes the prints kept on this device. Auto mode has its own pace and timing.</p>
     <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag a row of tines, each drawing its own line; set how many beside Size. Swirl: hold to turn the water, clockwise or counter-clockwise (pick beside the ink). Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto), and set how many rings a tap lays (up to 24) beside Size; pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
     <p><b>Combs.</b> Pick a direction, set the tine spacing and strength, then tap a comb to draw it through the whole tray.</p>
     <p><b>Recipes.</b> Choose a pattern, set the four layer colors (layer 1 is the largest drops; tap a color to change it, or Shuffle for another set), and tap Make it. It starts on a fresh tray.</p>
     <p><b>Auto mode.</b> Switch it on, confirm that the water can be cleared, and the tray marbles itself: it sprinkles, combs, lifts a print into Gallery &rsaquo; Yours for this visit, and starts again. Tap the tray or the switch to stop. Settings sets its pace and how long each print shows.</p>
-    <p><b>Printing.</b> Lift print lays a sheet on the water and shows the print. Under Shape, layout &amp; paper, choose a shape, a layout (full, album page with a ruled center panel, or mounted) and a paper color, then Download (Save or share on a phone), or press and hold the print to save it. Start over clears the tray; Keep editing goes back to it. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
-    <p><b>Gallery.</b> Add to gallery shares a print with everyone. You can give it a title and your name; both are optional. The newest 100 are kept, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
+    <p><b>Printing.</b> Lift print lays a sheet on the water and shows the print. Under Shape, layout &amp; paper, choose a shape, a layout (full, album page with a ruled center panel, or mounted) and a paper color, then Share: Save to Photos or Download keep the picture, and once a print is in the gallery, Share can also send its link by Messages, WhatsApp, Facebook, Pinterest or email (More apps opens your phone&rsquo;s full list). You can also press and hold the print to save it. Start over clears the tray; Keep editing goes back to it. Gallery &rsaquo; Yours keeps your newest 24 prints on this device, even after you close the page; open one to remove it.</p>
+    <p><b>Gallery.</b> Add to gallery shares a print with everyone. You can give it a title and your name; both are optional. Prints are kept for as long as there&rsquo;s room, each with the date and time it was made. Gallery &rsaquo; Everyone&rsquo;s shows the latest 24; the gallery page has them all. There anyone can heart the prints they like, sort them newest, oldest or most hearted, and show only prints in one or two color families (blues, or reds with blues, say). Open anyone&rsquo;s print to cut it to another shape or layout and download it; the design and paper stay as its maker made them.</p>
     <p class="fn">1. Shufang Lu, Aubrey Jaffer, Xiaogang Jin, Hanli Zhao, and Xiaoyang Mao, &ldquo;Mathematical Marbling,&rdquo; <i>IEEE Computer Graphics and Applications</i> 32, no. 6 (2012): 26&ndash;35, <a href="https://doi.org/10.1109/MCG.2011.51">https://doi.org/10.1109/MCG.2011.51</a>.</p>
     <p style="text-align:center"><button class="btn" data-close>Back to the tray</button></p>
     <p style="text-align:center;font-size:14px"><a href="/tools/">More tools at Rayhana&rsquo;s Repositorium</a></p>
@@ -532,11 +559,15 @@ const W=1000,H=1400;
 const PALS={
  period:[["Lapis","#2c4d8e"],["Azurite","#3f6fae"],["Indigo","#1f2b52"],["Vermilion","#cf4630"],["Rose madder","#b4475a"],["Brazilwood rose","#c45a74"],["Lac crimson","#8a1f33"],["Red ochre","#a6492e"],["Saffron","#e0a22e"],["Yellow ochre","#c8923a"],["Orpiment","#e1bf4c"],["Malachite","#3f9a6b"],["Verdigris","#3a8c7b"],["Terre verte","#6f7d55"],["Umber","#5b3f2c"],["Lamp black","#2a2521"],["Ivory","#f4ecda"]],
  distinct:[["Black","#000000"],["Orange","#e69f00"],["Sky blue","#56b4e9"],["Bluish green","#009e73"],["Yellow","#f0e442"],["Blue","#0072b2"],["Vermillion","#d55e00"],["Reddish purple","#cc79a7"],["Grey","#999999"],["White","#ffffff"]],
+ primary:[["Red","#e3120b"],["Light red","#ff7a70"],["Dark red","#9c0a06"],["Yellow","#ffd500"],["Light yellow","#fff07a"],["Dark yellow","#c99a00"],
+  ["Blue","#1340c8"],["Light blue","#5c8cff"],["Dark blue","#0a2275"],["Green","#00a03c"],["Light green","#5fd67e"],["Dark green","#006024"],
+  ["Orange","#ff7300"],["Light orange","#ffaa5c"],["Dark orange","#b84a00"],["Purple","#6b1fb1"],["Light purple","#a978e6"],["Dark purple","#3f0f6e"],["Black","#111111"],["White","#ffffff"]],
  modern:[["Cobalt","#1f5fff"],["Sky","#4fc3ff"],["Turquoise","#00b5b8"],["Teal","#0b7a75"],["Lime","#8fd13b"],["Lemon","#ffd60a"],["Tangerine","#ff7a1a"],["Coral","#ff6b5e"],["Hot pink","#ff3d8b"],["Magenta","#d01b8f"],["Violet","#7b3fe4"],["Ink black","#141414"],["White","#ffffff"]]
 };
-const LIGHT={period:"#f4ecda",modern:"#ffffff",distinct:"#ffffff"},DARK={period:'#2a2521',modern:'#141414',distinct:'#000000'},PAPER={period:'#efe5cf',modern:'#fbfaf5',distinct:'#fbfaf5'};
+const LIGHT={period:"#f4ecda",modern:"#ffffff",primary:"#ffffff",distinct:"#ffffff"},DARK={period:'#2a2521',modern:'#141414',primary:'#111111',distinct:'#000000'},PAPER={period:'#efe5cf',modern:'#fbfaf5',primary:'#fbfaf5',distinct:'#fbfaf5'};
 const SETS={period:[["#c8923a","#2c4d8e","#b4475a","#f4ecda"],["#1f2b52","#3a8c7b","#e1bf4c","#f4ecda"],["#a6492e","#e1bf4c","#2a2521","#f4ecda"],["#6f7d55","#8a1f33","#e0a22e","#f4ecda"],["#3f6fae","#cf4630","#e1bf4c","#f4ecda"],["#8a1f33","#1f2b52","#c8923a","#f4ecda"],["#3f9a6b","#c45a74","#e0a22e","#f4ecda"]],
  distinct:[["#0072b2","#e69f00","#cc79a7","#ffffff"],["#000000","#56b4e9","#f0e442","#ffffff"],["#d55e00","#009e73","#f0e442","#ffffff"],["#0072b2","#d55e00","#56b4e9","#ffffff"],["#009e73","#cc79a7","#e69f00","#ffffff"]],
+ primary:[["#1340c8","#e3120b","#ffd500","#ffffff"],["#e3120b","#ffd500","#111111","#ffffff"],["#00a03c","#ff7300","#1340c8","#ffffff"],["#6b1fb1","#ffd500","#e3120b","#ffffff"],["#111111","#1340c8","#ff7300","#ffffff"],["#0a2275","#ffaa5c","#5c8cff","#ffffff"],["#9c0a06","#fff07a","#006024","#ffffff"]],
  modern:[["#1f5fff","#ff3d8b","#ffd60a","#ffffff"],["#00b5b8","#7b3fe4","#ff7a1a","#ffffff"],["#d01b8f","#8fd13b","#4fc3ff","#ffffff"],["#141414","#ff6b5e","#00b5b8","#ffffff"],["#0b7a75","#ffd60a","#ff3d8b","#ffffff"]]};
 // settings (the gear): water consistency and tray color; kept on this device
 const VISC={thin:1.45,medium:1,thick:.65};
@@ -552,7 +583,7 @@ try{const s=JSON.parse(localStorage.getItem('ebru-settings')||'{}');if(VISC[s.vi
  if(/^#[0-9a-f]{6}$/i.test(s.paper||''))cfg.paper=s.paper;if(PACE[s.pace])cfg.pace=s.pace;if(HOLD[s.hold])cfg.hold=s.hold;if(WATERS[s.water])cfg.water=s.water;}catch(_){}
 const saveCfg=()=>{try{localStorage.setItem('ebru-settings',JSON.stringify(cfg));}catch(_){}};
 let visc=VISC[cfg.visc];
-let mode='period';try{const m=localStorage.getItem('ebru-mode');if(m=='modern'||m=='distinct')mode=m;}catch(e){}
+let mode='period';try{const m=localStorage.getItem('ebru-mode');if(m=='modern'||m=='primary'||m=='distinct')mode=m;}catch(e){}
 let PIG=PALS[mode];
 let color=PIG[0][1],tool="drop",size=1,opac=1; // opac: how solid new ink is (1 = fully opaque)
 let inks=[];
@@ -634,16 +665,24 @@ const saveView=()=>{try{localStorage.setItem('ebru-view',view);}catch(_){}};
 const yoursInk=()=>customs.map(c=>['Your color',c]);
 const viewInk=()=>view=='yours'?yoursInk():PALS[mode];
 const allInk=()=>[...PALS[mode],...yoursInk()]; // the color sheet (Tools ink, ring color, recipe layers) offers both
-const PALINFO={period:['Period','Historical pigments'],modern:['Modern','Bright modern colors'],
+const PALINFO={period:['Period','Historical pigments'],modern:['Modern','Bright modern colors'],primary:['Primary','Bold primary colors: true red, yellow and blue, with green, orange and purple, each also light and dark'],
  distinct:['Colorblind','Colors that stay easy to tell apart with most kinds of color blindness, each named in the color sheet'],
  yours:['Your colors','The last '+KEEP_YOURS+' colors you mixed with +, newest first']};
 const dotsOf=(L,n)=>L.length?L.slice(0,n).map(p=>'<i style="background:'+p[1]+'"></i>').join(''):'<i class="mt"></i>';
 function syncPal(){$('palName').textContent=PALINFO[view][0];$('palDots').innerHTML=dotsOf(viewInk(),3);
  $('palB').setAttribute('aria-label','Palette: '+PALINFO[view][0]+'. Tap to change');}
-function drawSw(sel){const L=viewInk();
- $('sw').innerHTML=L.map((p,i)=>'<button class="sw" style="background:'+p[1]+'" aria-label="'+p[0]+'" aria-pressed="'+(p[1]==sel)+'" data-i="'+i+'"></button>').join('')+
-  (view=='yours'&&!L.length?'<span class="swnote">Mix a color with + and it&rsquo;s kept here</span>':'')+
-  '<label class="sw addc" aria-label="Mix your own color"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg><input type="color" id="cpick" value="#7a5c9e"></label>';}
+// the + mixer is made once and never rebuilt: taking its input out of the page while the phone's color picker is open
+// shuts the picker after the first touch, and can crash the browser
+$('sw').innerHTML='<label class="sw addc" aria-label="Mix your own color"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg><input type="color" id="cpick" value="#7a5c9e"></label>';
+// in Your colors a pencil after + turns on removing: tap a dot with an x to take it out, then the check to finish
+let swEdit=false;
+const PEN='<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',TICK='<path d="m5 12 5 5 9-10"/>';
+function drawSw(sel){const L=viewInk(),sw=$('sw'),add=sw.querySelector('.addc');
+ if(view!='yours'||!L.length)swEdit=false;sw.classList.toggle('editing',swEdit);
+ [...sw.children].forEach(n=>{if(n!==add)n.remove();});
+ add.insertAdjacentHTML('beforebegin',L.map((p,i)=>'<button class="sw" style="background:'+p[1]+'" aria-label="'+(swEdit?'Remove '+p[0].toLowerCase()+' '+p[1]:p[0])+'"'+(swEdit?'':' aria-pressed="'+(p[1]==sel)+'"')+' data-i="'+i+'"></button>').join('')+
+  (view=='yours'&&!L.length?'<span class="swnote">Mix a color with + and it&rsquo;s kept here</span>':''));
+ if(view=='yours'&&L.length)add.insertAdjacentHTML('afterend','<button class="sw swedit" id="swEdit" aria-pressed="'+swEdit+'" aria-label="'+(swEdit?'Done removing colors':'Remove some of your colors')+'" title="'+(swEdit?'Done':'Remove colors')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(swEdit?TICK:PEN)+'</svg></button>');}
 // show the palette in view and take its first color as the ink
 function swatches(){PIG=PALS[mode];const first=viewInk()[0];
  if(first){color=first[1];$('cname').textContent=first[0];syncInk(first[0]);}else syncInk();
@@ -651,7 +690,7 @@ function swatches(){PIG=PALS[mode];const first=viewInk()[0];
  document.body.classList.toggle('cb',mode=='distinct');
  document.querySelector('.sheetP').style.background=cfg.paper||PAPER[mode];}
 swatches();
-function drawPalList(){$('palList').innerHTML=['period','modern','distinct','yours'].map(k=>{const L=k=='yours'?yoursInk():PALS[k];
+function drawPalList(){$('palList').innerHTML=['period','modern','primary','distinct','yours'].map(k=>{const L=k=='yours'?yoursInk():PALS[k];
   return '<button class="palrow" data-v="'+k+'" aria-pressed="'+(k==view)+'"><b>'+PALINFO[k][0]+'</b><span class="palz">'+dotsOf(L,8)+'</span><small>'+(k=='yours'&&!L.length?'Empty for now. Mix a color with + and it&rsquo;s kept here.':PALINFO[k][1])+'</small></button>';}).join('')+
  (customs.length?'<button class="palclr" id="palClr">Clear your colors</button>':'');}
 $('palB').onclick=()=>{pickFor='pal';$('pickT').textContent='Palette';$('pgrid').hidden=true;$('palList').hidden=false;drawPalList();$('picker').classList.add('on');};
@@ -662,13 +701,22 @@ $('palList').addEventListener('click',e=>{
  view=v;if(v!='yours'&&v!=mode){mode=v;try{localStorage.setItem('ebru-mode',mode);}catch(_){}resetSlots();}
  saveView();swatches();});
 $('sw').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b||b.classList.contains('addc'))return;
+ if(b.id=='swEdit'){swEdit=!swEdit;drawSw(color);syncPal();$('swEdit')?.focus();return;}
+ if(swEdit){customs.splice(+b.dataset.i,1);saveYours();drawSw(color);syncPal();
+  const next=$('sw').querySelector('[data-i="'+Math.min(+b.dataset.i,customs.length-1)+'"]')||$('swEdit')||$('cpick');next.focus();return;}
  $('sw').querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');
  const p=viewInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];syncInk(p[0]);});
 // the mixer opens on the ink in use now, so a custom color can start from it
-const cpickNow=e=>{if(e.target.id=='cpick'&&/^#[0-9a-f]{6}$/i.test(color))e.target.value=color.toLowerCase();};
+// one visit to the mixer keeps one color, even if the picker reports every step of a slide as a change
+let mixNew=true;
+const cpickNow=e=>{if(e.target.id!='cpick')return;mixNew=true;if(/^#[0-9a-f]{6}$/i.test(color))e.target.value=color.toLowerCase();};
 for(const ev of ['pointerdown','keydown','focusin'])$('sw').addEventListener(ev,cpickNow,true);
+// while you slide, the ink follows your finger without touching the row
+$('sw').addEventListener('input',e=>{if(e.target.id!='cpick')return;const c=e.target.value.toLowerCase();if(!/^#[0-9a-f]{6}$/.test(c))return;
+ color=c;$('cname').textContent='Your color';syncInk('Your color');});
 $('sw').addEventListener('change',e=>{if(e.target.id!='cpick')return;const c=e.target.value.toLowerCase();if(!/^#[0-9a-f]{6}$/.test(c))return;
- customs=[c,...customs.filter(x=>x!=c)].slice(0,KEEP_YOURS);saveYours();
+ const rest=mixNew?customs:customs.slice(1);mixNew=false;
+ customs=[c,...rest.filter(x=>x!=c)].slice(0,KEEP_YOURS);saveYours();
  // a mixed color lands first in Your colors, and the row turns to that palette so you can see it picked
  view='yours';saveView();
  color=c;drawSw(c);syncPal();$('cname').textContent='Your color';syncInk('Your color');$('sw').scrollLeft=0;});
@@ -729,35 +777,79 @@ function drop(cx,cy,r,skip){const r2=r*r;
    const s=Math.sqrt(1+r2/d2);p[i]=cx+dx*s;p[i+1]=cy+dy*s;}}}
 function addDrop(x,y,r,c,a=1){drop(x,y,r);inks.push({c,a,p:circle(x,y,r)});if(Math.random()<.35){ripple(x,y,r);drip(r,.7);}}
 function totalVerts(){let t=0;for(const k of inks)t+=k.p.length/2;return t;}
-// Ink pushed off the edge of the tray can't be seen, so it is kept coarse there instead of a point every few units.
+// Ink pushed off the edge of the tray can't be seen, so it is kept with fewer points there than a point every few units.
 // offTray() is how far a point lies outside the tray (a lower bound on its true distance). Distance to the tray changes
 // no faster than distance along an edge, so an edge of length L between points o1 and o2 outside never comes nearer
-// than (o1+o2-L)/2. Keeping L under o1+o2-2*FAR_SAFE means a coarse outline never cuts across the visible tray,
-// and the farther out ink is pushed, the fewer points it needs. If it is swirled or combed back in, it is refined again.
-const FAR_M=40,FAR_SAFE=15,FAR_MAX=600;
+// than (o1+o2-L)/2. Keeping L under o1+o2-2*FAR_SAFE means an outline out there never cuts across the visible tray.
+// A swirl or the spiral can turn that ink back in, so its shape has to hold: a point out there is only let go where the
+// outline stays within FAR_TOL of the points around it, and no edge grows past FAR_MAX (over several passes the outline
+// can drift a few units, never more). Long smooth arcs, as drops push old ink
+// out, need few points; combed wiggles keep theirs. (Points were once let go by spacing alone, and swirled back in as shards.)
+// While Swirl, Stylus or Rake is held, ink within its reach keeps every point, since those bend what they move.
+const FAR_M=40,FAR_SAFE=15,FAR_MAX=100,FAR_TOL=1.5;
 const offTray=(x,y)=>Math.max(-x,x-W,-y,y-H);
 const farLim=(o1,o2)=>Math.min(FAR_MAX,o1+o2-2*FAR_SAFE);
+// squared distance from (px,py) to the segment (ax,ay)-(bx,by)
+function segD2(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=l?((px-ax)*dx+(py-ay)*dy)/l:0;t=t<0?0:t>1?1:t;const ex=ax+t*dx-px,ey=ay+t*dy-py;return ex*ex+ey*ey;}
+// outlines are rebuilt into one reused buffer, then copied out at their final length
+let RB=new Float32Array(1<<16),bn=0;
+function put(x,y){if(bn+2>RB.length){const t=new Float32Array(RB.length*2);t.set(RB);RB=t;}RB[bn++]=x;RB[bn++]=y;}
 function refine(){ // keep edges short enough to look smooth, and the total point count within a budget
- const tv=totalVerts(),base=3.2*Math.max(1,(tv/170000)**1.5);
+ const tv=totalVerts(),base=3.2*Math.max(1,(tv/170000)**1.5);scan(tv);
+ const a=active,keepR=!a?0:a.t=='swirl'?110*size*3.2:a.t=='stylus'?260*Math.max(1,size)*visc:a.t=='rake'?30*size*(rakeN+1)/2+15*size:0;
+ const sw=keepR?a:null,swR2=(keepR+FAR_MAX)**2,tol2=FAR_TOL*FAR_TOL;
+ const far=(x,y,o)=>o>FAR_M&&!(sw&&(x-sw.x)**2+(y-sw.y)**2<swR2); // held loosely: off the tray, and not under a held swirl
  for(const k of inks){const p=k.p,n=p.length/2;let ml=base;
-  let need=false;const mx2=ml*ml,mn2=(ml*.35)**2;
+  let need=false;const mx2=ml*ml,mn2=(ml*.35)**2,tl=Math.max(HAIR,ml),tx2=tl*tl,tn2=(tl*.35)**2,hk=hairOn&&k.hid;
   for(let i=0;i<n;i++){const j=(i+1)%n,ax=p[2*i],ay=p[2*i+1],bx=p[2*j],by=p[2*j+1],dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy,o1=offTray(ax,ay),o2=offTray(bx,by);
-   if(o1>FAR_M&&o2>FAR_M){const lim=farLim(o1,o2);if(L>lim*lim||L<lim*lim*.0625){need=true;break;}}
+   if(far(ax,ay,o1)&&far(bx,by,o2)){const lim=farLim(o1,o2);if(L>lim*lim){need=true;break;}
+    // could b go? only if the outline a-c past it stays close, as the rebuild below would test (it always keeps the first point)
+    if(j==0)continue;const c=(j+1)%n,cx=p[2*c],cy=p[2*c+1],o3=offTray(cx,cy);
+    if(far(cx,cy,o3)&&(cx-ax)**2+(cy-ay)**2<=farLim(o1,o3)**2&&segD2(bx,by,ax,ay,cx,cy)<=tol2){need=true;break;}}
+   else if(hk&&hairAt(k,bx,by)){if(L>tx2||L<tn2){need=true;break;}}
    else if(L>mx2||L<mn2){need=true;break;}}
   if(!need&&n<30000)continue;
-  for(let tries=0;tries<5;tries++){const maxL2=ml*ml,minL2=(ml*.35)**2,buf=[];let lx=p[0],ly=p[1],lo=offTray(lx,ly);buf.push(lx,ly);
-   for(let i=1;i<=n;i++){const x=p[2*(i%n)],y=p[2*(i%n)+1],dx=x-lx,dy=y-ly,L2=dx*dx+dy*dy,o=offTray(x,y),both=lo>FAR_M&&o>FAR_M;
-    const cap=both?farLim(lo,o):ml;
-    if(L2<(both?cap*cap*.25:minL2)&&i<n)continue;
-    if(L2>cap*cap){const m=Math.min(64,Math.ceil(Math.sqrt(L2)/cap));let px=lx,py=ly,pq=lo;
-     // an edge running out past the margin is split finely only where it can still be seen
-     for(let s=1;s<m;s++){const sx=lx+dx*s/m,sy=ly+dy*s/m,so=offTray(sx,sy);
-      if(!both&&so>FAR_M&&pq>FAR_M&&(sx-px)**2+(sy-py)**2<farLim(pq,so)**2*.25)continue;buf.push(sx,sy);px=sx;py=sy;pq=so;}}
-    if(i<n)buf.push(x,y);lx=x;ly=y;lo=o;}
-   if(buf.length<60000){if(buf.length>=6)k.p=new Float32Array(buf);break;}
+  for(let tries=0;tries<5;tries++){const minL2=(ml*.35)**2,hl=Math.max(HAIR,ml),hmin2=(hl*.35)**2;bn=0;let lx=p[0],ly=p[1],lo=offTray(lx,ly),li=0;put(lx,ly);
+   for(let i=1;i<=n;i++){const x=p[2*(i%n)],y=p[2*(i%n)+1],dx=x-lx,dy=y-ly,L2=dx*dx+dy*dy,o=offTray(x,y),both=far(lx,ly,lo)&&far(x,y,o);
+    if(both&&i<n&&i-li<48){ // let this point go (at most 47 in a row, so a tangle off the tray can't stall a frame) if the outline from the last kept point to the next one still passes every point skipped
+     const q=(i+1)%n,qx=p[2*q],qy=p[2*q+1],qo=offTray(qx,qy);
+     if(far(qx,qy,qo)&&(qx-lx)**2+(qy-ly)**2<=farLim(lo,qo)**2){let ok=true;
+      for(let s=li+1;s<=i;s++)if(segD2(p[2*s],p[2*s+1],lx,ly,qx,qy)>tol2){ok=false;break;}
+      if(ok)continue;}}
+    const hair=!both&&hk&&hairAt(k,x,y),cap=both?farLim(lo,o):hair?hl:ml;
+    if(!both&&L2<(hair?hmin2:minL2)&&i<n)continue;
+    if(L2>cap*cap){const m=Math.min(64,Math.ceil(Math.sqrt(L2)/cap));
+     for(let s=1;s<m;s++)put(lx+dx*s/m,ly+dy*s/m);}
+    if(i<n)put(x,y);lx=x;ly=y;lo=o;li=i;}
+   if(bn<60000){if(bn>=6)k.p=RB.slice(0,bn);break;}
    ml*=1.6;}}
  inks=inks.filter(k=>k.p.length>=6);
 }
+// Every tool moves every point of every ink, so a busy tray slows down. Most of its points end up in old ink stretched
+// into hairlines a pixel or two wide, kept smooth with a point every few units. Once the tray is busy, those hairlines
+// are kept with far fewer points: at that width a straighter line looks the same. Wide ink, the color you can see, keeps
+// all its detail, and nothing is removed but specks: ink that no longer shows anywhere but as hairline.
+// Which parts are hairline: every so often each ink is drawn in its own color id onto a small canvas, in tray order.
+// A point of an ink is wide ink if a pixel next to it is wholly that ink; a hairline is too thin to fill one.
+// A tray unit is about a third of a screen pixel on a phone and 1.5 pixels on a print; a canvas pixel is PS units.
+const HAIR_FROM=45000,PS=2,HAIR=16; // points before hairlines thin out; canvas scale; spacing on a hairline, in tray units
+const IW=Math.ceil(W/PS),IH=Math.ceil(H/PS),idC=document.createElement('canvas');idC.width=IW;idC.height=IH;
+const idG=idC.getContext('2d',{willReadFrequently:true}),idAt=new Uint32Array(IW*IH);
+let lastScan=0,hairOn=false;
+// a point lies in hairline if no pixel around it is wholly its ink (ink drawn since the last look has no id, and is wide)
+function hairAt(k,x,y){const cx=(x/PS)|0,cy=(y/PS)|0;if(cx<1||cy<1||cx>=IW-1||cy>=IH-1)return false;
+ const id=k.hid;for(let r=cy-1;r<=cy+1;r++){const o=r*IW;if(idAt[o+cx-1]===id||idAt[o+cx]===id||idAt[o+cx+1]===id)return false;}return true;}
+function scan(tv){const now=performance.now(),n=inks.length;
+ if(tv<HAIR_FROM||n>=0xffffff){hairOn=false;return;}if(now-lastScan<(active?3000:1500))return;lastScan=now; // the scan costs about a full paint, and hairlines change slowly
+ idG.setTransform(1,0,0,1,0,0);idG.clearRect(0,0,IW,IH);idG.setTransform(1/PS,0,0,1/PS,0,0);
+ for(let j=0;j<n;j++){const k=inks[j],p=k.p,id=j+1;k.hid=id;idG.beginPath();idG.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)idG.lineTo(p[i],p[i+1]);idG.closePath();
+  idG.fillStyle='rgb('+(id&255)+','+(id>>8&255)+','+(id>>16)+')';idG.fill();}
+ const px=new Uint32Array(idG.getImageData(0,0,IW,IH).data.buffer),shown=new Uint32Array(n+1);
+ for(let i=0;i<px.length;i++){const v=px[i];let id=0;if(v>>>24==255){id=v&0xffffff;if(id>n)id=0;else shown[id]++;}idAt[i]=id;} // edge pixels blend two ids; they hold none
+ hairOn=true;
+ // specks: ink with many points and barely a pixel wholly its own is hairline from end to end, so it can go
+ const hold=active&&active.k,keep=inks.filter((k,j)=>k===hold||shown[j+1]>2||k.p.length<120);
+ if(keep.length<n){inks=keep;dirty=true;}}
 function tines(axis,spacing,z,alt,lam){
  for(const k of inks){const p=k.p;
   for(let i=0;i<p.length;i+=2){const u=axis=='v'?p[i]:p[i+1];
@@ -782,6 +874,7 @@ function boxes(){travel=0;for(const k of inks){const p=k.p,n=p.length/2,nc=Math.
 // one pass that applies several needles at once (stylus = 1, rake = 5); each needle drags nearby ink along (dx,dy)
 let travel=0; // how far needles have moved since chunk boxes were measured
 function pullMany(pts,dx,dy,lam,reach,sharp){travel+=Math.hypot(dx,dy);let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const [x,y] of pts){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+ const st=Math.abs(dx)+Math.abs(dy)+reach+12;touch(x0-st,y0-st,x1+st,y1+st); // only points within reach of a needle move
  const mg=reach+8+travel;x0-=mg;y0-=mg;x1+=mg;y1+=mg;const np=pts.length;
  for(const k of inks){const p=k.p,cb=k.cb,n=p.length/2;
   const nc=cb?cb.length/4:1;
@@ -938,7 +1031,7 @@ function stepActive(dt){const a=active;if(!a)return;
  if(a.t=='drop'){if(a.hold)a.target=Math.min(Math.min(620,340*Math.max(1,size/2)),a.target+dt*0.14*size*visc);
   if(a.target-a.r>.25){const nr=Math.min(a.target,a.r+Math.max(dt*.02,(a.target-a.r)*Math.min(1,dt*.008)));drop(a.x,a.y,Math.sqrt(nr*nr-a.r*a.r),a.k);a.r=nr;a.k.p=circle(a.x,a.y,nr,a.sd);if(Math.random()<.5)refine();dirty=true;}
   else if(!a.hold){refine();active=null;}}
- else if(a.t=='swirl'){const R=110*size,om=swirlDir*0.0045*dt*visc;rotate(a.x,a.y,d=>om*Math.exp(-(d*d)/(R*R)),R*3.2);if(Math.random()<.3)refine();dirty=true;}
+ else if(a.t=='swirl'){const R=110*size,om=swirlDir*0.0045*dt*visc;rotate(a.x,a.y,d=>om*Math.exp(-(d*d)/(R*R)),R*3.2);if(Math.random()<.3)refine();const e=R*3.2+2;touch(a.x-e,a.y-e,a.x+e,a.y+e);}
  else if(a.t=='stylus'||a.t=='rake'){let n=0;if(a.pts.length)boxes();
   const cap=a.t=='rake'?Math.max(4,Math.round(60/rakeN)):32;
   while(a.pts.length&&n<cap){const [x,y]=a.pts.shift();const dx=x-a.x,dy=y-a.y,L=Math.hypot(dx,dy);if(L<.5)continue;const m=Math.max(1,Math.ceil(L/5));
@@ -949,7 +1042,7 @@ function stepActive(dt){const a=active;if(!a)return;
     if(a.t=='stylus')pullMany([[bx,by]],ux,uy,10*size*visc,260*Math.max(1,size)*visc);
     else{const sp=30*size,tp=[],h=(rakeN-1)/2;for(let t=0;t<rakeN;t++)tp.push([bx+a.nx*sp*(t-h),by+a.ny*sp*(t-h)]);pullMany(tp,ux,uy,6*size*visc,sp*.5,true);}
     a.x=bx;a.y=by;n++;}}
-  if(n){refine();for(const k of inks)k.cb=null;dirty=true;}}}
+  if(n){refine();for(const k of inks)k.cb=null;}}}
 
 // ---------- render ----------
 const RMsys=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1018,6 +1111,19 @@ function water(t){const g=ctx,w=cv.width,h=cv.height,sx=w/W,sy=h/H,WA=WATERS[cfg
  const gr=g.createRadialGradient(w/2,h/2,Math.min(w,h)*.42,w/2,h/2,Math.max(w,h)*.72);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,WA.wall);g.fillStyle=gr;g.fillRect(0,0,w,h);
 }
 let dirty=true;
+// Painting cost grows with the area painted, so a hand tool that moves only part of the ink repaints only that part:
+// touch() marks a box of the tray (in tray units), and the next frame clears it and paints every ink again clipped to
+// it, which is the same picture there. dirty (the whole tray) wins over any box. Only Swirl, Stylus and Rake use it:
+// ink beyond their reach doesn't move at all. (A drop pushes all the ink a little, and Mist's many drops add up to a
+// pixel or two across the tray, so those repaint it all.) The whole tray is repainted when the hand lifts.
+let dirtyR=null;
+function touch(x0,y0,x1,y1){if(dirty)return;if(!dirtyR){dirtyR=[x0,y0,x1,y1];return;}const r=dirtyR;
+ if(x0<r[0])r[0]=x0;if(y0<r[1])r[1]=y0;if(x1>r[2])r[2]=x1;if(y1>r[3])r[3]=y1;}
+function repaint(r){const sx=inkC.width/W,sy=inkC.height/H,
+ x0=Math.max(0,Math.floor(r[0]*sx)-2),y0=Math.max(0,Math.floor(r[1]*sy)-2),x1=Math.min(inkC.width,Math.ceil(r[2]*sx)+2),y1=Math.min(inkC.height,Math.ceil(r[3]*sy)+2);
+ if(x1<=x0||y1<=y0)return;
+ inkG.save();inkG.setTransform(1,0,0,1,0,0);inkG.clearRect(x0,y0,x1-x0,y1-y0);inkG.beginPath();inkG.rect(x0,y0,x1-x0,y1-y0);inkG.clip();
+ drawPolys(inkG,inkC.width,inkC.height);inkG.restore();}
 const stage=$('stage'),tray=$('tray');
 function fit(){const r=stage.getBoundingClientRect(),pad=innerWidth<560||innerWidth<=innerHeight?5:8;let w=r.width-pad*2,h=r.height-pad*2;
  if(w/h>W/H)w=h*W/H;else h=w*H/W;w=Math.max(40,w);h=Math.max(56,h);
@@ -1025,14 +1131,22 @@ function fit(){const r=stage.getBoundingClientRect(),pad=innerWidth<560||innerWi
  const d=Math.min(2,devicePixelRatio||1);cv.width=inkC.width=Math.round(w*d);cv.height=inkC.height=Math.round(h*d);makeBase(cv.width,cv.height);dirty=true;}
 const ro=new ResizeObserver(fit);ro.observe(stage);
 let last=performance.now(),skip=0;
-function frame(t){const dt=Math.min(50,t-last);last=t;
+// Comb, recipe and sprinkle steps are paced for 60 frames a second. Painting a busy tray can take far longer than a
+// frame on a phone, so when it falls behind, a few steps run before the next paint: the stroke takes about as long as it
+// should and ends exactly the same, with fewer pictures along the way. (One step per paint made a comb on a busy tray
+// take half a minute.) opLag is how far the steps have fallen behind the clock, in ms.
+let opLag=0;
+function frame(t){tick(t);requestAnimationFrame(frame);}
+function tick(t){const raw=t-last,dt=Math.min(50,raw);last=t;const t0=performance.now();
  stepActive(dt);driftTick(t);
  if(!cur&&queue.length)cur=queue.shift();
- if(cur){if(cur.step()){cur=null;refine();}dirty=true;}
- const idle=!dirty&&!active&&!cur&&!queue.length&&!ripples.length;
- if(idle&&(++skip&1)){requestAnimationFrame(frame);return;}
- if(cv.width){if(dirty){inkG.setTransform(1,0,0,1,0,0);inkG.clearRect(0,0,inkC.width,inkC.height);drawPolys(inkG,inkC.width,inkC.height);dirty=false;}water(t);}
- requestAnimationFrame(frame);}
+ if(cur){opLag+=Math.min(raw,250);let n=0;
+  while(cur&&n<8&&(n==0||(opLag>=17&&performance.now()-t0<40))){if(cur.step()){cur=null;refine();}opLag-=16.7;n++;}
+  opLag=cur?Math.max(0,Math.min(opLag,140)):0;dirty=true;}
+ const idle=!dirty&&!dirtyR&&!active&&!cur&&!queue.length&&!ripples.length;
+ if(idle&&(++skip&1))return;
+ if(cv.width){if(dirty){inkG.setTransform(1,0,0,1,0,0);inkG.clearRect(0,0,inkC.width,inkC.height);drawPolys(inkG,inkC.width,inkC.height);dirty=false;dirtyR=null;}
+  else if(dirtyR){repaint(dirtyR);dirtyR=null;}water(t);}}
 requestAnimationFrame(frame);
 showHint();
 document.addEventListener('visibilitychange',()=>{if(AC&&sound){document.hidden?AC.suspend():AC.resume();}});
@@ -1110,7 +1224,7 @@ function drawOpts(){for(const [id,key] of [['oshape','shape'],['olayout','layout
 function fmtOpen(force){$('pfmt').open=!!force||(innerHeight>=820&&innerWidth>=560);}
 for(const [id,key] of [['oshape','shape'],['olayout','layout'],['opaper','paper']])
  $(id).addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;po[key]=b.dataset.v;drawOpts();showPrint();});
-function lift(){rustle();restorePo();unprinted=false;
+function lift(){rustle();restorePo();unprinted=false;shareGal=null;
  const c=document.createElement('canvas');c.width=600;c.height=840;paper(c.getContext('2d'),c.width,c.height,paperCol());
  const tc=document.createElement('canvas');tc.width=180;tc.height=252;tc.getContext('2d').drawImage(c,0,0,180,252);
  subject=clone();fmtOpen();
@@ -1125,29 +1239,76 @@ const DONECAP=ONSITE?'':'Press and hold to save';
 if(ONSITE){$('saveRow').hidden=false;}
 function printBlob(cb,fail=()=>{}){fetch($('out').src).then(r=>r.blob()).then(cb).catch(fail);}
 const fname=()=>`ebru-${new Date().toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;
-// one button: where the device can share files (phones), it opens the share sheet, which also offers Save Image; elsewhere it downloads
-function download(){const a=document.createElement('a');a.href=$('out').src;a.download=fname();document.body.appendChild(a);a.click();a.remove();}
-let canShareFiles=false;try{canShareFiles=ONSITE&&matchMedia('(pointer:coarse)').matches&&!!navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]});}catch(_){}
-if(canShareFiles)$('dl').textContent='Save or share';
-$('dl').onclick=()=>{if(!canShareFiles){download();return;}
- printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(e=>{if(e&&e.name!='AbortError')download();});},download);};
-// ----- shared gallery: the newest 100 prints anyone has added (needs the site's /api, so only on the real site) -----
+// ----- Share to: -----
+// The phone's own share sheet lists every app it has, so Share opens a short list first: Save to Photos and Download
+// keep the picture, and a print that is in the gallery can also go out as a link (its page shows the print as the link's
+// preview) by Messages, WhatsApp, Facebook, Pinterest, email or Copy link. More apps still opens the full sheet.
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform=='MacIntel'&&navigator.maxTouchPoints>1);
+const PHONE=matchMedia('(pointer:coarse)').matches;
+const SI={photos:'<rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16.5-5-5-9.5 8"/>',
+ download:'<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',messages:'<path d="M4 5h16v11H10l-5 4v-4H4z"/>',
+ whatsapp:'<path d="M20 11.8a8 8 0 0 1-11.7 7.1L4 20l1.2-4.1A8 8 0 1 1 20 11.8z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z"/>',
+ facebook:'<path d="M14.5 21v-8h3l.4-3.2h-3.4V7.9c0-.9.3-1.6 1.6-1.6h1.9V3.5a24 24 0 0 0-2.7-.2c-2.7 0-4.4 1.6-4.4 4.6v1.9H8V13h2.9v8"/>',
+ pinterest:'<circle cx="12" cy="12" r="9"/><path d="m10.2 20.5 2.1-8.4M10.6 13.6c-.4-.6-.6-1.3-.6-2.1 0-2.4 1.8-4.2 4.1-4.2 2 0 3.3 1.3 3.3 3.2 0 2.5-1.3 4.4-3.1 4.4-.9 0-1.6-.8-1.4-1.7"/>',
+ email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ more:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>'};
+let sh=null; // what Share to: is sharing: {blob(), href, file, link, image, text, subject, note}
+const stile=(k,lab,href,main)=>`<${href?'a':'button'} class="stile${main?' main':''}" data-k="${k}"${href?` href="${href}" target="_blank" rel="noopener"`:''}><i><svg viewBox="0 0 24 24">${SI[k]}</svg></i>${lab}</${href?'a':'button'}>`;
+// the picture is made as the box opens: a phone only opens its share sheet straight after a tap, and waiting for the
+// picture after the tap can use that up
+function openShare(s){sh=s;const bp=s.blob();bp.catch(()=>{});s.blob=()=>bp;const enc=encodeURIComponent,L=s.link,T=s.text,tiles=[];
+ if(PHONE)tiles.push(stile('photos','Save to Photos',null,true));
+ tiles.push(stile('download','Download',null,!PHONE));
+ if(L){if(PHONE)tiles.push(stile('messages','Messages',`sms:?&body=${enc(T+' '+L)}`));
+  tiles.push(stile('whatsapp','WhatsApp',`https://wa.me/?text=${enc(T+' '+L)}`));
+  tiles.push(stile('facebook','Facebook',`https://www.facebook.com/sharer/sharer.php?u=${enc(L)}`));
+  tiles.push(stile('pinterest','Pinterest',`https://www.pinterest.com/pin/create/button/?url=${enc(L)}&media=${enc(s.image)}&description=${enc(T)}`));
+  tiles.push(stile('email','Email',`mailto:?subject=${enc(s.subject||'A marbled print')}&body=${enc(T+'\n\n'+L)}`));
+  tiles.push(stile('link','Copy link'));}
+ if(navigator.share)tiles.push(stile('more','More apps'));
+ $('sgrid').innerHTML=tiles.join('');
+ const note=$('snote');note.hidden=!s.note;note.textContent=s.note||'';
+ $('shareM').classList.add('on');($('sgrid').querySelector('.stile')||$('shareM').querySelector('[data-close]')).focus();}
+const closeShare=()=>{$('shareM').classList.remove('on');};
+function saveFile(){const a=document.createElement('a');a.href=sh.href;a.download=sh.file;document.body.appendChild(a);a.click();a.remove();}
+$('shareM').addEventListener('click',async e=>{if(e.target.id=='shareM'||e.target.closest('[data-close]')){closeShare();return;}
+ const t=e.target.closest('.stile');if(!t||!sh)return;const k=t.dataset.k;
+ if(t.tagName=='A'){setTimeout(closeShare,300);return;} // Messages, WhatsApp, Facebook, Pinterest, Email open in their own place
+ if(k=='download'||(k=='photos'&&!IOS)){saveFile();closeShare();return;} // Android keeps downloaded pictures in Photos (Download)
+ if(k=='link'){try{await navigator.clipboard.writeText(sh.link);t.lastChild.textContent='Copied ✓';setTimeout(closeShare,900);}catch(_){prompt('Copy this link:',sh.link);}return;}
+ try{const b=await sh.blob(),file=new File([b],sh.file,{type:'image/jpeg'});
+  // iPhone: the system sheet, whose Save Image puts it in Photos. More apps: the whole sheet, with the picture (and link)
+  const data=k=='photos'||!sh.link?{files:[file]}:{files:[file],text:sh.text+' '+sh.link};
+  if(navigator.canShare&&!navigator.canShare(data)){if(!sh.link)throw new Error('no share');delete data.files;data.url=sh.link;}
+  await navigator.share(data);closeShare();}
+ catch(err){if(err&&err.name=='AbortError')return;if(k=='photos'||!sh.link)saveFile();closeShare();}});
+// the print on screen now: its picture, and its gallery link once it is in the gallery (shareGal)
+let shareGal=null;
+const galFile=p=>`ebru-${p.title&&slug(p.title)?slug(p.title)+'-':''}${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;
+const galText=p=>p.title?`“${p.title}”, a marbled print from the Ebru Gallery`:'A marbled print from the Ebru Gallery';
+$('dl').onclick=()=>{const p=GALLERY?shareGal:null;
+ openShare({href:$('out').src,file:p?galFile(p):fname(),blob:()=>new Promise((res,rej)=>printBlob(res,rej)),
+  link:p?location.origin+(p.shareUrl||'/tools/ebru/p/'+p.id):null,image:p?location.origin+p.url:'',
+  text:p?galText(p):'A marbled print I made in the Ebru Marbling Tray',subject:p&&p.title||'A marbled print',
+  note:GALLERY&&!p?'Add it to the gallery to send it as a link by Messages, WhatsApp, Facebook or Pinterest.':''});};
+// ----- shared gallery: the newest prints anyone has added (needs the site's /api, so only on the real site) -----
 const GALLERY=ONSITE&&/^https?:$/.test(location.protocol);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const when=ms=>new Date(ms).toLocaleString([],{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
 // a shared print's caption: its title and maker when given (older prints only ever had a name)
-const byline=p=>(p.title?`“${p.title}” · `:'')+(p.name?`Made by ${p.name} · `:'')+when(p.createdAt);
+const byline=p=>(p.title?`“${p.title}” · `:'')+(p.name?`Made by: ${p.name} · `:'')+when(p.createdAt);
 const slug=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
-let gal=[],galView='mine',galLoading=false,tabNow='ink';
+let gal=[],galTotal=0,galView='mine',galLoading=false,tabNow='ink';
 const thumb=(p,i)=>`<button class="pthumb" data-i="${i}" aria-label="${esc(byline(p))}" title="${esc(byline(p))}"><img src="${esc(p.url)}" alt="" loading="lazy"></button>`;
 function renderGallery(msg){const el=$('gallery');
  el.innerHTML=msg?`<div class="pempty">${esc(msg)}</div>`:gal.length?gal.slice(0,24).map(thumb).join(''):'<div class="pempty">No shared prints yet. Add yours!</div>';
  // the tray's "See the gallery" button and, on desktop, the sidebar's newest four
- $('galChip').hidden=!gal.length;$('galChipT').textContent=`See the gallery · ${gal.length} print${gal.length==1?'':'s'}`;
+ const n=Math.max(galTotal,gal.length);$('galChip').hidden=!n;$('galChipT').textContent=`See the gallery · ${n} print${n==1?'':'s'}`;
  $('galSideRow').innerHTML=gal.slice(0,4).map(thumb).join('');syncSide();}
 function syncSide(){$('galSide').hidden=!GALLERY||!gal.length||tabNow=='prints';}
 async function loadGallery(){if(!GALLERY||galLoading)return;galLoading=true;if(!gal.length)renderGallery('Loading…');
- try{const r=await fetch('/api/ebru/prints',{cache:'no-store'});if(!r.ok)throw 0;gal=(await r.json()).prints||[];renderGallery();}
+ try{const r=await fetch('/api/ebru/prints?limit=24',{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();gal=j.prints||[];galTotal=j.total||gal.length;renderGallery();}
  catch(_){renderGallery('The gallery couldn’t load. Try again in a moment.');}finally{galLoading=false;}}
 function setView(v){galView=v;$('pview').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==v));
  $('prints').hidden=v!='mine';$('gallery').hidden=v!='all';if(v=='all')loadGallery();}
@@ -1170,7 +1331,7 @@ let poSaved=null;
 function restorePo(){if(poSaved){Object.assign(po,poSaved);poSaved=null;}$('opaper').closest('.prow').hidden=false;}
 function openSimple(p){$('galM').dataset.i=gal.indexOf(p);$('galImg').src=p.url;$('galImg').alt=(p.title?`Marbled print “${p.title}”`:'Marbled print')+(p.name?`, made by ${p.name}`:'');
  $('galCap').textContent=byline(p);$('galM').classList.add('on');}
-async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
+async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}shareGal=p;
  const im=new Image();try{await loadImg(im,p.sheetUrl);}catch(_){openSimple(p);return;}
  if(!poSaved)poSaved={...po};
  po.shape=CROPS[p.shape]?p.shape:'portrait';po.layout=['full','album','mount'].includes(p.layout)?p.layout:'full';
@@ -1180,9 +1341,12 @@ async function openShared(p){if(!p.sheetUrl){openSimple(p);return;}
 $('gallery').addEventListener('click',e=>{const b=e.target.closest('.pthumb');if(!b)return;const p=gal[+b.dataset.i];if(p)openShared(p);});
 // the gallery page links here as /tools/ebru/#print=<id> to change a print's format
 if(GALLERY&&/^#print=[0-9a-f-]{36}$/.test(location.hash)){const id=location.hash.slice(7);history.replaceState(null,'',location.pathname+location.search);
- (async()=>{await loadGallery();const p=gal.find(x=>x.id==id);if(p)openShared(p);})();}
-$('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=document.createElement('a');a.href=p.url;
- a.download=`ebru-${p.title&&slug(p.title)?slug(p.title)+'-':''}${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.appendChild(a);a.click();a.remove();};
+ (async()=>{await loadGallery();let p=gal.find(x=>x.id==id);
+  if(!p){try{const r=await fetch('/api/ebru/prints/'+id,{cache:'no-store'});if(r.ok){p=(await r.json()).print;if(p)gal.push(p);}}catch(_){}}
+  if(p)openShared(p);})();}
+$('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;
+ openShare({href:p.url,file:galFile(p),blob:()=>fetch(p.url).then(r=>{if(!r.ok)throw new Error('Couldn’t get the picture.');return r.blob();}),
+  link:location.origin+(p.shareUrl||'/tools/ebru/p/'+p.id),image:location.origin+p.url,text:galText(p),subject:p.title||'A marbled print'});};
 let sharing=false;
 function resetShare(){if(sharing)return;$('liftF').classList.remove('adding');$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
 $('toGal').onclick=()=>{$('toGal').hidden=true;$('liftF').classList.add('adding');$('gform').hidden=false;$('liftM').scrollTop=0;$('gtitle').value='';try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gtitle').focus();};
@@ -1203,17 +1367,39 @@ function scaled(src,sw,sh,maxSide){const s=Math.min(1,maxSide/Math.max(sw,sh)),c
  c.width=Math.round(sw*s);c.height=Math.round(sh*s);c.getContext('2d').drawImage(src,0,0,c.width,c.height);return c;}
 // the print as framed now, at most 1000px on its long side
 async function galleryJpeg(){const im=$('out');await imgReady(im);return jpegUnder(scaled(im,im.naturalWidth,im.naturalHeight,1000));}
-// the whole uncropped tray (1000 x 1400) on this paper, so others can re-cut it
+// ----- color families (for the gallery's color filter) -----
+// The family most of a print's ink belongs to, and the next one when there is enough of it to notice (a tenth of the
+// ink or more). Paper, and the mount and album borders, which are paper too, are left out. Kept the same in the tray
+// and on the gallery page, which works it out for prints shared before families were stored.
+const FAMS=['red','orange','yellow','green','blue','purple','pink','brown','neutral'];
+function famOf(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=(mx-mn)/255,l=(mx+mn)/510;
+ if(c<.12||l<.1)return 'neutral'; // black, grey, white, ivory
+ let h=mx==r?60*(((g-b)/(mx-mn))%6):mx==g?60*((b-r)/(mx-mn)+2):60*((r-g)/(mx-mn)+4);if(h<0)h+=360;
+ if(h>=15&&h<50&&l<.4)return 'brown'; // umber, sienna: dark oranges and yellows
+ if(h<15||h>=345)return l>.78?'pink':'red';
+ if(h<38)return 'orange';if(h<68)return 'yellow';if(h<175)return 'green';if(h<255)return 'blue';if(h<290)return 'purple';return 'pink';}
+function inkFamilies(img,paper){const c=document.createElement('canvas'),w=c.width=60,h=c.height=84,g=c.getContext('2d',{willReadFrequently:true});
+ g.drawImage(img,0,0,w,h);const d=g.getImageData(0,0,w,h).data,n={};let ink=0;
+ const pp=/^#[0-9a-f]{6}$/i.test(paper||'')?[1,3,5].map(i=>parseInt(paper.slice(i,i+2),16)):null;
+ for(let i=0;i<d.length;i+=4){const r=d[i],gg=d[i+1],b=d[i+2];
+  if(pp?Math.max(Math.abs(r-pp[0]),Math.abs(gg-pp[1]),Math.abs(b-pp[2]))<40 // paper, with its grain
+   :Math.max(r,gg,b)-Math.min(r,gg,b)<38&&r+gg+b>580)continue; // the first prints didn't keep their paper: light, nearly colorless is paper
+  ink++;const f=famOf(r,gg,b);n[f]=(n[f]||0)+1;}
+ if(ink<w*h*.03)return ['neutral',null]; // next to no ink
+ const top=Object.entries(n).sort((a,b)=>b[1]-a[1]);
+ return [top[0][0],top[1]&&top[1][1]>=ink*.1?top[1][0]:null];}
+// the whole uncropped tray (1000 x 1400) on this paper, so others can re-cut it, and its color families
 async function sheetJpeg(src){const sv={shape:po.shape,layout:po.layout};po.shape='portrait';po.layout='full';let big;try{big=renderPrint(src);}finally{Object.assign(po,sv);}
- return jpegUnder(scaled(big,big.width,big.height,1000));}
+ const fams=inkFamilies(big,src.sheet?src.paper:paperCol());
+ return {blob:await jpegUnder(scaled(big,big.width,big.height,1000)),fams};}
 $('gform').addEventListener('submit',async e=>{e.preventDefault();const btn=$('gsend'),msg=$('gmsg');if(btn.disabled)return;
  btn.disabled=true;sharing=true;msg.className='gmsg';msg.textContent='Adding…';
  const name=$('gname').value.trim().slice(0,40),title=$('gtitle').value.trim().slice(0,60);try{localStorage.setItem('ebru-name',name);}catch(_){}
- try{const fd=new FormData();fd.append('image',await galleryJpeg(),'print.jpg');fd.append('sheet',await sheetJpeg(subject),'sheet.jpg');
+ try{const fd=new FormData();fd.append('image',await galleryJpeg(),'print.jpg');const sj=await sheetJpeg(subject);fd.append('sheet',sj.blob,'sheet.jpg');fd.append('color',sj.fams[0]);if(sj.fams[1])fd.append('color2',sj.fams[1]);
   fd.append('paper',paperCol());fd.append('shape',po.shape);fd.append('layout',po.layout);fd.append('name',name);fd.append('title',title);
   const r=await fetch('/api/ebru/prints',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.print)throw new Error(j.error||'Couldn’t add it. Try again.');
-  $('gform').hidden=true;$('liftF').classList.remove('adding');if(document.activeElement)document.activeElement.blur();msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,100);renderGallery();}
+  $('gform').hidden=true;$('liftF').classList.remove('adding');if(document.activeElement)document.activeElement.blur();msg.textContent='Added to the gallery ✓';$('seeGal').hidden=false;shareGal=j.print;galTotal++;gal=[j.print,...gal.filter(p=>p.id!=j.print.id)].slice(0,24);renderGallery();}
  catch(err){msg.className='gmsg err';msg.textContent=err.message||'Couldn’t add it. Try again.';}
  finally{btn.disabled=false;sharing=false;}});
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]')){m.classList.remove('on');printT.forEach(clearTimeout);}}));

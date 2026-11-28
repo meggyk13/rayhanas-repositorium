@@ -10,6 +10,8 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => scaLifeHasPosts || !page.includes('/sca-life/'),
+      // the Ebru tray and its gallery are plain HTML in public/, which Astro doesn't list by itself
+      customPages: ['https://rayhanasrepositorium.com/tools/ebru/', 'https://rayhanasrepositorium.com/tools/ebru/gallery/'],
     }),
   ],
 });
