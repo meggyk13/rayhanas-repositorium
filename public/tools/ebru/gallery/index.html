@@ -3,26 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ebru Gallery</title>
-<meta name="description" content="The newest marbled prints made in the Ebru Marbling Tray, a playable Ottoman paper-marbling tray.">
+<title>Ebru Gallery: marbled paper prints from the Ebru Marbling Tray</title>
+<meta name="description" content="Marbled paper prints made by visitors in the Ebru Marbling Tray. Browse by color, heart your favorites, and make your own, free in your browser.">
 <meta name="theme-color" content="#211813">
 <link rel="canonical" href="https://rayhanasrepositorium.com/tools/ebru/gallery/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Rayhana's Repositorium">
 <meta property="og:title" content="Ebru Gallery">
-<meta property="og:description" content="The newest marbled prints from the Ebru Marbling Tray. Make your own and add it.">
+<meta property="og:description" content="Marbled paper prints made in the Ebru Marbling Tray. Browse by color, heart your favorites, and make your own.">
 <meta property="og:url" content="https://rayhanasrepositorium.com/tools/ebru/gallery/">
-<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg">
+<meta property="og:image" content="https://rayhanasrepositorium.com/images/ebru-og.jpg?v=2">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A combed marbled print in ochre, lapis blue, rose and ivory, beside the words Ebru, Marbling Tray.">
+<meta property="og:image:alt" content="A phone showing the Ebru Marbling Tray, its sea-green water marbled with cobalt, pink, yellow and white waves and three turquoise tulips, beside the same design lifted onto paper, and the words Make your own marbled paper, free on your phone or computer.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c7d6cb'/%3E%3Ccircle cx='12' cy='13' r='7' fill='%232c4d8e'/%3E%3Ccircle cx='12' cy='13' r='3.5' fill='%23f4ecda'/%3E%3Ccircle cx='22' cy='21' r='6' fill='%23b4475a'/%3E%3Ccircle cx='22' cy='21' r='2.5' fill='%23e1bf4c'/%3E%3C/svg%3E">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Ebru Gallery","url":"https://rayhanasrepositorium.com/tools/ebru/gallery/","description":"Marbled paper prints made by visitors in the Ebru Marbling Tray: combed, swirled and stone patterns in every color. Heart your favorites, filter by color, and make your own.","image":"https://rayhanasrepositorium.com/images/ebru-og.jpg?v=2","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Rayhana's Repositorium","url":"https://rayhanasrepositorium.com/"},"about":{"@type":"Thing","name":"Paper marbling (ebru)","sameAs":"https://en.wikipedia.org/wiki/Paper_marbling"}}</script>
+<link rel="icon" href="/tools/ebru/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/tools/ebru/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/tools/ebru/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/tools/ebru/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#211813;--wood:#3a2a21;--wood2:#4b372b;--ink:#f3ead9;--mute:#bba98f;--gold:#d2ac55;--line:rgba(243,234,217,.13)}
+:root{color-scheme:dark;--bg:#211813;--wood:#3a2a21;--wood2:#4b372b;--ink:#f3ead9;--mute:#bba98f;--gold:#d2ac55;--heart:#e2566b;--line:rgba(243,234,217,.13)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Alegreya Sans",system-ui,sans-serif}
 .wrap{max-width:1200px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 40px)}
@@ -30,19 +34,43 @@ header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bot
 h1{margin:0;font:700 44px/1 Amiri,Georgia,serif}
 h1 span{display:block;font:italic 400 20px/1.3 Amiri,serif;color:var(--mute);margin-top:6px}
 .make{margin-left:auto;display:inline-flex;align-items:center;min-height:46px;padding:0 18px;border-radius:23px;background:linear-gradient(180deg,#ddb965,#c79e46);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.35);white-space:nowrap}
-.make:focus-visible,.card:focus-visible,.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.make:focus-visible,.card:focus-visible,.btn:focus-visible,.heart:focus-visible,.stile:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:22px 18px}
 @media(max-width:420px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}h1{font-size:36px}}
-.card{all:unset;box-sizing:border-box;display:grid;gap:8px;width:100%;cursor:pointer}
-.grid li{min-width:0}
+.grid li{min-width:0;position:relative}
+.card{all:unset;box-sizing:border-box;display:grid;gap:6px;width:100%;cursor:pointer}
 .frame{aspect-ratio:.714;min-width:0;overflow:hidden;background:linear-gradient(160deg,var(--wood2),var(--wood));border-radius:8px;padding:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 20px rgba(0,0,0,.35);transition:transform .2s}
 .frame img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
 @media(hover:hover){.card:hover .frame{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){.frame{transition:none}}
 .ttl{font:700 19px/1.2 Amiri,serif;color:var(--ink);overflow-wrap:anywhere}
-.who{font:italic 400 18px/1.2 Amiri,serif;color:var(--ink);overflow-wrap:anywhere}
-.ttl+.who{font-size:16px;color:var(--mute)}
+.who{font:italic 400 17px/1.2 Amiri,serif;color:var(--ink);overflow-wrap:anywhere}
+.ttl+.who{color:var(--mute)}
 .when{font-size:14px;color:var(--mute)}
+/* the heart: on each card it sits over the frame's corner; in the viewer it's a button with the count */
+.heart{display:inline-flex;align-items:center;gap:5px;min-width:44px;min-height:36px;padding:0 10px;border-radius:18px;border:1px solid rgba(243,234,217,.25);background:rgba(20,14,10,.72);color:var(--ink);font:700 14px "Alegreya Sans",sans-serif;cursor:pointer}
+.heart svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.heart[aria-pressed=true]{color:var(--heart);border-color:rgba(226,86,107,.6)}
+.heart[aria-pressed=true] svg{fill:currentColor}
+.heart:disabled{opacity:.6}
+.grid .heart{position:absolute;top:8px;right:8px;backdrop-filter:blur(2px)}
+.grid .heart .n:empty{display:none}
+/* sort and color filter */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin:-4px 0 22px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.seg button{all:unset;cursor:pointer;display:inline-flex;align-items:center;min-height:40px;padding:0 14px;color:var(--mute);font:500 15px "Alegreya Sans",sans-serif}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--gold);color:#2a1d12;font-weight:700}
+.seg button:focus-visible,.chip:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 12px 0 6px;border-radius:19px;border:1px solid var(--line);color:var(--ink);font:500 14px "Alegreya Sans",sans-serif;white-space:nowrap}
+.chip i{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.4);box-shadow:inset 0 -3px 5px rgba(0,0,0,.2)}
+.chip.all{padding-left:12px}
+.chip small{color:var(--mute);font-size:13px}
+.chip[aria-pressed=true]{border-color:var(--gold);background:rgba(210,172,85,.18)}
+.chip:disabled{opacity:.4;cursor:default}
+.fnote{flex-basis:100%;margin:0;color:var(--mute);font-size:14px}
+@media(max-width:560px){.bar{gap:10px}.chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -18px;padding:2px 18px 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}}
 .note{color:var(--mute);font:italic 20px Amiri,serif;padding:40px 0;text-align:center}
 .note a{color:var(--gold)}
 [hidden]{display:none!important}
@@ -52,34 +80,58 @@ footer a{color:var(--gold)}
 .modal{position:fixed;inset:0;background:rgba(20,14,10,.93);display:none;place-items:center;padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 16px);z-index:5;overflow-y:auto}
 .modal.on{display:grid}
 .modal figure{margin:0;display:grid;gap:12px;justify-items:center;max-width:min(92vw,900px)}
-.modal img{display:block;max-width:100%;max-height:72dvh;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.modal img{display:block;max-width:100%;max-height:68dvh;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
 .modal figcaption{text-align:center;color:var(--mute)}
 .modal figcaption b{display:block;font:italic 400 22px Amiri,serif;color:var(--ink)}
 .modal figcaption b.t{font:700 26px/1.2 Amiri,serif}
-.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.acts .heart{min-height:44px;padding:0 16px;font-size:16px;border-radius:10px}
 .btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:var(--gold);color:#2a1d12;font:700 16px "Alegreya Sans",sans-serif;cursor:pointer}
 .btn.ghost{background:none;color:var(--gold)}
 a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.gmsg{min-height:1.4em;margin:0;color:var(--mute);font-size:15px;text-align:center}
+/* Share to: a short list of the likely places, instead of the phone's list of every app */
+.sharebox{z-index:7}
+.scard{width:min(92vw,420px);background:linear-gradient(170deg,#3a2a21,#2a1e17);border:1px solid var(--line);border-radius:16px;padding:18px 16px 14px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.scard h2{margin:0 0 12px;font:700 24px Amiri,serif;text-align:center}
+.sgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 6px}
+.stile{all:unset;box-sizing:border-box;display:grid;justify-items:center;gap:5px;padding:4px 0;cursor:pointer;color:var(--ink);font:500 13px/1.15 "Alegreya Sans",sans-serif;text-align:center;text-decoration:none;border-radius:10px}
+.stile i{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:rgba(243,234,217,.09);border:1px solid var(--line)}
+.stile svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stile.main i{background:var(--gold);border-color:var(--gold);color:#2a1d12}
+@media(hover:hover){.stile:hover i{border-color:var(--gold)}}
+.snote{margin:12px 2px 0;color:var(--mute);font-size:14px;text-align:center}
+.scard .close{display:block;margin:12px auto 0}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Ebru Gallery<span>The newest prints from the marbling tray</span></h1>
+    <h1>Ebru Gallery<span>Prints from the marbling tray</span></h1>
     <a class="make" href="/tools/ebru/">Make your own</a>
   </header>
+  <div class="bar">
+    <div class="seg" id="sortSeg" role="group" aria-label="Sort prints"><button data-v="new">Newest</button><button data-v="old">Oldest</button><button data-v="hearts">Most hearts</button></div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by color"></div>
+    <p class="fnote" id="fnote" hidden></p>
+  </div>
   <ul class="grid" id="grid" aria-live="polite"></ul>
   <p class="note" id="note">Loading&hellip;</p>
   <p class="morep"><button class="btn ghost" id="more" hidden>Show more</button></p>
-  <footer>Prints are added by anyone using the <a href="/tools/ebru/">Ebru Marbling Tray</a>; the newest 100 are kept. Part of <a href="/">Rayhana&rsquo;s Repositorium</a>.</footer>
+  <footer>Prints are added by anyone using the <a href="/tools/ebru/">Ebru Marbling Tray</a>, and kept for as long as there&rsquo;s room. Part of <a href="/">Rayhana&rsquo;s Repositorium</a>.</footer>
 </div>
 
 <div class="modal" id="view" role="dialog" aria-modal="true" aria-label="Marbled print">
   <figure>
     <img id="vImg" alt="">
     <figcaption id="vCap"></figcaption>
-    <div class="acts"><a class="btn ghost" id="vFmt" hidden>Change format</a><button class="btn ghost" id="vDl">Download</button><button class="btn" data-close>Close</button></div>
+    <div class="acts"><button class="heart" id="vHeart" aria-pressed="false"></button><button class="btn" id="vShare">Share</button><a class="btn ghost" id="vFmt" hidden>Change format</a><button class="btn ghost" data-close>Close</button></div>
+    <p class="gmsg" id="vMsg" role="status"></p>
   </figure>
+</div>
+
+<div class="modal sharebox" id="shareM" role="dialog" aria-modal="true" aria-labelledby="shareT">
+  <div class="scard"><h2 id="shareT">Share to:</h2><div class="sgrid" id="sgrid"></div><p class="snote" id="snote" hidden></p><button class="btn ghost close" data-close>Cancel</button></div>
 </div>
 
 <script>
@@ -89,43 +141,194 @@ const when=ms=>new Date(ms).toLocaleString([],{month:'short',day:'numeric',year:
 const PAGE=24;
 const label=p=>(p.title?`“${p.title}”, `:'Print, ')+(p.name?`made by ${p.name}, `:'')+when(p.createdAt);
 const slug=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
-let prints=[],cur=null,shown=PAGE,sig='';
+let prints=[],total=0,next=null,cur=null,loading=false;
+// ----- color families (for the gallery's color filter) -----
+// The family most of a print's ink belongs to, and the next one when there is enough of it to notice (a tenth of the
+// ink or more). Paper, and the mount and album borders, which are paper too, are left out. Kept the same in the tray
+// and on the gallery page, which works it out for prints shared before families were stored.
+const FAMS=['red','orange','yellow','green','blue','purple','pink','brown','neutral'];
+function famOf(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=(mx-mn)/255,l=(mx+mn)/510;
+ if(c<.12||l<.1)return 'neutral'; // black, grey, white, ivory
+ let h=mx==r?60*(((g-b)/(mx-mn))%6):mx==g?60*((b-r)/(mx-mn)+2):60*((r-g)/(mx-mn)+4);if(h<0)h+=360;
+ if(h>=15&&h<50&&l<.4)return 'brown'; // umber, sienna: dark oranges and yellows
+ if(h<15||h>=345)return l>.78?'pink':'red';
+ if(h<38)return 'orange';if(h<68)return 'yellow';if(h<175)return 'green';if(h<255)return 'blue';if(h<290)return 'purple';return 'pink';}
+function inkFamilies(img,paper){const c=document.createElement('canvas'),w=c.width=60,h=c.height=84,g=c.getContext('2d',{willReadFrequently:true});
+ g.drawImage(img,0,0,w,h);const d=g.getImageData(0,0,w,h).data,n={};let ink=0;
+ const pp=/^#[0-9a-f]{6}$/i.test(paper||'')?[1,3,5].map(i=>parseInt(paper.slice(i,i+2),16)):null;
+ for(let i=0;i<d.length;i+=4){const r=d[i],gg=d[i+1],b=d[i+2];
+  if(pp?Math.max(Math.abs(r-pp[0]),Math.abs(gg-pp[1]),Math.abs(b-pp[2]))<40 // paper, with its grain
+   :Math.max(r,gg,b)-Math.min(r,gg,b)<38&&r+gg+b>580)continue; // the first prints didn't keep their paper: light, nearly colorless is paper
+  ink++;const f=famOf(r,gg,b);n[f]=(n[f]||0)+1;}
+ if(ink<w*h*.03)return ['neutral',null]; // next to no ink
+ const top=Object.entries(n).sort((a,b)=>b[1]-a[1]);
+ return [top[0][0],top[1]&&top[1][1]>=ink*.1?top[1][0]:null];}
+// what is showing: the sort, and up to two color families (one: prints mostly that color; two: prints of those two,
+// either way round). Kept in the address, so a filtered view can be linked to.
+const FAMINFO={red:['Reds','#d23a2c'],orange:['Oranges','#f07a1c'],yellow:['Yellows','#f2c230'],green:['Greens','#3f9a5b'],
+ blue:['Blues','#2f5fb8'],purple:['Purples','#7b45c9'],pink:['Pinks','#e2568f'],brown:['Browns','#7a4e2d'],
+ neutral:['Black & white','linear-gradient(135deg,#1a1a1a 50%,#f4f0e6 50%)']};
+const ADJ={red:'red',orange:'orange',yellow:'yellow',green:'green',blue:'blue',purple:'purple',pink:'pink',brown:'brown',neutral:'black, white or grey'};
+const SORTS=['new','old','hearts'];
+let sort='new',picked=[],counts={},pairs=null,uncolored=0;
+{const q=new URLSearchParams(location.search);if(SORTS.includes(q.get('sort')))sort=q.get('sort');
+ picked=[...new Set((q.get('colors')||'').split(','))].filter(c=>FAMS.includes(c)).slice(0,2);}
+function drawBar(){
+ $('sortSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==sort));
+ // with one family picked, the others count the prints that mix it with them
+ const one=picked.length==1,num=f=>one&&f!=picked[0]?(pairs&&pairs[f])||0:counts[f]||0;
+ $('chips').innerHTML=`<button class="chip all" data-f="" aria-pressed="${!picked.length}">All colors</button>`+
+  FAMS.filter(f=>num(f)>0||picked.includes(f)).map(f=>{const n=num(f),on=picked.includes(f);
+   return `<button class="chip" data-f="${f}" aria-pressed="${on}" ${!on&&!n?'disabled':''} aria-label="${FAMINFO[f][0]}${one&&!on?' with '+FAMINFO[picked[0]][0]:''}, ${n} print${n==1?'':'s'}"><i style="background:${FAMINFO[f][1]}"></i>${FAMINFO[f][0]} <small>${n}</small></button>`;}).join('');
+ const notes=[];
+ if(one)notes.push(`Showing prints that are mostly ${ADJ[picked[0]]}. Pick a second color for prints that mix the two; the counts beside the others are how many do.`);
+ if(picked.length==2)notes.push(`Showing prints that are mostly ${ADJ[picked[0]]} and ${ADJ[picked[1]]}.`);
+ if(picked.length&&uncolored)notes.push('Older prints are sorted into colors as they’re viewed, so a few may not show here yet.');
+ $('fnote').hidden=!notes.length;$('fnote').textContent=notes.join(' ');
+ // on a phone the chips scroll sideways: bring the picked one into view
+ const on=$('chips').querySelector('.chip[aria-pressed=true]:not(.all)'),row=$('chips');
+ if(on&&row.scrollWidth>row.clientWidth){const a=on.getBoundingClientRect(),b=row.getBoundingClientRect();if(a.right>b.right-8||a.left<b.left+8)row.scrollLeft+=a.left-b.left-row.clientWidth/2+a.width/2;}}
+function setView(){const q=new URLSearchParams();if(sort!='new')q.set('sort',sort);if(picked.length)q.set('colors',picked.join(','));
+ history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);
+ prints=[];next=null;total=0;$('grid').textContent='';$('more').hidden=true;$('note').hidden=false;$('note').textContent='Loading…';drawBar();load();}
+$('sortSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b||b.dataset.v==sort)return;sort=b.dataset.v;setView();});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||b.disabled)return;const f=b.dataset.f;
+ picked=!f?[]:picked.includes(f)?picked.filter(x=>x!=f):[...picked,f].slice(-2);setView();});
 
-function render(){
-  const grid=$('grid');grid.textContent='';
-  for(const [i,p] of prints.slice(0,shown).entries()){
-    const li=document.createElement('li'),b=document.createElement('button'),f=document.createElement('div'),img=document.createElement('img');
-    b.className='card';b.dataset.i=i;b.setAttribute('aria-label',label(p));
-    f.className='frame';img.src=p.url;img.alt='';img.loading='lazy';img.width=p.width;img.height=p.height;f.append(img);b.append(f);
-    if(p.title){const h=document.createElement('span');h.className='ttl';h.textContent=p.title;b.append(h);}
-    if(p.name){const w=document.createElement('span');w.className='who';w.textContent=p.title?'by '+p.name:p.name;b.append(w);}
-    const t=document.createElement('span');t.className='when';t.textContent=when(p.createdAt);b.append(t);
-    li.append(b);grid.append(li);}
-  $('note').hidden=prints.length>0;
-  if(!prints.length)$('note').innerHTML='No prints yet. <a href="/tools/ebru/">Make the first one</a>.';
-  const left=prints.length-shown;$('more').hidden=left<=0;
-  if(left>0)$('more').textContent=`Show more (${left} older)`;
-}
-async function load(){
-  try{const r=await fetch('/api/ebru/prints',{cache:'no-store'});if(!r.ok)throw 0;const list=(await r.json()).prints||[];
-    const s=list.map(p=>p.id).join();if(s===sig&&prints.length)return;sig=s;prints=list;render();}
-  catch(_){if(!prints.length){$('note').hidden=false;$('note').textContent='The gallery couldn’t load. Try again in a moment.';}}
-}
-$('grid').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b)return;cur=prints[+b.dataset.i];if(!cur)return;
-  $('vImg').src=cur.url;$('vImg').alt='Marbled '+label(cur).replace(/^Print, /,'print, ');
-  const cap=$('vCap');cap.textContent='';
-  if(cur.title){const t=document.createElement('b');t.className='t';t.textContent=cur.title;cap.append(t);}
-  if(cur.name){const n=document.createElement('b');n.textContent='Made by '+cur.name;cap.append(n);}
-  cap.append(when(cur.createdAt));
-  $('vFmt').hidden=!cur.sheetUrl;$('vFmt').href='/tools/ebru/#print='+encodeURIComponent(cur.id);
-  $('view').classList.add('on');$('view').querySelector('[data-close]').focus();});
-$('more').onclick=()=>{const first=shown;shown+=PAGE;render();const next=$('grid').children[first];if(next)next.querySelector('button').focus({preventScroll:true});};
-$('vDl').onclick=()=>{if(!cur)return;const a=document.createElement('a');a.href=cur.url;
-  a.download=`ebru-${cur.title&&slug(cur.title)?slug(cur.title)+'-':''}${new Date(cur.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;document.body.append(a);a.click();a.remove();};
-$('view').addEventListener('click',e=>{if(e.target.id=='view'||e.target.closest('[data-close]'))$('view').classList.remove('on');});
-addEventListener('keydown',e=>{if(e.key=='Escape')$('view').classList.remove('on');});
+// prints from before color families get theirs from the picture already showing (no extra download), and a few more each visit
+const filled=new Set();
+function fill(p,img){if(p.color||filled.has(p.id))return;filled.add(p.id);let fs;try{fs=inkFamilies(img,p.paper);}catch(_){return;}
+ p.color=fs[0];p.color2=fs[1];
+ fetch(`/api/ebru/prints/${p.id}/color`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({color:fs[0],color2:fs[1]})}).catch(()=>{});}
+let topped=false;
+async function topUp(){if(topped||!uncolored||(navigator.connection&&navigator.connection.saveData))return;topped=true;
+ try{const j=await (await fetch('/api/ebru/prints?uncolored=1&limit=10',{cache:'no-store'})).json();
+  for(const p of j.prints||[]){if(filled.has(p.id))continue;const im=new Image();
+   await new Promise(r=>{im.onload=r;im.onerror=r;im.src=p.url;});if(im.naturalWidth)fill(p,im);}}catch(_){}}
+
+// ----- hearts: this browser's voter id, and the prints it has hearted -----
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d;}catch(_){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(_){}}};
+let voter=store.get('ebru-voter',null);
+if(typeof voter!='string'||!/^[0-9a-f-]{20,64}$/i.test(voter)){voter=(crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join(''));store.set('ebru-voter',voter);}
+const hearted=new Set(store.get('ebru-hearts',[]));
+const saveHearted=()=>store.set('ebru-hearts',[...hearted].slice(-3000));
+const HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>';
+function paintHeart(b,p){const on=hearted.has(p.id),n=p.hearts||0;b.setAttribute('aria-pressed',on);
+ b.innerHTML=HEART+`<span class="n">${n||''}</span>`;b.setAttribute('aria-label',(on?'Hearted':'Heart this print')+(n?`, ${n} heart${n==1?'':'s'}`:''));}
+async function toggleHeart(p){const on=!hearted.has(p.id),was=p.hearts||0;
+ on?hearted.add(p.id):hearted.delete(p.id);p.hearts=Math.max(0,was+(on?1:-1));saveHearted();syncHearts(p);
+ try{const r=await fetch(`/api/ebru/prints/${p.id}/heart`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({voter,on})});
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Couldn’t save that heart.');p.hearts=j.hearts;syncHearts(p);}
+ catch(e){on?hearted.delete(p.id):hearted.add(p.id);p.hearts=was;saveHearted();syncHearts(p);if(cur===p)$('vMsg').textContent=e.message||'Couldn’t save that heart.';}}
+function syncHearts(p){document.querySelectorAll(`.heart[data-id="${p.id}"]`).forEach(b=>paintHeart(b,p));}
+
+// ----- the grid -----
+function card(p,i){const li=document.createElement('li'),b=document.createElement('button'),f=document.createElement('div'),img=document.createElement('img');
+ b.className='card';b.dataset.i=i;b.setAttribute('aria-label',label(p));
+ f.className='frame';if(!p.color)img.addEventListener('load',()=>fill(p,img),{once:true});img.src=p.url;img.alt='';img.loading='lazy';img.width=p.width;img.height=p.height;f.append(img);b.append(f);
+ if(p.title){const h=document.createElement('span');h.className='ttl';h.textContent=p.title;b.append(h);}
+ if(p.name){const w=document.createElement('span');w.className='who';w.textContent='Made by: '+p.name;b.append(w);}
+ const t=document.createElement('span');t.className='when';t.textContent=when(p.createdAt);b.append(t);
+ const h=document.createElement('button');h.className='heart';h.dataset.id=p.id;paintHeart(h,p);
+ li.append(b,h);return li;}
+function render(){const grid=$('grid');grid.textContent='';prints.forEach((p,i)=>grid.append(card(p,i)));tail();}
+function tail(){$('note').hidden=prints.length>0;
+ if(!prints.length)$('note').innerHTML=picked.length?'No prints in those colors yet. <a href="/tools/ebru/">Make one</a>.':'No prints yet. <a href="/tools/ebru/">Make the first one</a>.';
+ const left=total-prints.length;$('more').hidden=!next;if(next)$('more').textContent=left>0?`Show more (${left} older)`:'Show more';}
+const page=before=>fetch('/api/ebru/prints?limit='+PAGE+(sort!='new'?'&sort='+sort:'')+(picked.length?'&colors='+picked.join(','):'')+(before?'&before='+encodeURIComponent(before):''),{cache:'no-store'})
+ .then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{counts=j.colors||{};pairs=j.pairs||null;uncolored=j.uncolored||0;drawBar();return j;});
+async function load(){if(loading)return;loading=true;
+ try{const j=await page();total=j.total||0;
+  if(!prints.length){prints=j.prints||[];next=j.next;render();}
+  else{ // coming back to the page: put new prints on top and refresh the counts of the ones loaded
+   const fresh=(j.prints||[]),byId=new Map(fresh.map(p=>[p.id,p])),known=new Set(prints.map(p=>p.id));
+   for(const p of prints){const f=byId.get(p.id);if(f)p.hearts=f.hearts;}
+   const add=sort=='new'?fresh.filter(p=>!known.has(p.id)):[];if(add.length){prints=[...add,...prints];render();}else{prints.forEach(syncHearts);tail();}}
+  setTimeout(topUp,2500);}
+ catch(_){if(!prints.length){$('note').hidden=false;$('note').textContent='The gallery couldn’t load. Try again in a moment.';}}
+ finally{loading=false;}}
+$('more').onclick=async()=>{if(!next||loading)return;loading=true;$('more').disabled=true;
+ try{const j=await page(next),first=prints.length,known=new Set(prints.map(p=>p.id));total=j.total||total;next=j.next;
+  for(const p of j.prints||[])if(!known.has(p.id)){prints.push(p);$('grid').append(card(p,prints.length-1));}
+  tail();const el=$('grid').children[first];if(el)el.querySelector('.card').focus({preventScroll:true});}
+ catch(_){$('more').textContent='Couldn’t load more. Try again';}
+ finally{loading=false;$('more').disabled=false;}};
+$('grid').addEventListener('click',e=>{const h=e.target.closest('.heart');if(h){const p=prints.find(x=>x.id==h.dataset.id);if(p)toggleHeart(p);return;}
+ const b=e.target.closest('.card');if(!b)return;const p=prints[+b.dataset.i];if(p)openView(p);});
+
+// ----- one print, large -----
+function openView(p){cur=p;$('vMsg').textContent='';
+ $('vImg').src=p.url;$('vImg').alt='Marbled '+label(p).replace(/^Print, /,'print, ');
+ const cap=$('vCap');cap.textContent='';
+ if(p.title){const t=document.createElement('b');t.className='t';t.textContent=p.title;cap.append(t);}
+ if(p.name){const n=document.createElement('b');n.textContent='Made by: '+p.name;cap.append(n);}
+ cap.append(when(p.createdAt));
+ $('vHeart').dataset.id=p.id;paintHeart($('vHeart'),p);
+ $('vFmt').hidden=!p.sheetUrl;$('vFmt').href='/tools/ebru/#print='+encodeURIComponent(p.id);
+ if(location.hash!='#p='+p.id)history.replaceState(null,'','#p='+p.id);
+ $('view').classList.add('on');$('view').querySelector('[data-close]').focus();}
+function closeView(){$('view').classList.remove('on');cur=null;if(location.hash)history.replaceState(null,'',location.pathname+location.search);}
+$('vHeart').onclick=()=>{if(cur)toggleHeart(cur);};
+$('view').addEventListener('click',e=>{if(e.target.id=='view'||e.target.closest('[data-close]'))closeView();});
+// a shared link lands here as #p=<id>
+async function openFromHash(){const m=/^#p=([0-9a-f-]{36})$/.exec(location.hash);if(!m)return;
+ let p=prints.find(x=>x.id==m[1]);
+ if(!p){try{const r=await fetch('/api/ebru/prints/'+m[1],{cache:'no-store'});if(r.ok)p=(await r.json()).print;}catch(_){}}
+ if(p)openView(p);else history.replaceState(null,'',location.pathname+location.search);}
+
+// ----- Share to: -----
+// The phone's own share sheet lists every app it has, so this offers the likely few first: saving the picture, and
+// sending the print's link (its page shows the print as the link's preview). More apps still opens the full sheet.
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform=='MacIntel'&&navigator.maxTouchPoints>1);
+const PHONE=matchMedia('(pointer:coarse)').matches;
+const SI={photos:'<rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16.5-5-5-9.5 8"/>',
+ download:'<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',messages:'<path d="M4 5h16v11H10l-5 4v-4H4z"/>',
+ whatsapp:'<path d="M20 11.8a8 8 0 0 1-11.7 7.1L4 20l1.2-4.1A8 8 0 1 1 20 11.8z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z"/>',
+ facebook:'<path d="M14.5 21v-8h3l.4-3.2h-3.4V7.9c0-.9.3-1.6 1.6-1.6h1.9V3.5a24 24 0 0 0-2.7-.2c-2.7 0-4.4 1.6-4.4 4.6v1.9H8V13h2.9v8"/>',
+ pinterest:'<circle cx="12" cy="12" r="9"/><path d="m10.2 20.5 2.1-8.4M10.6 13.6c-.4-.6-.6-1.3-.6-2.1 0-2.4 1.8-4.2 4.1-4.2 2 0 3.3 1.3 3.3 3.2 0 2.5-1.3 4.4-3.1 4.4-.9 0-1.6-.8-1.4-1.7"/>',
+ email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ more:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>'};
+let sh=null; // what Share to: is sharing: {blob(), file, link, text}
+const stile=(k,lab,href,main)=>`<${href?'a':'button'} class="stile${main?' main':''}" data-k="${k}"${href?` href="${href}" target="_blank" rel="noopener"`:''}><i><svg viewBox="0 0 24 24">${SI[k]}</svg></i>${lab}</${href?'a':'button'}>`;
+// the picture is fetched as the box opens: a phone only opens its share sheet straight after a tap, and waiting on the
+// network after the tap can use that up
+function openShare(s){sh=s;const bp=s.blob();bp.catch(()=>{});s.blob=()=>bp;const enc=encodeURIComponent,L=s.link,T=s.text,tiles=[];
+ if(PHONE)tiles.push(stile('photos','Save to Photos',null,true));
+ tiles.push(stile('download','Download',null,!PHONE));
+ if(L){if(PHONE)tiles.push(stile('messages','Messages',`sms:?&body=${enc(T+' '+L)}`));
+  tiles.push(stile('whatsapp','WhatsApp',`https://wa.me/?text=${enc(T+' '+L)}`));
+  tiles.push(stile('facebook','Facebook',`https://www.facebook.com/sharer/sharer.php?u=${enc(L)}`));
+  tiles.push(stile('pinterest','Pinterest',`https://www.pinterest.com/pin/create/button/?url=${enc(L)}&media=${enc(s.image)}&description=${enc(T)}`));
+  tiles.push(stile('email','Email',`mailto:?subject=${enc(s.subject||'A marbled print')}&body=${enc(T+'\n\n'+L)}`));
+  tiles.push(stile('link','Copy link'));}
+ if(navigator.share)tiles.push(stile('more','More apps'));
+ $('sgrid').innerHTML=tiles.join('');
+ const note=$('snote');note.hidden=!s.note;note.textContent=s.note||'';
+ $('shareM').classList.add('on');($('sgrid').querySelector('.stile')||$('shareM').querySelector('[data-close]')).focus();}
+const closeShare=()=>{$('shareM').classList.remove('on');};
+function saveFile(){const a=document.createElement('a');a.href=sh.href;a.download=sh.file;document.body.append(a);a.click();a.remove();}
+$('shareM').addEventListener('click',async e=>{if(e.target.id=='shareM'||e.target.closest('[data-close]')){closeShare();return;}
+ const t=e.target.closest('.stile');if(!t||!sh)return;const k=t.dataset.k;
+ if(t.tagName=='A'){setTimeout(closeShare,300);return;} // Messages, WhatsApp, Facebook, Pinterest, Email open in their own place
+ if(k=='download'||(k=='photos'&&!IOS)){saveFile();closeShare();return;} // Android keeps downloaded pictures in Photos (Download)
+ if(k=='link'){try{await navigator.clipboard.writeText(sh.link);t.lastChild.textContent='Copied ✓';setTimeout(closeShare,900);}catch(_){prompt('Copy this link:',sh.link);}return;}
+ try{const b=await sh.blob(),file=new File([b],sh.file,{type:'image/jpeg'});
+  // iPhone: the system sheet, whose Save Image puts it in Photos. More apps: the whole sheet, with the picture (and link)
+  const data=k=='photos'||!sh.link?{files:[file]}:{files:[file],text:sh.text+' '+sh.link};
+  if(navigator.canShare&&!navigator.canShare(data))delete data.files,data.url=sh.link;
+  await navigator.share(data);closeShare();}
+ catch(err){if(err&&err.name=='AbortError')return;if(k=='photos')saveFile();closeShare();}});
+$('vShare').onclick=()=>{if(!cur)return;const p=cur,link=location.origin+p.shareUrl;
+ openShare({link,image:location.origin+p.url,href:p.url,
+  file:`ebru-${p.title&&slug(p.title)?slug(p.title)+'-':''}${new Date(p.createdAt).toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`,
+  text:p.title?`“${p.title}”, a marbled print from the Ebru Gallery`:'A marbled print from the Ebru Gallery',subject:p.title||'A marbled print',
+  blob:()=>fetch(p.url).then(r=>{if(!r.ok)throw new Error('Couldn’t get the picture.');return r.blob();})});};
+
+addEventListener('keydown',e=>{if(e.key!='Escape')return;if($('shareM').classList.contains('on'))closeShare();else if($('view').classList.contains('on'))closeView();});
+addEventListener('hashchange',openFromHash);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
-load();
+drawBar();load().then(openFromHash);
 }
 </script>
 </body>

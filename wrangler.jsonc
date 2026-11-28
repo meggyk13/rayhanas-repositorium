@@ -11,7 +11,7 @@
   },
   "d1_databases": [
     {
-      // The Ebru tray's shared gallery (newest 100 prints).
+      // The Ebru tray's shared gallery: prints, kept while they fit a storage budget, and their hearts.
       "binding": "DB",
       "database_name": "repositorium-db",
       "database_id": "1d4fd560-103d-4b15-8736-cff2fd2f96c4"
