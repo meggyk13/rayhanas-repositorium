@@ -92,7 +92,22 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .lbl{font-size:14px;color:var(--mute);margin-right:2px}
 .cap2{font-size:13px;color:var(--mute);margin:-2px 0 -4px 2px}
 .cap2 span{opacity:.8}
-.seg.palseg button{min-height:32px;padding:0 10px}
+.palb{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 8px 0 9px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.06);color:var(--ink);font:500 14px "Alegreya Sans",sans-serif;cursor:pointer;white-space:nowrap}
+.palb svg{width:16px;height:16px;color:var(--mute)}
+.palb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(hover:hover){.palb:hover{border-color:rgba(210,172,85,.7)}}
+.palz{display:inline-flex}.palz i{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.45);margin-left:-5px}.palz i:first-child{margin-left:0}
+.palz i.mt{border:1.5px dashed var(--mute);background:none}
+/* the palette sheet */
+.pallist{display:grid;gap:8px}
+.palrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04);color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.palrow[aria-pressed=true]{border-color:var(--gold);background:rgba(210,172,85,.12)}
+.palrow:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.palrow b{font:700 17px "Alegreya Sans",sans-serif}
+.palrow small{grid-column:1/-1;color:var(--mute);font-size:14px;line-height:1.3}
+.palrow .palz i{width:18px;height:18px;margin-left:-6px}
+.palclr{justify-self:end;min-height:36px;padding:0 6px;border:0;background:none;color:#e79a8a;font:500 14px "Alegreya Sans",sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.swnote{align-self:center;flex:none;max-width:210px;color:var(--mute);font:italic 15px/1.2 Amiri,serif;padding:0 4px}
 .dpad .ib{height:40px}
 .drawer{display:grid;grid-template-rows:1fr;transition:grid-template-rows .45s ease}
 .drawer>div{overflow:hidden;min-height:0}
@@ -146,10 +161,6 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .addc svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 .addc input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
 .csl{gap:14px}.csl label{gap:6px}.csl input{height:26px}
-.palb{flex:none;width:48px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);cursor:pointer;transition:transform .2s}
-.palb svg{width:32px;height:32px}
-.palb:active{transform:rotate(-12deg) scale(.95)}
-.palb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .seg{display:flex;background:rgba(0,0,0,.3);border-radius:11px;padding:2px;flex:none}
 .seg button{min-height:40px;padding:0 11px;border:0;border-radius:9px;background:none;color:var(--mute);font:500 14px "Alegreya Sans",sans-serif;cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--wood2);color:var(--ink)}
@@ -350,7 +361,7 @@ body.cb .pgrid .nonec{align-self:start}
  input[type=range]{height:28px}
  .float{min-height:34px}
  .seg button{min-height:34px}
- .seg.palseg button{min-height:30px}
+ .palb{min-height:32px}
  .dpad .ib{height:34px;width:40px}
  .inkpick{min-height:32px}
  .slot{width:38px;height:38px}
@@ -403,7 +414,7 @@ body.cb .pgrid .nonec{align-self:start}
     <div class="panel on" id="p-ink" role="tabpanel">
       <div class="strip swrow" id="sw"></div>
       <div class="meta"><b id="cname"></b><label class="opl" title="Ink opacity: lower lets the water, and the paper of a print, show through"><span>Opacity</span><input type="range" id="opac" min="0.15" max="1" step="0.05" value="1" aria-label="Ink opacity"></label><button class="float" id="float" title="Sprinkle drops of this ink over the whole tray">Sprinkle the tray</button></div>
-      <div class="meta"><label>Size <input type="range" id="size" min="0.5" max="4" step="0.05" value="1" aria-label="Tool size"></label><div class="seg palseg" id="palSeg" role="group" aria-label="Colors"><button data-m="period" title="Historical pigments">Period</button><button data-m="modern" title="Bright modern colors">Modern</button><button data-m="distinct" title="Colorblind-friendly: colors that stay easy to tell apart with most kinds of color blindness, each named in the color sheet">Colorblind</button></div></div>
+      <div class="meta"><label>Size <input type="range" id="size" min="0.5" max="4" step="0.05" value="1" aria-label="Tool size"></label><button class="palb" id="palB" aria-haspopup="dialog" title="Choose a palette"><span class="palz" id="palDots" aria-hidden="true"></span><span id="palName">Period</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button></div>
     </div>
 
     <div class="panel" id="p-hand" role="tabpanel">
@@ -492,7 +503,7 @@ body.cb .pgrid .nonec{align-self:start}
 </div>
 
 <div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="pickT">
-  <div class="pcard"><div class="ptitle" id="pickT"></div><div class="pgrid" id="pgrid"></div></div>
+  <div class="pcard"><div class="ptitle" id="pickT"></div><div class="pgrid" id="pgrid"></div><div class="pallist" id="palList" hidden></div></div>
 </div>
 
 <div class="modal" id="aboutM" role="dialog" aria-modal="true" aria-label="About ebru">
@@ -501,7 +512,7 @@ body.cb .pgrid .nonec{align-self:start}
     <p>Ebru (the name is usually traced to Persian) was part of the Ottoman book arts by the 1500s: marbled sheets for album pages, borders and bindings, and sometimes as the ground under calligraphy. <b>Battal</b>, plain "stone" ebru made by sprinkling color after color, is the base every other pattern is built on. Combed forms like <b>gelgit</b> (back and forth) and <b>tarak</b> (comb) are drawn through a battal ground.</p>
     <p>The physics is the mathematical marbling of Lu, Jaffer and colleagues: every drop, tine and swirl is an exact, area-preserving deformation, so colors never blend. They only stretch, as they do on sized water.<sup>1</sup></p>
     <p><b>Top bar.</b> Undo and Redo step back and forward (Ctrl+Z and Ctrl+Shift+Z on a computer). Clear empties the tray to fresh water; you can undo it. Lift print makes a print.</p>
-    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. Period, Modern and Colorblind switch between historical pigments, bright modern colors, and a colorblind-friendly set whose colors stay easy to tell apart (with each color named in the color sheet); + mixes your own. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
+    <p><b>Ink.</b> Pick a pigment and tap the tray. Sprinkle the tray covers the whole tray in drops of that color; sprinkle three or four, largest size first, for your own battal. The palette button beside Size switches between Period (historical pigments), Modern (bright colors), Colorblind (colors that stay easy to tell apart, each named in the color sheet) and Your colors. + mixes your own: each one goes first in Your colors, which keeps your last 12; you can clear them from the palette list. Opacity sets how solid new ink is; lower lets the water, and the paper of a print, show through.</p>
     <p><b>Settings</b> (the gear). Sound: off, on, or on with gentle water sounds. Water sets how thin or thick the size is: thin water spreads drops wider and lets tools pull further. Tray color changes the water behind the ink: sea glass, pale, plain white, white with grey grid lines to help place your drops (the grid never shows on a print), or black. Calm water stills the moving light and ripples, and Tips on the tray hides the hints. Your name is filled in when you share, Paper sets the paper new prints start on, and Clear all removes the prints kept on this device. Auto mode has its own pace and timing.</p>
     <p><b>Tools.</b> Drop: tap, or hold to spread. Stylus: drag one needle. Rake: drag a row of tines, each drawing its own line; set how many beside Size. Swirl: hold to turn the water, clockwise or counter-clockwise (pick beside the ink). Mist: drag to spray fine drops. Rings: tap for concentric drops in your ink and a second color (pick it with the &ldquo;with&rdquo; button, or leave it on Auto), and set how many rings a tap lays (up to 24) beside Size; pull a stylus through the middle for a tulip. Drop, Mist and Rings lay ink and show its color; Stylus, Rake and Swirl only move the water. Size sets the scale of all of them.</p>
     <p><b>Combs.</b> Pick a direction, set the tine spacing and strength, then tap a comb to draw it through the whole tray.</p>
@@ -612,28 +623,55 @@ $('combs').dataset.dir='down';
 const RECS=[["r-battal","Battal","battal"],["r-gelgit","Gelgit","gelV"],["r-tarak","Tarak","fineH"],["r-sal","Şal","waveV"],["r-chev","Chevron","chev"],["r-spiral","Spiral","spiral"]];
 $('sheet').innerHTML=RECS.map(r=>tile(r[0],r[1],r[2],`aria-pressed="${r[0]=='r-gelgit'}"`)).join('');
 
-let customs=[];try{customs=(JSON.parse(localStorage.getItem('ebru-custom')||'[]')).filter(c=>/^#[0-9a-f]{6}$/i.test(c)).slice(0,6);}catch(_){}
-const allInk=()=>[...PALS[mode],...customs.map(c=>['Your color',c])];
-function drawSw(sel){const L=allInk();
- $('sw').innerHTML=L.map((p,i)=>`<button class="sw" style="background:${p[1]}" aria-label="${p[0]}" aria-pressed="${p[1]==sel}" data-i="${i}"></button>`).join('')+
+// Your colors: the colors you mix with +, newest first, the last KEEP_YOURS kept. It is a palette of its own,
+// so the other palettes stay just their pigments. Recipes, ring colors and the default paper follow the last
+// pigment palette (mode); the swatch row shows the palette in view.
+const KEEP_YOURS=12;
+let customs=[];try{customs=(JSON.parse(localStorage.getItem('ebru-custom')||'[]')).filter(c=>/^#[0-9a-f]{6}$/i.test(c)).slice(0,KEEP_YOURS);}catch(_){}
+const saveYours=()=>{try{localStorage.setItem('ebru-custom',JSON.stringify(customs));}catch(_){}};
+let view=mode;try{if(localStorage.getItem('ebru-view')=='yours'&&customs.length)view='yours';}catch(_){}
+const saveView=()=>{try{localStorage.setItem('ebru-view',view);}catch(_){}};
+const yoursInk=()=>customs.map(c=>['Your color',c]);
+const viewInk=()=>view=='yours'?yoursInk():PALS[mode];
+const allInk=()=>[...PALS[mode],...yoursInk()]; // the color sheet (Tools ink, ring color, recipe layers) offers both
+const PALINFO={period:['Period','Historical pigments'],modern:['Modern','Bright modern colors'],
+ distinct:['Colorblind','Colors that stay easy to tell apart with most kinds of color blindness, each named in the color sheet'],
+ yours:['Your colors','The last '+KEEP_YOURS+' colors you mixed with +, newest first']};
+const dotsOf=(L,n)=>L.length?L.slice(0,n).map(p=>'<i style="background:'+p[1]+'"></i>').join(''):'<i class="mt"></i>';
+function syncPal(){$('palName').textContent=PALINFO[view][0];$('palDots').innerHTML=dotsOf(viewInk(),3);
+ $('palB').setAttribute('aria-label','Palette: '+PALINFO[view][0]+'. Tap to change');}
+function drawSw(sel){const L=viewInk();
+ $('sw').innerHTML=L.map((p,i)=>'<button class="sw" style="background:'+p[1]+'" aria-label="'+p[0]+'" aria-pressed="'+(p[1]==sel)+'" data-i="'+i+'"></button>').join('')+
+  (view=='yours'&&!L.length?'<span class="swnote">Mix a color with + and it&rsquo;s kept here</span>':'')+
   '<label class="sw addc" aria-label="Mix your own color"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg><input type="color" id="cpick" value="#7a5c9e"></label>';}
-function swatches(){PIG=PALS[mode];color=PIG[0][1];drawSw(color);
- $('cname').textContent=PIG[0][0];$('sw').scrollLeft=0;syncInk(PIG[0][0]);
- $('palSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m==mode));
+// show the palette in view and take its first color as the ink
+function swatches(){PIG=PALS[mode];const first=viewInk()[0];
+ if(first){color=first[1];$('cname').textContent=first[0];syncInk(first[0]);}else syncInk();
+ drawSw(color);$('sw').scrollLeft=0;syncPal();
  document.body.classList.toggle('cb',mode=='distinct');
  document.querySelector('.sheetP').style.background=cfg.paper||PAPER[mode];}
 swatches();
-$('palSeg').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b||b.dataset.m==mode)return;
- mode=b.dataset.m;try{localStorage.setItem('ebru-mode',mode);}catch(_){}swatches();resetSlots();});
+function drawPalList(){$('palList').innerHTML=['period','modern','distinct','yours'].map(k=>{const L=k=='yours'?yoursInk():PALS[k];
+  return '<button class="palrow" data-v="'+k+'" aria-pressed="'+(k==view)+'"><b>'+PALINFO[k][0]+'</b><span class="palz">'+dotsOf(L,8)+'</span><small>'+(k=='yours'&&!L.length?'Empty for now. Mix a color with + and it&rsquo;s kept here.':PALINFO[k][1])+'</small></button>';}).join('')+
+ (customs.length?'<button class="palclr" id="palClr">Clear your colors</button>':'');}
+$('palB').onclick=()=>{pickFor='pal';$('pickT').textContent='Palette';$('pgrid').hidden=true;$('palList').hidden=false;drawPalList();$('picker').classList.add('on');};
+$('palList').addEventListener('click',e=>{
+ if(e.target.id=='palClr'){if(!confirm('Clear your '+customs.length+' mixed color'+(customs.length==1?'':'s')+'? This can’t be undone.'))return;
+  customs=[];saveYours();if(view=='yours'){view=mode;saveView();swatches();}else syncPal();drawPalList();return;}
+ const b=e.target.closest('[data-v]');if(!b)return;const v=b.dataset.v;$('picker').classList.remove('on');if(v==view)return;
+ view=v;if(v!='yours'&&v!=mode){mode=v;try{localStorage.setItem('ebru-mode',mode);}catch(_){}resetSlots();}
+ saveView();swatches();});
 $('sw').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b||b.classList.contains('addc'))return;
  $('sw').querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');
- const p=allInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];syncInk(p[0]);});
+ const p=viewInk()[+b.dataset.i];color=p[1];$('cname').textContent=p[0];syncInk(p[0]);});
 // the mixer opens on the ink in use now, so a custom color can start from it
 const cpickNow=e=>{if(e.target.id=='cpick'&&/^#[0-9a-f]{6}$/i.test(color))e.target.value=color.toLowerCase();};
 for(const ev of ['pointerdown','keydown','focusin'])$('sw').addEventListener(ev,cpickNow,true);
 $('sw').addEventListener('change',e=>{if(e.target.id!='cpick')return;const c=e.target.value.toLowerCase();if(!/^#[0-9a-f]{6}$/.test(c))return;
- customs=[c,...customs.filter(x=>x!=c)].slice(0,6);try{localStorage.setItem('ebru-custom',JSON.stringify(customs));}catch(_){}
- color=c;drawSw(c);$('cname').textContent='Your color';syncInk('Your color');const s=$('sw');s.scrollLeft=s.scrollWidth;});
+ customs=[c,...customs.filter(x=>x!=c)].slice(0,KEEP_YOURS);saveYours();
+ // a mixed color lands first in Your colors, and the row turns to that palette so you can see it picked
+ view='yours';saveView();
+ color=c;drawSw(c);syncPal();$('cname').textContent='Your color';syncInk('Your color');$('sw').scrollLeft=0;});
 
 // a mouse can drag the sideways rows (colors, tools, combs, recipes, prints) like a finger can, and the wheel scrolls them too;
 // a drag never counts as a click on the swatch or tile it ends on
@@ -821,11 +859,11 @@ function drawSlots(){$('slots').innerHTML=slots.map((c,i)=>c?`<button class="slo
 $('sheet').addEventListener('click',e=>{const b=e.target.closest('.tile');if(!b)return;recipe=b.dataset.id;
  $('sheet').querySelectorAll('.tile').forEach(x=>x.setAttribute('aria-pressed',x===b));});
 $('slots').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b)return;pickI=+b.dataset.i;pickFor='slot';
- $('pickT').textContent=`Layer ${pickI+1} color`+(pickI==0?' (largest drops)':pickI==3?' (smallest drops)':'');
+ $('pgrid').hidden=false;$('palList').hidden=true;$('pickT').textContent=`Layer ${pickI+1} color`+(pickI==0?' (largest drops)':pickI==3?' (smallest drops)':'');
  $('pgrid').innerHTML=allInk().map(p=>`<button class="sw" style="background:${p[1]}" data-c="${p[1]}" aria-label="${p[0]}" aria-pressed="${slots[pickI]==p[1]}"></button>`).join('')+(pickI>0?'<button class="nonec" data-c="">None</button>':'');
  $('picker').classList.add('on');});
 // the same color sheet also picks the ink (from the Tools tab) and what Rings alternate with
-function pickColor(forWhat,title,current,extra){pickFor=forWhat;$('pickT').textContent=title;
+function pickColor(forWhat,title,current,extra){pickFor=forWhat;$('pgrid').hidden=false;$('palList').hidden=true;$('pickT').textContent=title;
  $('pgrid').innerHTML=allInk().map(p=>`<button class="sw" style="background:${p[1]}" data-c="${p[1]}" aria-label="${p[0]}" aria-pressed="${current==p[1]}"></button>`).join('')+(extra||'');
  $('picker').classList.add('on');}
 $('inkPick').onclick=()=>pickColor('ink','Ink color',color);
@@ -1224,7 +1262,7 @@ function setDrift(on){drifting=on;if(on)unprinted=false;$('drift').setAttribute(
 $('drift').onclick=()=>{if(drifting){setDrift(false);return;}$('autoM').classList.add('on');$('autoGo').focus();};
 $('autoGo').onclick=()=>{$('autoM').classList.remove('on');finishAll();setDrift(true);};
 $('autoPill').onclick=()=>setDrift(false);
-$('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.sw,#float,#go,.slot,#palSeg button,#shuffle,[data-d],.inkpick,#turnSeg button'))setDrift(false);},true);
+$('drawer').addEventListener('click',e=>{if(drifting&&e.target.closest('.tile,.sw,#float,#go,.slot,#palB,#palList .palrow,#shuffle,[data-d],.inkpick,#turnSeg button'))setDrift(false);},true);
 document.querySelector('.top').addEventListener('click',e=>{if(drifting&&!e.target.closest('#aboutB,#setB'))setDrift(false);},true);
 $('aboutB').onclick=()=>$('aboutM').classList.add('on');
 // ----- settings -----
