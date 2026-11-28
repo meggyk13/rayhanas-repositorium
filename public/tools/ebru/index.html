@@ -56,7 +56,7 @@ body{background:var(--bg);color:var(--ink);font:16px/1.4 "Alegreya Sans",system-
 .liftb svg{width:20px;height:20px}
 .liftb:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @media(max-width:420px){.liftb{padding:0 13px 0 10px}}
-@media(max-width:360px){.top{gap:6px;padding-left:8px;padding-right:8px}.titleb{font-size:22px}.grp .ib{width:40px}}
+@media(max-width:360px){.top{gap:6px;padding-left:8px;padding-right:8px}.titleb{font-size:22px}.titleb>svg{display:none}.grp .ib{width:40px}}
 .stage{flex:1;position:relative;margin:0 10px;background:linear-gradient(160deg,var(--wood2),var(--wood));border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 28px rgba(0,0,0,.4)}
 .tray{position:absolute;border-radius:5px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 4px 14px rgba(0,0,0,.3)}
 .tray canvas{width:100%;height:100%;display:block;touch-action:none}
@@ -265,14 +265,15 @@ body:not([data-fresh]) .galchip:not(.autopill){display:none}
 .pfmt summary::after{content:"";width:8px;height:8px;margin-left:auto;flex:none;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
 .pfmt[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
 .pfmt summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
-.pfv{color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pfl{white-space:nowrap;flex:none}
+.pfv{min-width:0;color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .plinks{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px}
 .lnk{min-height:40px;padding:0 10px;border:0;background:none;color:var(--mute);font:500 15px "Alegreya Sans",sans-serif;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.25);cursor:pointer}
 .lnk.warn{color:#e79a8a}
 .lnk:focus-visible{outline:2px solid var(--gold);outline-offset:1px;border-radius:6px}
 @media(hover:hover){.lnk:hover{color:var(--ink)}.lnk.warn:hover{color:#f0b3a5}}
 #saveRow .btn{padding:0 14px}
-.popts .pdots{flex-wrap:nowrap;gap:7px}.popts .pdot{width:34px;height:34px}
+.popts .pdots{flex:1;min-width:0;flex-wrap:nowrap;gap:7px}.popts .pdot{flex:0 1 34px;min-width:0;width:auto;height:auto;aspect-ratio:1}
 #liftF .gmsg:empty,#liftF .pact:not(:has(>:not([hidden]))){display:none}
 .gbtns{display:flex;gap:10px;width:100%}.gbtns .btn{flex:1}.gbtns .ghost{flex:0 0 auto}
 /* adding to the gallery: the print shrinks and everything else steps aside, so the form and its button stay in reach */
@@ -598,7 +599,7 @@ const CNT={rings:{t:'Rings',min:2,max:24,get:()=>ringN,set:v=>ringN=v},rake:{t:'
 function syncCnt(){const c=CNT[tool];$('cntL').hidden=!c;if(!c)return;const s=$('cnt');s.min=c.min;s.max=c.max;s.value=c.get();
  $('cntT').textContent=c.t;$('cntV').textContent=c.get();s.setAttribute('aria-label',tool=='rings'?'Rings per tap':'Number of tines');}
 $('cnt').addEventListener('input',e=>{const c=CNT[tool];if(!c)return;const v=Math.round(+e.target.value);c.set(v);$('cntV').textContent=v;peek();});
-function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool]||tool=='swirl';$('turnSeg').hidden=tool!='swirl';syncCnt();}
+function syncTool(){$('ring2B').hidden=tool!='rings';$('inkNote').hidden=!!INKY[tool];$('inkPick').hidden=tool=='swirl';$('turnSeg').hidden=tool!='swirl';syncCnt();}
 // which way Swirl turns the water: 1 clockwise, -1 counter-clockwise
 let swirlDir=1;
 $('turnSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;swirlDir=+b.dataset.v;
@@ -822,7 +823,7 @@ function showHint(){hint.textContent=HINTS[tool];hint.style.opacity=inks.length|
 function hideHint(){clearTimeout(hintT);hint.classList.remove('flash');hint.style.opacity=0;document.body.removeAttribute('data-fresh');}
 // a short tip on the tray for a few seconds (when you pick a tool or open Combs/Recipes), even over ink
 let hintT=0;
-function flashHint(text){if(drifting||!cfg.tips)return;clearTimeout(hintT);hint.innerHTML='';const s=document.createElement('span');s.textContent=text;hint.append(s);
+function flashHint(text,force){if(drifting||(!cfg.tips&&!force))return;clearTimeout(hintT);hint.innerHTML='';const s=document.createElement('span');s.textContent=text;hint.append(s);
  hint.classList.add('flash');hint.style.opacity=1;
  hintT=setTimeout(()=>{hint.classList.remove('flash');if(inks.length)hint.style.opacity=0;else showHint();},3200);}
 function toTray(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];}
@@ -1049,14 +1050,14 @@ function lift(){rustle();restorePo();
 const ONSITE=!/claude|anthropic/i.test(location.hostname);
 const DONECAP=ONSITE?'':'Press and hold to save';
 if(ONSITE){$('saveRow').hidden=false;}
-function printBlob(cb){fetch($('out').src).then(r=>r.blob()).then(cb).catch(()=>{});}
+function printBlob(cb,fail=()=>{}){fetch($('out').src).then(r=>r.blob()).then(cb).catch(fail);}
 const fname=()=>`ebru-${new Date().toISOString().slice(0,16).replace(/[T:]/g,'-')}.jpg`;
 // one button: where the device can share files (phones), it opens the share sheet, which also offers Save Image; elsewhere it downloads
 function download(){const a=document.createElement('a');a.href=$('out').src;a.download=fname();document.body.appendChild(a);a.click();a.remove();}
-let canShareFiles=false;try{canShareFiles=ONSITE&&!!navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]});}catch(_){}
+let canShareFiles=false;try{canShareFiles=ONSITE&&matchMedia('(pointer:coarse)').matches&&!!navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'t.jpg',{type:'image/jpeg'})]});}catch(_){}
 if(canShareFiles)$('dl').textContent='Save or share';
 $('dl').onclick=()=>{if(!canShareFiles){download();return;}
- printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(e=>{if(e&&e.name!='AbortError')download();});});};
+ printBlob(b=>{navigator.share({files:[new File([b],fname(),{type:'image/jpeg'})],title:'Ebru print'}).catch(e=>{if(e&&e.name!='AbortError')download();});},download);};
 // ----- shared gallery: the newest 100 prints anyone has added (needs the site's /api, so only on the real site) -----
 const GALLERY=ONSITE&&/^https?:$/.test(location.protocol);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1112,10 +1113,10 @@ $('galDl').onclick=()=>{const p=gal[+$('galM').dataset.i];if(!p)return;const a=d
 let sharing=false;
 function resetShare(){if(sharing)return;$('liftF').classList.remove('adding');$('gform').hidden=true;$('seeGal').hidden=true;$('gmsg').textContent='';$('gmsg').className='gmsg';$('toGal').hidden=!GALLERY||!!(subject&&subject.sheet);}
 $('toGal').onclick=()=>{$('toGal').hidden=true;$('liftF').classList.add('adding');$('gform').hidden=false;$('liftM').scrollTop=0;$('gtitle').value='';try{$('gname').value=localStorage.getItem('ebru-name')||'';}catch(_){}$('gtitle').focus();};
-$('gcancel').onclick=()=>{if(sharing)return;$('liftF').classList.remove('adding');$('gform').hidden=true;$('toGal').hidden=false;$('gmsg').textContent='';};
+$('gcancel').onclick=()=>{if(sharing)return;if(document.activeElement)document.activeElement.blur();setTimeout(fitKeys,0);$('liftF').classList.remove('adding');$('gform').hidden=true;$('toGal').hidden=false;$('gmsg').textContent='';};
 // phones: while the keyboard is up, fit the print screen to the part of the window still showing, and keep the Add button in view
 const vv=window.visualViewport;
-function fitKeys(){const m=$('liftM'),typing=!!vv&&m.classList.contains('on')&&$('gform').contains(document.activeElement);
+function fitKeys(){const m=$('liftM'),typing=!!vv&&m.classList.contains('on')&&!$('gform').hidden&&$('gform').contains(document.activeElement);
  m.style.top=typing?vv.offsetTop+'px':'';m.style.bottom=typing?'auto':'';m.style.height=typing?vv.height+'px':'';
  if(typing)$('gsend').scrollIntoView({block:'nearest'});}
 if(vv){vv.addEventListener('resize',fitKeys);vv.addEventListener('scroll',fitKeys);}
@@ -1217,7 +1218,9 @@ for(const [id,key] of [['paceSeg','pace'],['holdSeg','hold']])$(id).addEventList
 $('clearMine').onclick=()=>{if(!prints.length||!confirm('Remove all your prints from this device? This can’t be undone. Prints you added to the gallery stay there.'))return;
  prints.length=0;mineDo(st=>st.clear());renderPrints();drawSet();};
 drawSet();
-$('done').onclick=()=>{if(active&&active.hold)return;finishAll();lift();};
+$('done').onclick=()=>{if(active&&active.hold)return;finishAll();
+ if(!inks.length){flashHint('drop some ink first, then lift a print',true);return;} // no blank prints
+ lift();};
 addEventListener('keydown',e=>{ // Ctrl/Cmd+Z undo; Ctrl/Cmd+Shift+Z or Ctrl+Y redo
  if((e.ctrlKey||e.metaKey)&&!e.altKey&&!document.querySelector('.modal.on,.picker.on')){const k=e.key.toLowerCase();
   if(k=='z'){e.preventDefault();$(e.shiftKey?'redo':'undo').click();return;}
