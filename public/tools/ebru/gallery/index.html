@@ -147,7 +147,10 @@ let prints=[],total=0,next=null,cur=null,loading=false;
 // The family most of a print's ink belongs to, and the next one when there is enough of it to notice (a tenth of the
 // ink or more). Paper, and the mount and album borders, which are paper too, are left out. Kept the same in the tray
 // and on the gallery page, which works it out for prints shared before families were stored.
-const FAMS=['red','orange','yellow','green','blue','purple','pink','brown','neutral'];
+// Rainbow: several strong colors and none leading (four or more colors at 12% of the ink or more, or three with none
+// reaching 40%); black, white and browns don't count toward it. A rainbow print keeps its biggest color second.
+// COLOR_V is the version of this rule (2 added rainbow); the gallery re-sorts prints sorted by an older one.
+const FAMS=['red','orange','yellow','green','blue','purple','pink','brown','rainbow','neutral'],COLOR_V=2;
 function famOf(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=(mx-mn)/255,l=(mx+mn)/510;
  if(c<.12||l<.1)return 'neutral'; // black, grey, white, ivory
  let h=mx==r?60*(((g-b)/(mx-mn))%6):mx==g?60*((b-r)/(mx-mn)+2):60*((r-g)/(mx-mn)+4);if(h<0)h+=360;
@@ -163,13 +166,15 @@ function inkFamilies(img,paper){const c=document.createElement('canvas'),w=c.wid
   ink++;const f=famOf(r,gg,b);n[f]=(n[f]||0)+1;}
  if(ink<w*h*.03)return ['neutral',null]; // next to no ink
  const top=Object.entries(n).sort((a,b)=>b[1]-a[1]);
+ const strong=top.filter(([f,k])=>f!='neutral'&&f!='brown'&&k>=ink*.12);
+ if(strong.length>=4||(strong.length==3&&strong[0][1]<ink*.4))return ['rainbow',strong[0][0]];
  return [top[0][0],top[1]&&top[1][1]>=ink*.1?top[1][0]:null];}
 // what is showing: the sort, and up to two color families (one: prints mostly that color; two: prints of those two,
 // either way round). Kept in the address, so a filtered view can be linked to.
 const FAMINFO={red:['Reds','#d23a2c'],orange:['Oranges','#f07a1c'],yellow:['Yellows','#f2c230'],green:['Greens','#3f9a5b'],
- blue:['Blues','#2f5fb8'],purple:['Purples','#7b45c9'],pink:['Pinks','#e2568f'],brown:['Browns','#7a4e2d'],
+ blue:['Blues','#2f5fb8'],purple:['Purples','#7b45c9'],pink:['Pinks','#e2568f'],brown:['Browns','#7a4e2d'],rainbow:['Rainbow','conic-gradient(#e0574b,#f2c230,#3f9a5b,#2f5fb8,#7b45c9,#e2568f,#e0574b)'],
  neutral:['Black & white','linear-gradient(135deg,#1a1a1a 50%,#f4f0e6 50%)']};
-const ADJ={red:'red',orange:'orange',yellow:'yellow',green:'green',blue:'blue',purple:'purple',pink:'pink',brown:'brown',neutral:'black, white or grey'};
+const ADJ={red:'red',orange:'orange',yellow:'yellow',green:'green',blue:'blue',purple:'purple',pink:'pink',brown:'brown',rainbow:'many colors',neutral:'black, white or grey'};
 const SORTS=['new','old','hearts'];
 let sort='new',picked=[],counts={},pairs=null,uncolored=0,ready=false;
 {const q=new URLSearchParams(location.search);if(SORTS.includes(q.get('sort')))sort=q.get('sort');
@@ -180,7 +185,12 @@ let sort='new',picked=[],counts={},pairs=null,uncolored=0,ready=false;
 function drawBar(){
  $('sortSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==sort));
  const n=picked.length,num=f=>n==0?counts[f]||0:n==1?(pairs&&pairs[f])||0:0;
- const both=f=>`${ADJ[picked[0]]} and ${ADJ[f]}`;
+ const both=f=>picked[0]=='rainbow'?`many colors, mostly ${ADJ[f]}`:f=='rainbow'?`many colors, mostly ${ADJ[picked[0]]}`:`${ADJ[picked[0]]} and ${ADJ[f]}`;
+ // what one or two picked colors mean, in words
+ const says=(p,k)=>{const its=k==1?'its':'their',[a,b]=p;
+  if(!b)return a=='rainbow'?`in many colors, with no one color leading`:`with ${ADJ[a]} as one of ${its} two main colors`;
+  if(a=='rainbow'||b=='rainbow')return `in many colors, mostly ${ADJ[a=='rainbow'?b:a]}`;
+  return `with ${ADJ[a]} and ${ADJ[b]} as ${its} two main colors`;};
  $('chips').innerHTML=`<button class="chip all" data-f="" aria-pressed="${!n}">All colors</button>`+
   FAMS.filter(f=>(counts[f]||0)>0||picked.includes(f)).map(f=>{const on=picked.includes(f),c=num(f),off=!on&&(n>=2||!c);
    const label=on?`${FAMINFO[f][0]}, picked. Tap to remove it`:n==1?`${FAMINFO[f][0]}: ${c} print${c==1?'':'s'} with ${both(f)}`:n>=2?`${FAMINFO[f][0]}: remove a picked color first`:`${FAMINFO[f][0]}: ${c} print${c==1?'':'s'}`;
@@ -188,9 +198,8 @@ function drawBar(){
     (on?'<span class="x" aria-hidden="true">×</span>':n>=2?'':`<small>${c}</small>`)+'</button>';}).join('');
  // what is showing, in words
  const notes=[];
- if(ready&&n==1)notes.push(`${total} print${total==1?'':'s'} with ${ADJ[picked[0]]} as one of ${total==1?'its':'their'} two main colors. Add another color to narrow it down.`);
- if(ready&&n==2)notes.push(`${total} print${total==1?'':'s'} with ${ADJ[picked[0]]} and ${ADJ[picked[1]]} as ${total==1?'its':'their'} two main colors. Tap a picked color to remove it.`);
- if(ready&&n&&uncolored)notes.push('Older prints are sorted into colors as they’re viewed, so a few may not show here yet.');
+ if(ready&&n)notes.push(`${total} print${total==1?'':'s'} ${says(picked,total)}.`+(n==1?' Add another color to narrow it down.':' Tap a picked color to remove it.'));
+ if(ready&&n&&uncolored)notes.push('Older prints are sorted into colors as they’re viewed (and re-sorted when the sorting changes), so a few may not show here yet.');
  $('fnote').hidden=!notes.length;$('fnote').textContent=notes.join(' ');
  // on a phone the chips scroll sideways: bring the picked one into view
  const on=$('chips').querySelector('.chip[aria-pressed=true]:not(.all)'),row=$('chips');
@@ -204,9 +213,10 @@ $('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b|
 
 // prints from before color families get theirs from the picture already showing (no extra download), and a few more each visit
 const filled=new Set();
-function fill(p,img){if(p.color||filled.has(p.id))return;filled.add(p.id);let fs;try{fs=inkFamilies(img,p.paper);}catch(_){return;}
- p.color=fs[0];p.color2=fs[1];
- fetch(`/api/ebru/prints/${p.id}/color`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({color:fs[0],color2:fs[1]})}).catch(()=>{});}
+const sorted=p=>p.color&&(p.colorV||1)>=COLOR_V;
+function fill(p,img){if(sorted(p)||filled.has(p.id))return;filled.add(p.id);let fs;try{fs=inkFamilies(img,p.paper);}catch(_){return;}
+ p.color=fs[0];p.color2=fs[1];p.colorV=COLOR_V;
+ fetch(`/api/ebru/prints/${p.id}/color`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({color:fs[0],color2:fs[1],v:COLOR_V})}).catch(()=>{});}
 let topped=false;
 async function topUp(){if(topped||!uncolored||(navigator.connection&&navigator.connection.saveData))return;topped=true;
  try{const j=await (await fetch('/api/ebru/prints?uncolored=1&limit=10',{cache:'no-store'})).json();
@@ -232,7 +242,7 @@ function syncHearts(p){document.querySelectorAll(`.heart[data-id="${p.id}"]`).fo
 // ----- the grid -----
 function card(p,i){const li=document.createElement('li'),b=document.createElement('button'),f=document.createElement('div'),img=document.createElement('img');
  b.className='card';b.dataset.i=i;b.setAttribute('aria-label',label(p));
- f.className='frame';if(!p.color)img.addEventListener('load',()=>fill(p,img),{once:true});img.src=p.url;img.alt='';img.loading='lazy';img.width=p.width;img.height=p.height;f.append(img);b.append(f);
+ f.className='frame';if(!sorted(p))img.addEventListener('load',()=>fill(p,img),{once:true});img.src=p.url;img.alt='';img.loading='lazy';img.width=p.width;img.height=p.height;f.append(img);b.append(f);
  if(p.title){const h=document.createElement('span');h.className='ttl';h.textContent=p.title;b.append(h);}
  if(p.name){const w=document.createElement('span');w.className='who';w.textContent='Made by: '+p.name;b.append(w);}
  const t=document.createElement('span');t.className='when';t.textContent=when(p.createdAt);b.append(t);
